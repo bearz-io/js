@@ -6,7 +6,11 @@
     ],
 
     "extensions": {
-
+        "recommendations": [
+            "denoland.vscode-deno",
+            "biomejs.biome",
+            "redhat.vscode-yaml"
+        ]
     },
     "settings": {
         "deno.enable": true,
