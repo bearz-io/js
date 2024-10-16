@@ -1,0 +1,14 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+
+    "extensions": {
+
+    },
+    "settings": {
+        "deno.enable": true,
+    }
+}

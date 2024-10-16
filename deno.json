@@ -1,0 +1,8 @@
+{
+    "fmt": {
+        "exclude": ["**/*.md"],
+        "lineWidth":100,
+        "indentWidth": 4,
+        "useTabs": false
+    }
+}
