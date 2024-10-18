@@ -20,7 +20,7 @@ app.name("create-mod")
             }
         }
 
-        const dir = join(projectRoot, name);
+        const dir = join(projectRoot, "lib", name);
         await Deno.mkdir(dir);
         await Deno.mkdir(join(dir, "src"));
         await Deno.writeTextFile(join(dir, "deno.json"), JSON.stringify(data, null, 4));

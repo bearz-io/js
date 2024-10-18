@@ -16,7 +16,8 @@
     },
 
     "workspace": [
-        "./lib/assert"
+        "./lib/assert",
+        "./lib/runtime-info"
     ],
 
     "imports": {
