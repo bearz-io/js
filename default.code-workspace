@@ -14,5 +14,6 @@
     },
     "settings": {
         "deno.enable": true,
+        "deno.disablePaths": ["_npm"]
     }
 }

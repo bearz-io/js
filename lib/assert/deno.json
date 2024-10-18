@@ -1,0 +1,23 @@
+{
+    "name": "@bearz/assert",
+    "description": "An opinionated assertion library. Primarily for internal use by @bearz modules.",
+    "version": "0.0.0-alpha.1",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./array-includes": "./src/array_includes.ts",
+        "./assert": "./src/assert.ts",
+        "./equal": "./src/equal.ts",
+        "./fail": "./src/fail.ts",
+        "./instance-of": "./src/instance_of.ts",
+        "./is-error": "./src/is_error.ts",
+        "./nope": "./src/nope.ts",
+        "./not-equal": "./src/not_equal.ts",
+        "./not-instance-of": "./src/not_instance_of.ts",
+        "./not-strict-equal": "./src/not_strict_equal.ts",
+        "./ok": "./src/ok.ts",
+        "./rejects": "./src/rejects.ts",
+        "./strict-equal": "./src/strict_equal.ts",
+        "./string-includes": "./src/string_includes.ts",
+        "./unimplemented": "./src/unimplemented.ts"
+    }
+}
