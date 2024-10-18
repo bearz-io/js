@@ -11,7 +11,8 @@
     ],
 
     "tasks": {
-        "new": "deno run -A ./eng/tasks/create-mod.ts"
+        "new": "deno run -A ./eng/tasks/create-mod.ts",
+        "test": "deno test -A --unstable-ffi"
     },
 
     "workspace": [

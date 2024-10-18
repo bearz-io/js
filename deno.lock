@@ -10,6 +10,7 @@
     "jsr:@std/internal@^1.0.4": "1.0.4",
     "jsr:@std/path@*": "1.0.6",
     "jsr:@std/text@~1.0.7": "1.0.7",
+    "npm:@types/chai@*": "5.0.0",
     "npm:@types/twig@*": "1.12.16",
     "npm:@types/yaml@*": "1.9.7",
     "npm:assertion-error@^2.0.1": "2.0.1",
@@ -68,6 +69,9 @@
       "dependencies": [
         "regenerator-runtime"
       ]
+    },
+    "@types/chai@5.0.0": {
+      "integrity": "sha512-+DwhEHAaFPPdJ2ral3kNHFQXnTfscEEFsUxzD+d7nlcLrFK23JtNjH71RGasTcHb88b4vVi4mTyfpf8u2L8bdA=="
     },
     "@types/twig@1.12.16": {
       "integrity": "sha512-6kXSQwqxWxdHVITY6lur6pVpKbTk5D8R/ZUn2/7Y2AACKFlRqO4jbtHgWPDLe7JUc91sZQhkmopboYDABtZqlA=="

@@ -5,6 +5,4 @@ test("asserts::ok", () => {
     ok(true);
     ok(1);
     ok("1");
-    ok(null);
-    ok(undefined);
 });
