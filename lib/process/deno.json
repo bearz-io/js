@@ -1,0 +1,16 @@
+{
+    "name": "@bearz/process",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./args": "./src/args.ts",
+        "./chdir": "./src/chdir.ts",
+        "./cwd": "./src/cwd.ts",
+        "./exec-path": "./src/exec_path.ts",
+        "./exit": "./src/exit.ts",
+        "./pid": "./src/pid.ts",
+        "./popd": "./src/popd.ts",
+        "./pushd": "./src/pushd.ts",
+        "./streams": "./src/streams.ts"
+    }
+}

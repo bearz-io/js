@@ -16,6 +16,6 @@ import { assert } from "./assert.ts";
  * @param msg The optional message to display if the assertion fails.
  * @returns
  */
-export function arrayIncludes<T>(actual: T[], expected: T, msg?: string) :void {
+export function arrayIncludes<T>(actual: T[], expected: T, msg?: string): void {
     return assert.include<T>(actual, expected, msg);
 }
