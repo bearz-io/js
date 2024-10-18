@@ -17,6 +17,7 @@
 
     "workspace": [
         "./lib/assert",
+        "./lib/chars",
         "./lib/runtime-info"
     ],
 

@@ -30,13 +30,14 @@ export function isError<E extends Error = Error>(
     ErrorClass?: abstract new (...args: any[]) => E,
     msgMatches?: string | RegExp,
     msg?: string,
-  ): asserts error is E {
+): asserts error is E {
     const msgSuffix = msg ? `: ${msg}` : ".";
     if (!(error instanceof Error)) {
         throw new AssertionError(`Expected "error" to be an Error object${msgSuffix}}`);
     }
     if (ErrorClass && !(error instanceof ErrorClass)) {
-        msg = `Expected error to be instance of "${ErrorClass.name}", but was "${error?.constructor?.name}"${msgSuffix}`;
+        msg =
+            `Expected error to be instance of "${ErrorClass.name}", but was "${error?.constructor?.name}"${msgSuffix}`;
         throw new AssertionError(msg);
     }
     // biome-ignore lint/suspicious/noImplicitAnyLet:
@@ -48,7 +49,9 @@ export function isError<E extends Error = Error>(
         msgCheck = msgMatches.test(stripAnsiCode(error.message));
     }
     if (msgMatches && !msgCheck) {
-        msg = `Expected error message to include ${msgMatches instanceof RegExp ? msgMatches.toString() : JSON.stringify(msgMatches)}, but got ${JSON.stringify(error?.message)}${msgSuffix}`;
+        msg = `Expected error message to include ${
+            msgMatches instanceof RegExp ? msgMatches.toString() : JSON.stringify(msgMatches)
+        }, but got ${JSON.stringify(error?.message)}${msgSuffix}`;
         throw new AssertionError(msg);
     }
 }

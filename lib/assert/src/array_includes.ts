@@ -1,4 +1,4 @@
-import { assert } from './assert.ts';
+import { assert } from "./assert.ts";
 
 /**
  * Asserts that `actual` array includes the `expected` value.
@@ -14,8 +14,8 @@ import { assert } from './assert.ts';
  * @param actual The array to check
  * @param expected The value to check for.
  * @param msg The optional message to display if the assertion fails.
- * @returns 
+ * @returns
  */
-export function arrayIncludes<T>(actual: T[], expected: T, msg?: string) {
+export function arrayIncludes<T>(actual: T[], expected: T, msg?: string) :void {
     return assert.include<T>(actual, expected, msg);
 }
