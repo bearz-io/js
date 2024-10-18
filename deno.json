@@ -18,6 +18,7 @@
     "workspace": [
         "./lib/assert",
         "./lib/chars",
+        "./lib/fmt",
         "./lib/process",
         "./lib/runtime-info"
     ],
