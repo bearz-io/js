@@ -1,0 +1,10 @@
+{
+    "name": "@bearz/runtime-info",
+    "description": "runtime-info module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./js": "./src/js.ts",
+        "./os": "./src/os.ts"
+    }
+}

@@ -1,6 +1,7 @@
 export * from "./array_includes.ts";
 export * from "./assert.ts";
 export * from "./equal.ts";
+export * from "./exists.ts";
 export * from "./fail.ts";
 export * from './is_error.ts'
 export * from "./instance_of.ts";
