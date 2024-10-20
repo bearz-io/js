@@ -20,7 +20,8 @@
         "./lib/chars",
         "./lib/fmt",
         "./lib/process",
-        "./lib/runtime-info"
+        "./lib/runtime-info",
+        "./lib/slices"
     ],
 
     "imports": {

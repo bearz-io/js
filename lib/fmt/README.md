@@ -1,10 +1,5 @@
 # @bearz/fmt
 
-<div height=30" vertical-align="top">
-<image src="https://raw.githubusercontent.com/gnomejs/gnomejs/main/assets/icon.png"
-    alt="logo" width="60" valign="middle" />
-<span>Work less. Do more. </span>
-</div>
 
 ## Overview
 
@@ -12,7 +7,7 @@ An cross runtime alternative to `@std/fmt` for sprintf and printf functions.
 The `@std/fmt` versions uses `Deno.inspect` and `Deno.stdout.writeSync`
 which is not available in bun, node, or the browser.
 
-The `gnome/fmt` makes modifications to `std/fmt`.
+The `bearz/fmt` makes modifications to `std/fmt`.
 
 For inspect or the `/I` flag inspect uses `Deno.inspect`,
 `util.inspect` or falls back to `json.parse`.  **A browsify fallback may

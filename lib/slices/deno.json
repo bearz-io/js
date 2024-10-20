@@ -1,0 +1,25 @@
+{
+    "name": "@bearz/slices",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./camelize": "./src/camelize.ts",
+        "./capitalize": "./src/capitalize.ts",
+        "./char-array-builder": "./src/char_array_builder.ts",
+        "./char-slice": "./src/char_slice.ts",
+        "./dasherize": "./src/dasherize.ts",
+        "./ends-with": "./src/ends_with.ts",
+        "./equal": "./src/equal.ts",
+        "./index-of": "./src/index_of.ts",
+        "./last-index-of": "./src/last_index_of.ts",
+        "./ordinalize": "./src/ordinalize.ts",
+        "./pascalize": "./src/pascalize.ts",
+        "./slice": "./src/slice.ts",
+        "./starts-with": "./src/starts_with.ts",
+        "./titleize": "./src/titleize.ts",
+        "./tokens": "./src/tokens.ts",
+        "./trim": "./src/trim.ts",
+        "./underscore": "./src/underscore.ts",
+        "./utils": "./src/utils.ts"
+    }
+}
