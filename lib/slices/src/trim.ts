@@ -1,8 +1,13 @@
 import { isSpace } from "@bearz/chars/is-space";
 import { type CharBuffer, toCharSliceLike } from "./utils.ts";
 
-export function trimEndSpace(value: CharBuffer): Uint32Array {
-    const s = toCharSliceLike(value);
+/**
+ * Trims the trailing whitespace from the end of a character buffer.
+ * @param buffer The string to trim.
+ * @returns The buffer with the trailing whitespace removed.
+ */
+export function trimEndSpace(buffer: CharBuffer): Uint32Array {
+    const s = toCharSliceLike(buffer);
     let size = s.length;
 
     for (let i = s.length - 1; i >= 0; i--) {
@@ -14,21 +19,27 @@ export function trimEndSpace(value: CharBuffer): Uint32Array {
         }
     }
 
-    const buffer = new Uint32Array(size);
+    const buffer2 = new Uint32Array(size);
     if (s instanceof Uint32Array) {
-        buffer.set(s);
-        return buffer;
+        buffer2.set(s);
+        return buffer2;
     }
 
     for (let i = 0; i < size; i++) {
-        buffer[i] = s.at(i) ?? 0;
+        buffer2[i] = s.at(i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimEndChar(value: CharBuffer, suffix: number): Uint32Array {
-    const s = toCharSliceLike(value);
+/**
+ * Trims the trailing character from the end of a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param suffix The character to remove.
+ * @returns The buffer with the trailing whitespace removed.
+ */
+export function trimEndChar(buffer: CharBuffer, suffix: number): Uint32Array {
+    const s = toCharSliceLike(buffer);
 
     let size = s.length;
 
@@ -44,21 +55,27 @@ export function trimEndChar(value: CharBuffer, suffix: number): Uint32Array {
         return s;
     }
 
-    const buffer = new Uint32Array(size);
+    const buffer2 = new Uint32Array(size);
     if (s instanceof Uint32Array) {
-        buffer.set(s);
-        return buffer;
+        buffer2.set(s);
+        return buffer2;
     }
 
     for (let i = 0; i < size; i++) {
-        buffer[i] = s.at(i) ?? 0;
+        buffer2[i] = s.at(i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimEndSlice(value: CharBuffer, suffix: CharBuffer): Uint32Array {
-    const s = toCharSliceLike(value);
+/**
+ * Trims the trailing characters from the end of a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param suffix The characters to remove.
+ * @returns The buffer with the trailing characters removed.
+ */
+export function trimEndSlice(buffer: CharBuffer, suffix: CharBuffer): Uint32Array {
+    const s = toCharSliceLike(buffer);
     const t = toCharSliceLike(suffix);
     let size = s.length;
 
@@ -81,35 +98,47 @@ export function trimEndSlice(value: CharBuffer, suffix: CharBuffer): Uint32Array
         return s;
     }
 
-    const buffer = new Uint32Array(size);
+    const buffer2 = new Uint32Array(size);
     if (s instanceof Uint32Array) {
-        buffer.set(s);
-        return buffer;
+        buffer2.set(s);
+        return buffer2;
     }
 
     for (let i = 0; i < size; i++) {
-        buffer[i] = s.at(i) ?? 0;
+        buffer2[i] = s.at(i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimEnd(value: CharBuffer, suffix?: CharBuffer): Uint32Array {
+/**
+ * Trims the trailing characters from the end of a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param suffix The characters to remove. When this is undefined,
+ * the trailing whitespace is removed.
+ * @returns The buffer with the trailing characters removed.
+ */
+export function trimEnd(buffer: CharBuffer, suffix?: CharBuffer): Uint32Array {
     if (suffix === undefined) {
-        return trimEndSpace(value);
+        return trimEndSpace(buffer);
     }
 
     if (suffix.length === 1) {
         const t = toCharSliceLike(suffix);
         const rune = t.at(0) ?? -1;
-        return trimEndChar(value, rune);
+        return trimEndChar(buffer, rune);
     }
 
-    return trimEndSlice(value, suffix);
+    return trimEndSlice(buffer, suffix);
 }
 
-export function trimStartSpace(value: CharBuffer): Uint32Array {
-    const s = toCharSliceLike(value);
+/**
+ * Trims the leading whitespace from the start of a character buffer.
+ * @param buffer The character buffer to trim.
+ * @returns The buffer with the leading whitespace removed.
+ */
+export function trimStartSpace(buffer: CharBuffer): Uint32Array {
+    const s = toCharSliceLike(buffer);
     let size = s.length;
 
     for (let i = 0; i < s.length; i++) {
@@ -124,25 +153,33 @@ export function trimStartSpace(value: CharBuffer): Uint32Array {
         return s;
     }
 
-    const buffer = new Uint32Array(size);
+    const offset = s.length - size;
+    const buffer2 = new Uint32Array(size);
     if (s instanceof Uint32Array) {
-        buffer.set(s);
-        return buffer;
+        buffer2.set(s.slice(offset));
+        return buffer2;
     }
+
 
     for (let i = 0; i < size; i++) {
-        buffer[i] = s.at(i) ?? 0;
+        buffer2[i] = s.at(offset + i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimStartChar(value: CharBuffer, prefix: number): Uint32Array {
+/**
+ * Trims the leading character from the start of a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param prefix The character to remove.
+ * @returns The buffer with the leading character removed.
+ */
+export function trimStartChar(buffer: CharBuffer, prefix: number): Uint32Array {
     if (!Number.isInteger(prefix) || prefix < 0 || prefix > 0x10FFFF) {
         throw new RangeError("Invalid code point");
     }
 
-    const s = toCharSliceLike(value);
+    const s = toCharSliceLike(buffer);
     let size = s.length;
 
     for (let i = 0; i < s.length; i++) {
@@ -157,21 +194,27 @@ export function trimStartChar(value: CharBuffer, prefix: number): Uint32Array {
         return s;
     }
 
-    const buffer = new Uint32Array(size);
+    const buffer2 = new Uint32Array(size);
     if (s instanceof Uint32Array) {
-        buffer.set(s);
-        return buffer;
+        buffer2.set(s);
+        return buffer2;
     }
 
     for (let i = 0; i < size; i++) {
-        buffer[i] = s.at(i) ?? 0;
+        buffer2[i] = s.at(i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimStartSlice(value: CharBuffer, prefix: CharBuffer): Uint32Array {
-    const s = toCharSliceLike(value);
+/**
+ * Trims the leading characters from the start of a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param prefix The characters to remove.
+ * @returns The buffer with the leading characters removed.
+ */
+export function trimStartSlice(buffer: CharBuffer, prefix: CharBuffer): Uint32Array {
+    const s = toCharSliceLike(buffer);
     const t = toCharSliceLike(prefix);
 
     let size = s.length;
@@ -197,36 +240,48 @@ export function trimStartSlice(value: CharBuffer, prefix: CharBuffer): Uint32Arr
         return s;
     }
 
-    const buffer = new Uint32Array(size);
+    const buffer2 = new Uint32Array(size);
     if (s instanceof Uint32Array) {
-        buffer.set(s.slice(j));
-        return buffer;
+        buffer2.set(s.slice(j));
+        return buffer2;
     }
 
     for (let i = 0; i < size; i++) {
-        buffer[i] = s.at(i + j) ?? 0;
+        buffer2[i] = s.at(i + j) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimStart(s: CharBuffer, prefix?: CharBuffer): Uint32Array {
+/**
+ * Trims the leading characters from the start of a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param prefix  The characters to remove. When this is undefined,
+ * the leading whitespace is removed.
+ * @returns The buffer with the leading characters removed.
+ */
+export function trimStart(buffer: CharBuffer, prefix?: CharBuffer): Uint32Array {
     if (prefix === undefined) {
-        return trimStartSpace(s);
+        return trimStartSpace(buffer);
     }
 
     if (prefix.length === 1) {
         const t = toCharSliceLike(prefix);
         const rune = t.at(0) ?? -1;
 
-        trimStartChar(s, rune);
+        trimStartChar(buffer, rune);
     }
 
-    return trimStartSlice(s, prefix);
+    return trimStartSlice(buffer, prefix);
 }
 
-export function trimSpace(value: CharBuffer): Uint32Array {
-    const s = toCharSliceLike(value);
+/**
+ * Trims the leading and trailing whitespace from a character buffer.
+ * @param buffer The character buffer to trim.
+ * @returns The buffer with the leading and trailing whitespace removed.
+ */
+export function trimSpace(buffer: CharBuffer): Uint32Array {
+    const s = toCharSliceLike(buffer);
 
     let start = 0;
     let end = s.length;
@@ -255,25 +310,31 @@ export function trimSpace(value: CharBuffer): Uint32Array {
         return s;
     }
 
-    const buffer = new Uint32Array(end - start);
+    const buffer2 = new Uint32Array(end - start);
     if (s instanceof Uint32Array) {
-        buffer.set(s.subarray(start, end));
-        return buffer;
+        buffer2.set(s.subarray(start, end));
+        return buffer2;
     }
 
     for (let i = start; i < end; i++) {
-        buffer[i - start] = s.at(i) ?? 0;
+        buffer2[i - start] = s.at(i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimChar(value: CharBuffer, prefix: number): Uint32Array {
+/**
+ * Trims the leading and trailing character from a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param prefix The character to remove.
+ * @returns The buffer with the leading character removed.
+ */
+export function trimChar(buffer: CharBuffer, prefix: number): Uint32Array {
     if (!Number.isInteger(prefix) || prefix < 0 || prefix > 0x10FFFF) {
         throw new RangeError("Invalid code point");
     }
 
-    const s = toCharSliceLike(value);
+    const s = toCharSliceLike(buffer);
     let start = 0;
     let end = s.length;
 
@@ -301,21 +362,27 @@ export function trimChar(value: CharBuffer, prefix: number): Uint32Array {
         return s;
     }
 
-    const buffer = new Uint32Array(end - start);
+    const buffer2 = new Uint32Array(end - start);
     if (s instanceof Uint32Array) {
-        buffer.set(s.subarray(start, end));
-        return buffer;
+        buffer2.set(s.subarray(start, end));
+        return buffer2;
     }
 
     for (let i = start; i < end; i++) {
-        buffer[i - start] = s.at(i) ?? 0;
+        buffer2[i - start] = s.at(i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trimSlice(value: CharBuffer, chars: CharBuffer): Uint32Array {
-    const s = toCharSliceLike(value);
+/**
+ * The leading and trailing characters from a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param chars The characters to remove.
+ * @returns The buffer with the leading and trailing characters removed.
+ */
+export function trimSlice(buffer: CharBuffer, chars: CharBuffer): Uint32Array {
+    const s = toCharSliceLike(buffer);
     const t = toCharSliceLike(chars);
 
     let start = 0;
@@ -359,29 +426,36 @@ export function trimSlice(value: CharBuffer, chars: CharBuffer): Uint32Array {
         return s;
     }
 
-    const buffer = new Uint32Array(end - start);
+    const buffer2 = new Uint32Array(end - start);
     if (s instanceof Uint32Array) {
-        buffer.set(s.subarray(start, end));
-        return buffer;
+        buffer2.set(s.subarray(start, end));
+        return buffer2;
     }
 
     for (let i = start; i < end; i++) {
-        buffer[i - start] = s.at(i) ?? 0;
+        buffer2[i - start] = s.at(i) ?? 0;
     }
 
-    return buffer;
+    return buffer2;
 }
 
-export function trim(value: CharBuffer, chars?: CharBuffer): Uint32Array {
+/**
+ * Trims the leading and trailing characters from a character buffer.
+ * @param buffer The character buffer to trim.
+ * @param chars The characters to remove. When this is undefined,
+ * the leading and trailing whitespace is removed.
+ * @returns The buffer with the leading and trailing characters removed.
+ */
+export function trim(buffer: CharBuffer, chars?: CharBuffer): Uint32Array {
     if (chars === undefined) {
-        return trimSpace(value);
+        return trimSpace(buffer);
     }
 
     if (chars.length === 1) {
         const t = toCharSliceLike(chars);
         const rune = t.at(0) ?? -1;
-        return trimChar(value, rune);
+        return trimChar(buffer, rune);
     }
 
-    return trimSlice(value, chars);
+    return trimSlice(buffer, chars);
 }

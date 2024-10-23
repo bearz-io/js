@@ -1,6 +1,9 @@
 /**
  * A slice of an array.  The slice is a view of the array
  * and the array is not copied.
+ * 
+ * @experimental 
+ * API is experimental and subject to change.
  */
 export class Slice<T> implements Iterable<T> {
     #set: Array<T>;

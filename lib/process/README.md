@@ -1,11 +1,5 @@
 # @bearz/process
 
-<div height=30" vertical-align="top">
-<image src="https://raw.githubusercontent.com/gnomejs/gnomejs/main/assets/icon.png"
-    alt="logo" width="60" valign="middle" />
-<span>Work less. Do more. </span>
-</div>
-
 ## Overview
 
 A runtime agnostic implementation for functionality around
@@ -37,7 +31,6 @@ print, println, etc.
 ```ts
 import { stdout, cwd, execPath, pid, chdir, args } from "@bearz/process"
 
-
 export function print(message: string) {
     stdout.writeSync(new TextDecoder().decode(message));
 }
@@ -45,6 +38,7 @@ export function print(message: string) {
 export function println(message: string) {
     stdout.writeSync(new TextDecoder().decode(message + "\n"));
 }
+
 
 print("test");
 println("")
@@ -54,3 +48,5 @@ println(execPath);
 println(args.join(" "))
 
 ```
+
+[MIT License](./LICENSE.md)
