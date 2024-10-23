@@ -15,6 +15,6 @@ import { assert } from "chai";
  * notStrictEqual(1, 2); // Doesn't throw
  * ```
  */
-export function notStrictEqual<T>(actual: T, expected: T, msg?: string) : void {
+export function notStrictEqual<T>(actual: T, expected: T, msg?: string): void {
     return assert.notStrictEqual(actual, expected, msg);
 }

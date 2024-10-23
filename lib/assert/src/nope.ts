@@ -6,6 +6,6 @@ import { assert } from "chai";
  * @param value The value to check
  * @param msg The optional message to display if the assertion fails.
  */
-export function nope(value: unknown, msg?: string) : void {
+export function nope(value: unknown, msg?: string): void {
     return assert.notOk(value, msg);
 }

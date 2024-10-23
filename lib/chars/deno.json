@@ -1,0 +1,24 @@
+{
+    "name": "@bearz/chars",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./all": "./src/all.ts",
+        "./constants": "./src/constants.ts",
+        "./is-ascii": "./src/is_ascii.ts",
+        "./is-char": "./src/is_char.ts",
+        "./is-control": "./src/is_control.ts",
+        "./is-digit": "./src/is_digit.ts",
+        "./is-latin1": "./src/is_latin1.ts",
+        "./is-letter-or-digit": "./src/is_letter_or_digit.ts",
+        "./is-letter": "./src/is_letter.ts",
+        "./is-lower": "./src/is_lower.ts",
+        "./is-punc": "./src/is_punc.ts",
+        "./is-space": "./src/is_space.ts",
+        "./is-upper": "./src/is_upper.ts",
+        "./simple-fold": "./src/simple_fold.ts",
+        "./to-lower": "./src/to_lower.ts",
+        "./to-upper": "./src/to_upper.ts",
+        "./types": "./src/types.ts"
+    }
+}

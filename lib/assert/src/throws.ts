@@ -23,8 +23,8 @@ import { AssertionError } from "assertion-error";
  * @returns The error that was thrown.
  */
 export function throws(
-  fn: () => unknown,
-  msg?: string,
+    fn: () => unknown,
+    msg?: string,
 ): unknown;
 /**
  * Executes a function, expecting it to throw. If it does not, then it
@@ -50,62 +50,62 @@ export function throws(
  * @returns The error that was thrown.
  */
 export function throws<E extends Error = Error>(
-  fn: () => unknown,
-  // deno-lint-ignore no-explicit-any
-  ErrorClass: abstract new (...args: any[]) => E,
-  msgIncludes?: string,
-  msg?: string,
+    fn: () => unknown,
+    // deno-lint-ignore no-explicit-any
+    ErrorClass: abstract new (...args: any[]) => E,
+    msgIncludes?: string,
+    msg?: string,
 ): E;
 export function throws<E extends Error = Error>(
-  fn: () => unknown,
-  errorClassOrMsg?:
-    // deno-lint-ignore no-explicit-any
-    | (abstract new (...args: any[]) => E)
-    | string,
-  msgIncludesOrMsg?: string,
-  msg?: string,
+    fn: () => unknown,
+    errorClassOrMsg?:
+        // deno-lint-ignore no-explicit-any
+        | (abstract new (...args: any[]) => E)
+        | string,
+    msgIncludesOrMsg?: string,
+    msg?: string,
 ): E | Error | unknown {
-  // deno-lint-ignore no-explicit-any
-  let ErrorClass: (abstract new (...args: any[]) => E) | undefined;
-  let msgIncludes: string | undefined;
-  let err;
+    // deno-lint-ignore no-explicit-any
+    let ErrorClass: (abstract new (...args: any[]) => E) | undefined;
+    let msgIncludes: string | undefined;
+    let err;
 
-  if (typeof errorClassOrMsg !== "string") {
-    if (
-      errorClassOrMsg === undefined ||
-      errorClassOrMsg?.prototype instanceof Error ||
-      errorClassOrMsg?.prototype === Error.prototype
-    ) {
-      ErrorClass = errorClassOrMsg;
-      msgIncludes = msgIncludesOrMsg;
+    if (typeof errorClassOrMsg !== "string") {
+        if (
+            errorClassOrMsg === undefined ||
+            errorClassOrMsg?.prototype instanceof Error ||
+            errorClassOrMsg?.prototype === Error.prototype
+        ) {
+            ErrorClass = errorClassOrMsg;
+            msgIncludes = msgIncludesOrMsg;
+        } else {
+            msg = msgIncludesOrMsg;
+        }
     } else {
-      msg = msgIncludesOrMsg;
+        msg = errorClassOrMsg;
     }
-  } else {
-    msg = errorClassOrMsg;
-  }
-  let doesThrow = false;
-  const msgSuffix = msg ? `: ${msg}` : ".";
-  try {
-    fn();
-  } catch (error) {
-    if (ErrorClass) {
-      if (error instanceof Error === false) {
-        throw new AssertionError(`A non-Error object was thrown${msgSuffix}`);
-      }
-      isError(
-        error,
-        ErrorClass,
-        msgIncludes,
-        msg,
-      );
+    let doesThrow = false;
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    try {
+        fn();
+    } catch (error) {
+        if (ErrorClass) {
+            if (error instanceof Error === false) {
+                throw new AssertionError(`A non-Error object was thrown${msgSuffix}`);
+            }
+            isError(
+                error,
+                ErrorClass,
+                msgIncludes,
+                msg,
+            );
+        }
+        err = error;
+        doesThrow = true;
     }
-    err = error;
-    doesThrow = true;
-  }
-  if (!doesThrow) {
-    msg = `Expected function to throw${msgSuffix}`;
-    throw new AssertionError(msg);
-  }
-  return err;
+    if (!doesThrow) {
+        msg = `Expected function to throw${msgSuffix}`;
+        throw new AssertionError(msg);
+    }
+    return err;
 }

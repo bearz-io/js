@@ -14,6 +14,6 @@ import { assert } from "chai";
  * strictEqual(1, 2); // Throws
  * ```
  */
-export function strictEqual<T>(actual: T, expected: T, msg?: string) : void {
+export function strictEqual<T>(actual: T, expected: T, msg?: string): void {
     return assert.strictEqual(actual, expected, msg);
 }

@@ -14,8 +14,8 @@ import { assert } from "chai";
  * @param actual The array to check
  * @param expected The value to check for.
  * @param msg The optional message to display if the assertion fails.
- * @returns 
+ * @returns
  */
-export function stringIncludes(actual: string, expected: string, msg?: string) {
+export function stringIncludes(actual: string, expected: string, msg?: string): void {
     return assert.include<string>(actual, expected, msg);
 }

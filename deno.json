@@ -17,11 +17,18 @@
 
     "workspace": [
         "./lib/assert",
-        "./lib/runtime-info"
+        "./lib/chars",
+        "./lib/fmt",
+        "./lib/process",
+        "./lib/runtime-info",
+        "./lib/slices",
+        "./lib/strings"
     ],
 
     "imports": {
         "@std/assert": "jsr:@std/assert@^1.0.6",
+        "@std/path": "jsr:@std/path@^1.0.6",
+        "@types/node": "npm:@types/node@^22.7.6",
         "assertion-error": "npm:assertion-error@^2.0.1",
         "chai": "npm:chai@^5.1.1"
     }
