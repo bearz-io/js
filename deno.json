@@ -7,12 +7,18 @@
     },
 
     "exclude": [
-        "_npm"
+        "_npm",
+        "npm"
     ],
 
     "tasks": {
         "new": "deno run -A ./eng/tasks/create-mod.ts",
-        "test": "deno test -A --unstable-ffi"
+        "test": "deno test -A --unstable-ffi",
+        "doc:mod": "deno run -A ./eng/tasks/doc-mod.ts",
+        "coverage": "deno test ./lib/** --coverage=.artifacts/code-coverage -A --unstable-ffi",
+        "lcov": "deno coverage .artifacts/code-coverage --lcov > .artifacts/code-coverage.lcov",
+        "prep": "deno fmt ./lib/** && deno lint ./lib/**",
+        "publish:test": "deno publish --dry-run --allow-dirty"
     },
 
     "workspace": [
@@ -28,6 +34,7 @@
     "imports": {
         "@std/assert": "jsr:@std/assert@^1.0.6",
         "@std/path": "jsr:@std/path@^1.0.6",
+        "@types/chai": "npm:@types/chai@^5.0.0",
         "@types/node": "npm:@types/node@^22.7.6",
         "assertion-error": "npm:assertion-error@^2.0.1",
         "chai": "npm:chai@^5.1.1"

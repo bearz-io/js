@@ -1,4 +1,4 @@
-import { assert } from "chai";
+import { assert } from "./assert.ts";
 
 /**
  * Asserts that `actual` is strictly equal to `expected`.

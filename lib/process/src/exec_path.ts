@@ -1,7 +1,7 @@
 let execPathValue = "";
 
 const g = globalThis as Record<string, unknown>;
-if (g.Deno) {
+if (g.Deno && !g.BEARZ_USE_NODE) {
     try {
         let readPermission = await Deno.permissions.request({ name: "read" });
         if (readPermission.state === "prompt") {
