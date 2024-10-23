@@ -1,4 +1,4 @@
-import { equal } from "@bearz/assert" 
+import { equal } from "@bearz/assert";
 import { camelize } from "./camelize.ts";
 
 const test = Deno.test;
@@ -11,7 +11,6 @@ test("strings::camelize", () => {
         { input: "hello wörld", result: "helloWörld" },
         { input: "HelloWörld", result: "helloWörld" },
         { input: "hello wöRLd", preserveCase: true, result: "helloWöRLd" },
-       
     ];
 
     let i = 0;
