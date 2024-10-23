@@ -4,12 +4,12 @@ const g = globalThis as Record<string, unknown>;
 if (g.Deno) {
     try {
         let readPermission = await Deno.permissions.request({ name: "read" });
-        if (readPermission.state === 'prompt') {
-           console.log(("Read permission is requred for Deno.execPath()"));
-           readPermission = await Deno.permissions.request({ name: "read" });
-        } 
+        if (readPermission.state === "prompt") {
+            console.log("Read permission is requred for Deno.execPath()");
+            readPermission = await Deno.permissions.request({ name: "read" });
+        }
 
-        if (readPermission.state === 'granted') {
+        if (readPermission.state === "granted") {
             execPathValue = Deno.execPath();
         } else {
             console.warn("Deno.execPath() permission denied. setting to empty string");

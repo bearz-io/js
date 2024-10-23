@@ -1,7 +1,6 @@
 import { equal } from "@bearz/assert";
 import { titleize } from "./titleize.ts";
 
-
 const test = Deno.test;
 
 test("slices::titleize", () => {
@@ -12,7 +11,7 @@ test("slices::titleize", () => {
         { input: "hello wörld", result: "Hello Wörld" },
         { input: "helloWörld", result: "Hello Wörld" },
         // not what you want, but titleize is for converting code.
-        { input: "hello WÖrLD", result: "Hello Wör Ld" }, 
+        { input: "hello WÖrLD", result: "Hello Wör Ld" },
         { input: "hello", result: "Hello" },
         { input: "BobTheKing", result: "Bob the King" },
         { input: "bob_the_king", result: "Bob the King" },

@@ -19,8 +19,8 @@ import { lastIndexOf, lastIndexOfFold } from "./last_index_of.ts";
  * uint32 codepoint format and provide string like methods such as trim, indexof, toUpper,
  * toLower, includes, and more without the need to convert them back into strings to perform
  * those operations.
- * 
- * @experimental 
+ *
+ * @experimental
  * API is experimental and subject to change.
  */
 export class ReadOnlyCharSlice implements CharSequence, Iterable<number> {

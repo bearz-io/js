@@ -1,4 +1,3 @@
-
 /*
  * A history of the current working directory.
  */

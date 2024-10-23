@@ -160,7 +160,6 @@ export function trimStartSpace(buffer: CharBuffer): Uint32Array {
         return buffer2;
     }
 
-
     for (let i = 0; i < size; i++) {
         buffer2[i] = s.at(offset + i) ?? 0;
     }
