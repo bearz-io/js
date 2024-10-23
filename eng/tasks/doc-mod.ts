@@ -1,5 +1,5 @@
 import { dirname, fromFileUrl, join } from "@std/path";
-import { isFile, walk } from "jsr:@gnome/fs@0.3.0";
+import {  walk } from "jsr:@std/fs@1.0.0";
 
 const __dirname = dirname(fromFileUrl(import.meta.url));
 
@@ -7,6 +7,14 @@ const engDir = dirname(__dirname);
 const rootDir = dirname(engDir);
 const libDir = join(rootDir, "lib");
 console.log(libDir);
+
+async function isFile(path: string) : Promise<boolean> {
+    try {
+        return (await Deno.stat(path)).isFile;
+    } catch {
+        return false;
+    }
+}
 
 for await (const entry of walk(libDir)) {
     if (entry.isDirectory) {

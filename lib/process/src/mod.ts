@@ -1,11 +1,11 @@
 /**
  * ## Overview
- * 
+ *
  * A runtime agnostic implementation for functionality around
  * the current process.  The functionality is useful for writing
  * runtime agnostic command line applications or functions like
  * print, println, etc.
- * 
+ *
  * - `stdout` -Write to the standard output stream
  *   for the current process. For the browser, console.log is used.
  * - `stderr` - Write to the standard error stream
@@ -24,30 +24,29 @@
  * - `pid`  - The current process id.
  * - `execPath` - The path to the executable for the current process.
  * - `args`  - The args passed to the current process without the execPath.
- * 
+ *
  * ## Basic Usage
- * 
+ *
  * ```ts
  * import { stdout, cwd, execPath, pid, chdir, args } from "@bearz/process"
- * 
+ *
  * export function print(message: string) {
  *     stdout.writeSync(new TextDecoder().decode(message));
  * }
- * 
+ *
  * export function println(message: string) {
  *     stdout.writeSync(new TextDecoder().decode(message + "\n"));
  * }
- * 
- * 
+ *
  * print("test");
  * println("")
  * println(chdir("../"));
  * println(cwd());
  * println(execPath);
  * println(args.join(" "))
- * 
+ *
  * ```
- * 
+ *
  * [MIT License](./LICENSE.md)
  */
 export * from "./args.ts";
