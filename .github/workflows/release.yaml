@@ -1,0 +1,99 @@
+name: "sdk release"
+
+on:
+  push:
+    tags:
+      - "*"
+    branches-ignore:
+      - '*'
+    paths:
+      - "lib/**"
+      - ".github/workflows/release.yaml"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Deno
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: v2.x
+
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: latest
+
+    - name: Install Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20.x"
+
+    - name: Lint
+      run: deno lint
+
+    - name: Test
+      run: deno task coverage
+
+    - name: Coverage
+      run: deno task lcov
+      # main branch only
+      if: github.ref == 'refs/heads/main'
+
+    - name: Upload coverage
+      uses: actions/upload-artifact@v4
+      if: github.ref == 'refs/heads/main'
+      with:
+        name: ${{ matrix.os }}-cov
+        path: .artifacts/code-coverage.lcov
+
+    - name: Publish To Codecov
+      uses: codecov/codecov-action@v4 # upload the report on Codecov
+      if: github.ref == 'refs/heads/main'
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      with:
+        name: ${{ matrix.os }}-cov
+        files: .artifacts/code-coverage.lcov
+
+    - name: Publish Dry Run
+      run: deno publish --dry-run --allow-dirty
+      if: matrix.os == 'ubuntu-latest'
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Publish
+        run: deno publish
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@0.7.5
+        with:
+          type: "zip"
+          filename: "src.zip"
+          exclusions: "*.git*"
+
+      - name: Upload Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: "src.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
