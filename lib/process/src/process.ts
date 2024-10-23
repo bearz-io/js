@@ -1,4 +1,4 @@
-// @ts-types="npm:@types/node"
+// @ts-types="@types/node"
 import process from "node:process";
 
 export { process };

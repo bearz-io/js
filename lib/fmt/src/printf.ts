@@ -40,7 +40,7 @@ const EOL = WINDOWS ? "\r\n" : "\n";
  * stdout.
  *
  * ```ts
- * import { sprintf } from "@std/fmt/printf";
+ * import { sprintf } from "@bearz/fmt/printf";
  * import { assertEquals } from "@std/assert";
  *
  * assertEquals(sprintf("%d", 9), "9");
@@ -987,7 +987,7 @@ export function sprintf(format: string, ...args: unknown[]): string {
  *
  * @example Usage
  * ```ts no-assert
- * import { printf } from "@std/fmt/printf";
+ * import { printf } from "@bearz/fmt/printf";
  *
  * printf("%d", 9); // Prints "9"
  *
@@ -1014,7 +1014,7 @@ export function printf(format: string, ...args: unknown[]): void {
  *
  * @example Usage
  * ```ts no-assert
- * import { printf } from "@std/fmt/printf";
+ * import { printf } from "@bearz/fmt/printf";
  *
  * printf("%d", 9); // Prints "9"
  *

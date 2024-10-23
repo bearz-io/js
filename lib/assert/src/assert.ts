@@ -1,2 +1,2 @@
-// @ts-types="npm:@types/chai"
+// @ts-types="@types/chai"
 export { assert } from "chai";

@@ -1,5 +1,4 @@
-// @ts-types="npm:@types/chai"
-import { assert } from "chai";
+import { assert } from "./assert.ts";
 
 /**
  * Asserts that `actual` is not strictly equal to `expected`.

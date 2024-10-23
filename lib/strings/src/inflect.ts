@@ -3,6 +3,8 @@
  * Copyright(c) 2011 Ben Lin <ben@dreamerslab.com>
  * MIT Licensed
  *
+ * https://github.com/dreamerslab/node.inflection/blob/master/LICENSE
+ *
  * Ported to include additional type info to avoid slow types for jsr
  *
  * @fileoverview
