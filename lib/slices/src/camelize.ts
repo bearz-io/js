@@ -57,7 +57,7 @@ export function camelize(value: CharBuffer | string, options?: CamelizeOptions):
         }
 
         if (i === 0 && isLetter(c)) {
-            sb.appendChar(toUpper(c));
+            sb.appendChar(toLower(c));
             last = c;
             continue;
         }
@@ -69,12 +69,7 @@ export function camelize(value: CharBuffer | string, options?: CamelizeOptions):
                 continue;
             }
 
-            if (options.preserveCase) {
-                sb.appendChar(c);
-                last = c;
-                continue;
-            }
-            sb.appendChar(toLower(c));
+            sb.appendChar(c);
             last = c;
             continue;
         }

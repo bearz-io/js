@@ -21,7 +21,8 @@
         "./lib/fmt",
         "./lib/process",
         "./lib/runtime-info",
-        "./lib/slices"
+        "./lib/slices",
+        "./lib/strings"
     ],
 
     "imports": {
