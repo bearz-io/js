@@ -14,6 +14,7 @@
     "tasks": {
         "new": "deno run -A ./eng/tasks/create-mod.ts",
         "test": "deno test -A --unstable-ffi",
+        "test:node": "deno test -A --unstable-ffi --env-file='runtime.env' ",
         "doc:mod": "deno run -A ./eng/tasks/doc-mod.ts",
         "coverage": "deno test ./lib/** --coverage=.artifacts/code-coverage -A --unstable-ffi",
         "lcov": "deno coverage .artifacts/code-coverage --lcov > .artifacts/code-coverage.lcov",
@@ -24,7 +25,9 @@
     "workspace": [
         "./lib/assert",
         "./lib/chars",
+        "./lib/debug",
         "./lib/fmt",
+        "./lib/fs",
         "./lib/process",
         "./lib/runtime-info",
         "./lib/slices",
