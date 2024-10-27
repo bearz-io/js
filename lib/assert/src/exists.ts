@@ -1,4 +1,4 @@
-import { assert } from "./assert.ts";
+import { assert} from "./assert.ts";
 
 /**
  * Asserts that `value` is not `null` or `undefined`.

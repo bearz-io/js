@@ -20,7 +20,7 @@ import { isError } from "./is_error.ts";
  * @param msg The optional message to display if the assertion fails.
  * @returns The promise which resolves to the thrown error.
  */
-export function assertRejects(
+export function rejects(
     fn: () => PromiseLike<unknown>,
     msg?: string,
 ): Promise<unknown>;
@@ -46,14 +46,14 @@ export function assertRejects(
  * @param msg The optional message to display if the assertion fails.
  * @returns The promise which resolves to the thrown error.
  */
-export function assertRejects<E extends Error = Error>(
+export function rejects<E extends Error = Error>(
     fn: () => PromiseLike<unknown>,
     // deno-lint-ignore no-explicit-any
     ErrorClass: abstract new (...args: any[]) => E,
     msgIncludes?: string,
     msg?: string,
 ): Promise<E>;
-export async function assertRejects<E extends Error = Error>(
+export async function rejects<E extends Error = Error>(
     fn: () => PromiseLike<unknown>,
     errorClassOrMsg?:
         // deno-lint-ignore no-explicit-any

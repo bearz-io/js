@@ -252,14 +252,13 @@ export function* walkSync(
 
         if (isSymlink) {
             if (!followSymlinks) {
-                console.log("not following symlink:", root);
+               
                 if (includeSymlinks && include(path, exts, match, skip)) {
                     yield { path, ...entry };
                 }
                 continue;
             }
 
-            console.log("following symlink:", root);
             const realPath = realPathSync(path);
             if (canonicalize) {
                 path = realPath;
