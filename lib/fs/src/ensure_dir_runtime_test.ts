@@ -3,7 +3,16 @@ import { equal, rejects, throws } from "@bearz/assert";
 import * as path from "@std/path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { ensureFile, ensureFileSync } from "./ensure_file.ts";
-import { lstat, lstatSync, makeDir, makeDirSync, remove, removeSync, stat, statSync } from "./std.ts";
+import {
+    lstat,
+    lstatSync,
+    makeDir,
+    makeDirSync,
+    remove,
+    removeSync,
+    stat,
+    statSync,
+} from "./std.ts";
 
 const test = Deno.test;
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
@@ -160,7 +169,6 @@ test("fs::ensureDirSync() rejects links to files", function () {
 const g = globalThis as Record<string, unknown>;
 
 if (g.Deno && !g.BEARZ_USE_NODE) {
-
     test({
         name: "fs::ensureDir() rejects permission fs write error",
         permissions: { read: true },

@@ -1,3 +1,6 @@
+/**
+ * Contract for a file system error.
+ */
 export interface FsError extends Error {
     code: string;
     address?: string;
@@ -5,7 +8,9 @@ export interface FsError extends Error {
     errno?: number;
 }
 
-/**  */
+/**
+ * Contract for directory information.
+ */
 export interface DirectoryInfo {
     name: string;
     isFile: boolean;
@@ -13,6 +18,9 @@ export interface DirectoryInfo {
     isSymlink: boolean;
 }
 
+/**
+ * Contract for a walk entry.
+ */
 export interface WalkEntry extends DirectoryInfo {
     /** Full path of the entry. */
     path: string;
@@ -75,6 +83,9 @@ export interface MakeTempOptions {
     suffix?: string;
 }
 
+/**
+ * Options for {@linkcode writeTextFile} and {@linkcode writeTextFileSync}.
+ */
 export interface WriteOptions {
     append?: boolean;
     create?: boolean;
@@ -82,6 +93,9 @@ export interface WriteOptions {
     mode?: number;
 }
 
+/**
+ * Options for {@linkcode read} and {@linkcode readSync}.
+ */
 export interface ReadOptions {
     /**
      * An abort signal to allow cancellation of the file read operation.
@@ -191,9 +205,18 @@ export interface SymlinkOptions {
     type: "file" | "dir";
 }
 
+/**
+ * The mode to use when seeking a file. The mode can be one of the following:
+ * - `start`: Seek from the start of the file.
+ * - `current`: Seek from the current position.
+ * - `end`: Seek from the end of the file.
+ */
 export type SeekMode = "start" | "current" | "end";
 export type FsSupports = "write" | "read" | "lock" | "seek" | "truncate";
 
+/**
+ * Options that can be used with {@linkcode open} and {@linkcode openSync}.
+ */
 export interface OpenOptions {
     /** Sets the option for read access. This option, when `true`, means that
      * the file should be read-able if opened.
@@ -246,119 +269,201 @@ export interface OpenOptions {
  * Represents a file in the file system.
  */
 export interface FsFile extends Record<string, unknown> {
+    /**
+     * The readable stream for the file.
+     */
     readable: ReadableStream<Uint8Array>;
+    /**
+     * The writeable stream for the file.
+     */
     writeable: WritableStream<Uint8Array>;
+
+    /**
+     * Provides information about the file system support for the file.
+     */
     supports: FsSupports[];
 
+    /**
+     * Disposes of the file.
+     */
     [Symbol.dispose](): void;
 
+    /**
+     * Disposes of the file asynchronously.
+     */
     [Symbol.asyncDispose](): Promise<void>;
 
     /**
      * Closes the file.
+     * @returns A promise that resolves when the file is closed.
      */
     close(): Promise<void>;
 
+    /**
+     * Synchronously closes the file.
+     */
     closeSync(): void;
 
     /**
-     * Flushes any buffered data to the file asynchronously.
+     * Flushes any pending data and metadata operations
+     * of the given file stream to disk.
      * @returns A promise that resolves when the data is flushed.
      */
     flush(): Promise<void>;
 
     /**
-     * Flushes any buffered data to the file synchronously.
+     * Synchronously flushes any pending data and metadata operations
+     * of the given file stream to disk.
      */
     flushSync(): void;
 
     /**
-     * Flushes any buffered data and metadata to the file asynchronously.
-     * @returns A promise that resolves when the data and metadata are flushed.
+     * Flushes any pending data operations of
+     * the given file stream to disk.
+     * @returns A promise that resolves when the data is flushed.
      */
     flushData(): Promise<void>;
 
     /**
-     * Flushes any buffered data and metadata to the file synchronously.
+     * Synchronously flushes any pending data operations of
+     * the given file stream to disk.
+     * @returns
      */
     flushDataSync(): void;
 
     /**
-     * Locks the file for exclusive or shared access asynchronously.
-     * @param exclusive - Whether to acquire an exclusive lock. Default is false (shared lock).
+     * Acquire an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @param exclusive Acquire an exclusive lock.
      * @returns A promise that resolves when the lock is acquired.
+     * @throws An error when not impelemented.
      */
     lock(exclusive?: boolean): Promise<void>;
 
     /**
-     * Locks the file for exclusive or shared access synchronously.
-     * @param exclusive - Whether to acquire an exclusive lock. Default is false (shared lock).
+     * Synchronously acquire an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @param exclusive Acquire an exclusive lock.
+     * @returns A promise that resolves when the lock is acquired.
+     * @throws An error when not impelemented.
      */
     lockSync(exclusive?: boolean): void;
 
     /**
-     * Reads data from the file synchronously.
-     * @param p - The buffer to read the data into.
-     * @returns The number of bytes read, or null if the end of the file has been reached.
+     * Synchronously read from the file into an array buffer (`buffer`).
+     *
+     * Returns either the number of bytes read during the operation
+     * or EOF (`null`) if there was nothing more to read.
+     *
+     * It is possible for a read to successfully return with `0`
+     * bytes read. This does not indicate EOF.
+     *
+     * It is not guaranteed that the full buffer will be read in
+     * a single call.
+     * @param buffer The buffer to read into.
+     * @returns The number of bytes read or `null` if EOF.
      */
-    readSync(p: Uint8Array): number | null;
+    readSync(buffer: Uint8Array): number | null;
 
     /**
-     * Reads data from the file asynchronously.
-     * @param p - The buffer to read the data into.
-     * @returns A promise that resolves with the number of bytes read, or null if the end of the file has been reached.
+     * Read from the file into an array buffer (`buffer`).
+     *
+     * Returns either the number of bytes read during the operation
+     * or EOF (`null`) if there was nothing more to read.
+     *
+     * It is possible for a read to successfully return with `0`
+     * bytes read. This does not indicate EOF.
+     *
+     * It is not guaranteed that the full buffer will be read in
+     * a single call.
+     * @param buffer The buffer to read into.
+     * @returns A promise of the number of bytes read or `null` if EOF.
      */
-    read(p: Uint8Array): Promise<number | null>;
+    read(buffer: Uint8Array): Promise<number | null>;
 
     /**
-     * Sets the file position synchronously.
-     * @param offset - The new file position.
-     * @param whence - The reference position for the offset. Default is SeekWhence.Current.
-     * @returns The new file position.
+     * Synchronously seek to the given `offset` under mode given by `whence`. The
+     * call resolves to the new position within the resource
+     * (bytes from the start).
+     *
+     * **The runtime may not support this operation or may require
+     * implementation of the `seek` method.**
+     * @param offset The offset to seek to.
+     * @param whence The `start`, `current`, or `end` of the steam.
+     * @returns The new position within the resource.
      */
     seekSync(offset: number | bigint, whence?: SeekMode): number;
 
     /**
-     * Sets the file position asynchronously.
-     * @param offset - The new file position.
-     * @returns A promise that resolves with the new file position.
+     * Seek to the given `offset` under mode given by `whence`. The
+     * call resolves to the new position within the resource
+     * (bytes from the start).
+     *
+     * **The runtime may not support this operation or may require
+     * implementation of the `seek` method.**
+     * @param offset The offset to seek to.
+     * @param whence The `start`, `current`, or `end` of the steam.
+     * @returns The new position within the resource.
+     * @throws An error when not impelemented.
      */
     seek(offset: number | bigint, whence?: SeekMode): Promise<number>;
 
     /**
-     * Retrieves information about the file asynchronously.
-     * @returns A promise that resolves with the file information.
+     * Gets the file information for the file.
+     * @returns A file information object.
+     * @throws An error if the file information cannot be retrieved.
      */
     stat(): Promise<FileInfo>;
 
     /**
-     * Retrieves information about the file synchronously.
-     * @returns The file information.
+     * Synchronously gets the file information for the file.
+     * @returns A file information object.
+     * @throws An error if the file information cannot be retrieved.
      */
     statSync(): FileInfo;
 
     /**
-     * Writes data to the file synchronously.
-     * @param p - The buffer containing the data to write.
-     * @returns The number of bytes written.
+     * Synchronously write the contents of the array buffer (`buffer`)
+     * to the file.
+     *
+     * Returns the number of bytes written.
+     *
+     * **It is not guaranteed that the full buffer
+     * will be written in a single call.**
+     * @param buffer The buffer to write.
+     * @returns A promise of the number of bytes written.
      */
-    writeSync(p: Uint8Array): number;
+    writeSync(buffer: Uint8Array): number;
 
     /**
-     * Writes data to the file asynchronously.
-     * @param p - The buffer containing the data to write.
-     * @returns A promise that resolves with the number of bytes written.
+     * Synchronously write the contents of the array buffer (`buffer`)
+     * to the file.
+     *
+     * Returns the number of bytes written.
+     *
+     * **It is not guaranteed that the full buffer
+     * will be written in a single call.**
+     * @param buffer The buffer to write.
+     * @returns A promise of the number of bytes written.
      */
     write(p: Uint8Array): Promise<number>;
 
     /**
-     * Unlocks the file asynchronously.
-     * @returns A promise that resolves when the file is unlocked.
+     * Release an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @returns A promise that resolves when the lock is released.
+     * @throws An error if not implemented.
      */
     unlock(): Promise<void>;
 
     /**
-     * Unlocks the file synchronously.
+     * Release an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @throws An error if not implemented.
      */
     unlockSync(): void;
 }
@@ -367,29 +472,26 @@ export interface FsFile extends Record<string, unknown> {
  * Represents a file system with various methods for interacting with files and directories.
  */
 export interface FileSystem {
-    uid(): number | null;
-    gid(): number | null;
-
     /**
-     * Changes the permissions of a file or directory asynchronously.
-     * @param path - The path to the file or directory.
-     * @param mode - The new permissions mode.
+     * Changes the permissions of a file or directory.
+     * @param path The path to the file or directory.
+     * @param mode The new permissions mode.
      * @returns A promise that resolves when the operation is complete.
      */
     chmod(path: string | URL, mode: number): Promise<void>;
 
     /**
-     * Changes the permissions of a file or directory synchronously.
-     * @param path - The path to the file or directory.
-     * @param mode - The new permissions mode.
+     * Synchronously changes the permissions of a file or directory.
+     * @param path The path to the file or directory.
+     * @param mode The new permissions mode.
      */
     chmodSync(path: string | URL, mode: number): void;
 
     /**
-     * Changes the owner and group of a file or directory asynchronously.
-     * @param path - The path to the file or directory.
-     * @param uid - The new owner user ID.
-     * @param gid - The new owner group ID.
+     * Changes the owner and group of a file or directory.
+     * @param path The path to the file or directory.
+     * @param uid The new owner user ID.
+     * @param gid The new owner group ID.
      * @returns A promise that resolves when the operation is complete.
      */
     chown(
@@ -399,23 +501,17 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Changes the owner and group of a file or directory synchronously.
-     * @param path - The path to the file or directory.
-     * @param uid - The new owner user ID.
-     * @param gid - The new owner group ID.
+     * Synchronously changes the owner and group of a file or directory.
+     * @param path The path to the file or directory.
+     * @param uid The new owner user ID.
+     * @param gid The new owner group ID.
      */
     chownSync(path: string | URL, uid: number, gid: number): void;
 
     /**
-     * Gets the current working directory.
-     * @returns The current working directory.
-     */
-    cwd(): string;
-
-    /**
-     * Copies a file asynchronously.
-     * @param from - The path to the source file.
-     * @param to - The path to the destination file.
+     * Copies a file.
+     * @param from The path to the source file.
+     * @param to The path to the destination file.
      * @returns A promise that resolves when the operation is complete.
      */
     copyFile(
@@ -424,9 +520,9 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Copies a file synchronously.
-     * @param from - The path to the source file.
-     * @param to - The path to the destination file.
+     * Synchronously copies a file.
+     * @param from The path to the source file.
+     * @param to The path to the destination file.
      */
     copyFileSync(
         from: string | URL,
@@ -434,80 +530,92 @@ export interface FileSystem {
     ): void;
 
     /**
-     * Checks if a path is a directory asynchronously.
-     * @param path - The path to check.
-     * @returns A promise that resolves with a boolean indicating whether the path is a directory.
+     * Gets the current working directory.
+     * @returns The current working directory.
      */
-    isDir(path: string | URL): Promise<boolean>;
+    cwd(): string;
 
     /**
-     * Checks if a path is a directory synchronously.
-     * @param path - The path to check.
-     * @returns A boolean indicating whether the path is a directory.
+     * Gets the current group id on POSIX platforms.
+     * Returns `null` on Windows.
      */
-    isDirSync(path: string | URL): boolean;
-
-    /**
-     * Checks if a path is a file asynchronously.
-     * @param path - The path to check.
-     * @returns A promise that resolves with a boolean indicating whether the path is a file.
-     */
-    isFile(path: string | URL): Promise<boolean>;
-
-    /**
-     * Checks if a path is a file synchronously.
-     * @param path - The path to check.
-     * @returns A boolean indicating whether the path is a file.
-     */
-    isFileSync(path: string | URL): boolean;
+    gid(): number | null;
 
     /**
      * Checks if an error indicates that a file or directory already exists.
-     * @param err - The error to check.
+     * @param err The error to check.
      * @returns A boolean indicating whether the error indicates that the file or directory already exists.
      */
     isAlreadyExistsError(err: unknown): boolean;
 
     /**
+     * Checks if a path is a directory.
+     * @param path The path to check.
+     * @returns A promise that resolves with a boolean indicating whether the path is a directory.
+     */
+    isDir(path: string | URL): Promise<boolean>;
+
+    /**
+     * Synchronously checks if a path is a directory.
+     * @param path The path to check.
+     * @returns A boolean indicating whether the path is a directory.
+     */
+    isDirSync(path: string | URL): boolean;
+
+    /**
+     * Checks if a path is a file.
+     * @param path The path to check.
+     * @returns A promise that resolves with a boolean indicating whether the path is a file.
+     */
+    isFile(path: string | URL): Promise<boolean>;
+
+    /**
+     * Synchronously checks if a path is a file.
+     * @param path The path to check.
+     * @returns A boolean indicating whether the path is a file.
+     */
+    isFileSync(path: string | URL): boolean;
+
+    /**
      * Checks if an error indicates that a file or directory was not found.
-     * @param err - The error to check.
+     * @param err The error to check.
      * @returns A boolean indicating whether the error indicates that the file or directory was not found.
      */
     isNotFoundError(err: unknown): boolean;
 
     /**
-     * Creates a hard link asynchronously.
-     * @param oldPath - The path to the existing file.
-     * @param newPath - The path to the new link.
+     * Creates a hard link.
+     * @param oldPath The path to the existing file.
+     * @param newPath The path to the new link.
      * @returns A promise that resolves when the operation is complete.
      */
     link(oldPath: string | URL, newPath: string | URL): Promise<void>;
 
     /**
-     * Creates a hard link synchronously.
-     * @param oldPath - The path to the existing file.
-     * @param newPath - The path to the new link.
+     * Synchronously creates a hard link.
+     * @param oldPath The path to the existing file.
+     * @param newPath The path to the new link.
      */
     linkSync(oldPath: string | URL, newPath: string | URL): void;
 
     /**
-     * Gets information about a file or directory asynchronously.
-     * @param path - The path to the file or directory.
+     * Gets information about a file or directory.
+     * @param path The path to the file or directory.
      * @returns A promise that resolves with the file information.
      */
     lstat(path: string | URL): Promise<FileInfo>;
 
     /**
      * Gets information about a file or directory synchronously.
-     * @param path - The path to the file or directory.
+     * @param path The path to the file or directory.
      * @returns The file information.
      */
     lstatSync(path: string | URL): FileInfo;
 
     /**
-     * Creates a directory asynchronously.
-     * @param path - The path to the directory.
-     * @param options - The options for creating the directory (optional).
+     * Creates a directory.
+     * @param path The path to the directory.
+     * @param options The options for creating the directory (optional).
      * @returns A promise that resolves when the operation is complete.
      */
     makeDir(
@@ -517,8 +625,8 @@ export interface FileSystem {
 
     /**
      * Creates a directory synchronously.
-     * @param path - The path to the directory.
-     * @param options - The options for creating the directory (optional).
+     * @param path The path to the directory.
+     * @param options The options for creating the directory (optional).
      */
     makeDirSync(
         path: string | URL,
@@ -526,32 +634,32 @@ export interface FileSystem {
     ): void;
 
     /**
-     * Creates a temporary directory synchronously.
-     * @param options - The options for creating the temporary directory (optional).
-     * @returns The path to the created temporary directory.
-     */
-    makeTempDirSync(options?: MakeTempOptions): string;
-
-    /**
-     * Creates a temporary directory asynchronously.
-     * @param options - The options for creating the temporary directory (optional).
+     * Creates a temporary directory.
+     * @param options The options for creating the temporary directory (optional).
      * @returns A promise that resolves with the path to the created temporary directory.
      */
     makeTempDir(options?: MakeTempOptions): Promise<string>;
 
     /**
-     * Creates a temporary file synchronously.
-     * @param options - The options for creating the temporary file (optional).
-     * @returns The path to the created temporary file.
+     * Synchronously creates a temporary directory.
+     * @param options The options for creating the temporary directory (optional).
+     * @returns The path to the created temporary directory.
      */
-    makeTempFileSync(options?: MakeTempOptions): string;
+    makeTempDirSync(options?: MakeTempOptions): string;
 
     /**
-     * Creates a temporary file asynchronously.
-     * @param options - The options for creating the temporary file (optional).
+     * Creates a temporary file.
+     * @param options The options for creating the temporary file (optional).
      * @returns A promise that resolves with the path to the created temporary file.
      */
     makeTempFile(options?: MakeTempOptions): Promise<string>;
+
+    /**
+     * Creates a temporary file synchronously.
+     * @param options The options for creating the temporary file (optional).
+     * @returns The path to the created temporary file.
+     */
+    makeTempFileSync(options?: MakeTempOptions): string;
 
     /**
      * Open a file and resolve to an instance of {@linkcode FsFile}. The
@@ -616,8 +724,8 @@ export interface FileSystem {
     openSync(path: string | URL, options?: OpenOptions): FsFile;
 
     /**
-     * Reads the contents of a directory asynchronously.
-     * @param path - The path to the directory.
+     * Reads the contents of a directory.
+     * @param path The path to the directory.
      * @returns An async iterable that yields directory information.
      */
     readDir(
@@ -625,8 +733,8 @@ export interface FileSystem {
     ): AsyncIterable<DirectoryInfo>;
 
     /**
-     * Reads the contents of a directory synchronously.
-     * @param path - The path to the directory.
+     * Synchronously reads the contents of a directory.
+     * @param path The path to the directory.
      * @returns An iterable that yields directory information.
      */
     readDirSync(
@@ -634,67 +742,67 @@ export interface FileSystem {
     ): Iterable<DirectoryInfo>;
 
     /**
-     * Reads the contents of a file asynchronously.
-     * @param path - The path to the file.
-     * @param options - The options for reading the file (optional).
+     * Reads the contents of a file.
+     * @param path The path to the file.
+     * @param options The options for reading the file (optional).
      * @returns A promise that resolves with the file contents as a Uint8Array.
      */
     readFile(path: string | URL, options?: ReadOptions): Promise<Uint8Array>;
 
     /**
-     * Reads the contents of a file synchronously.
-     * @param path - The path to the file.
+     * Synchronously reads the contents of a file.
+     * @param path The path to the file.
      * @returns The file contents as a Uint8Array.
      */
     readFileSync(path: string | URL): Uint8Array;
 
     /**
-     * Reads the target of a symbolic link asynchronously.
-     * @param path - The path to the symbolic link.
+     * Reads the target of a symbolic link.
+     * @param path The path to the symbolic link.
      * @returns A promise that resolves with the target path as a string.
      */
     readLink(path: string | URL): Promise<string>;
 
     /**
-     * Reads the target of a symbolic link synchronously.
-     * @param path - The path to the symbolic link.
+     * Synchronously reads the target of a symbolic link.
+     * @param path The path to the symbolic link.
      * @returns The target path as a string.
      */
     readLinkSync(path: string | URL): string;
 
     /**
-     * Reads the contents of a file as text synchronously.
-     * @param path - The path to the file.
-     * @returns The file contents as a string.
-     */
-    readTextFileSync(path: string | URL): string;
-
-    /**
-     * Reads the contents of a file as text asynchronously.
-     * @param path - The path to the file.
-     * @param options - The options for reading the file (optional).
+     * Reads the contents of a file as text.
+     * @param path The path to the file.
+     * @param options The options for reading the file (optional).
      * @returns A promise that resolves with the file contents as a string.
      */
     readTextFile(path: string | URL, options?: ReadOptions): Promise<string>;
 
     /**
-     * Resolves the real path of a file or directory asynchronously.
-     * @param path - The path to the file or directory.
+     * Synchronously Reads the contents of a file as text.
+     * @param path The path to the file.
+     * @returns The file contents as a string.
+     */
+    readTextFileSync(path: string | URL): string;
+
+    /**
+     * Resolves the real path of a file or directory.
+     * @param path The path to the file or directory.
      * @returns A promise that resolves with the real path as a string.
      */
     realPath(path: string | URL): Promise<string>;
 
     /**
-     * Resolves the real path of a file or directory synchronously.
-     * @param path - The path to the file or directory.
+     * Synchronously resolves the real path of a file or directory.
+     * @param path The path to the file or directory.
      * @returns The real path as a string.
      */
     realPathSync(path: string | URL): string;
 
     /**
-     * Removes a file or directory asynchronously.
-     * @param path - The path to the file or directory.
-     * @param options - The options for removing the file or directory (optional).
+     * Removes a file or directory.
+     * @param path The path to the file or directory.
+     * @param options The options for removing the file or directory (optional).
      * @returns A promise that resolves when the operation is complete.
      */
     remove(
@@ -703,16 +811,16 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Removes a file or directory synchronously.
-     * @param path - The path to the file or directory.
-     * @param options - The options for removing the file or directory (optional).
+     * Synchronously removes a file or directory.
+     * @param path The path to the file or directory.
+     * @param options The options for removing the file or directory (optional).
      */
     removeSync(path: string | URL, options?: RemoveOptions): void;
 
     /**
-     * Renames a file or directory asynchronously.
-     * @param oldPath - The path to the existing file or directory.
-     * @param newPath - The path to the new file or directory.
+     * Renames a file or directory.
+     * @param oldPath The path to the existing file or directory.
+     * @param newPath The path to the new file or directory.
      * @returns A promise that resolves when the operation is complete.
      */
     rename(
@@ -721,31 +829,31 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Renames a file or directory synchronously.
-     * @param oldPath - The path to the existing file or directory.
-     * @param newPath - The path to the new file or directory.
+     * Synchronously renames a file or directory.
+     * @param oldPath The path to the existing file or directory.
+     * @param newPath The path to the new file or directory.
      */
     renameSync(oldPath: string | URL, newPath: string | URL): void;
 
     /**
-     * Gets information about a file or directory asynchronously.
-     * @param path - The path to the file or directory.
+     * Gets information about a file or directory.
+     * @param path The path to the file or directory.
      * @returns A promise that resolves with the file information.
      */
     stat(path: string | URL): Promise<FileInfo>;
 
     /**
-     * Gets information about a file or directory synchronously.
-     * @param path - The path to the file or directory.
+     * Synchronously gets information about a file or directory.
+     * @param path The path to the file or directory.
      * @returns The file information.
      */
     statSync(path: string | URL): FileInfo;
 
     /**
-     * Creates a symbolic link asynchronously.
-     * @param target - The path to the target file or directory.
-     * @param path - The path to the symbolic link.
-     * @param type - The type of the symbolic link (optional).
+     * Creates a symbolic link.
+     * @param target The path to the target file or directory.
+     * @param path The path to the symbolic link.
+     * @param type The type of the symbolic link (optional).
      * @returns A promise that resolves when the operation is complete.
      */
     symlink(
@@ -755,10 +863,10 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Creates a symbolic link synchronously.
-     * @param target - The path to the target file or directory.
-     * @param path - The path to the symbolic link.
-     * @param type - The type of the symbolic link (optional).
+     * Synchronously creates a symbolic link.
+     * @param target The path to the target file or directory.
+     * @param path The path to the symbolic link.
+     * @param type The type of the symbolic link (optional).
      */
     symlinkSync(
         target: string | URL,
@@ -767,22 +875,10 @@ export interface FileSystem {
     ): void;
 
     /**
-     * Writes text data to a file synchronously.
-     * @param path - The path to the file.
-     * @param data - The text data to write.
-     * @param options - The options for writing the file (optional).
-     */
-    writeTextFileSync(
-        path: string | URL,
-        data: string,
-        options?: WriteOptions,
-    ): void;
-
-    /**
-     * Writes text data to a file asynchronously.
-     * @param path - The path to the file.
-     * @param data - The text data to write.
-     * @param options - The options for writing the file (optional).
+     * Writes text data to a file.
+     * @param path The path to the file.
+     * @param data The text data to write.
+     * @param options The options for writing the file (optional).
      * @returns A promise that resolves when the operation is complete.
      */
     writeTextFile(
@@ -792,10 +888,22 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Writes binary data to a file asynchronously.
-     * @param path - The path to the file.
-     * @param data - The binary data to write.
-     * @param options - The options for writing the file (optional).
+     * Synchronously writes text data to a file.
+     * @param path The path to the file.
+     * @param data The text data to write.
+     * @param options The options for writing the file (optional).
+     */
+    writeTextFileSync(
+        path: string | URL,
+        data: string,
+        options?: WriteOptions,
+    ): void;
+
+    /**
+     * Writes binary data to a file.
+     * @param path The path to the file.
+     * @param data The binary data to write.
+     * @param options The options for writing the file (optional).
      * @returns A promise that resolves when the operation is complete.
      */
     writeFile(
@@ -805,10 +913,10 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Writes binary data to a file synchronously.
-     * @param path - The path to the file.
-     * @param data - The binary data to write.
-     * @param options - The options for writing the file (optional).
+     * Synchronously writes binary data to a file.
+     * @param path The path to the file.
+     * @param data The binary data to write.
+     * @param options The options for writing the file (optional).
      */
     writeFileSync(
         path: string | URL,
@@ -817,10 +925,16 @@ export interface FileSystem {
     ): void;
 
     /**
-     * Changes the access time and modification time of a file or directory asynchronously.
-     * @param path - The path to the file or directory.
-     * @param atime - The new access time.
-     * @param mtime - The new modification time.
+     * Gets the current user id on POSIX platforms.
+     * Returns `null` on Windows.
+     */
+    uid(): number | null;
+
+    /**
+     * Changes the access time and modification time of a file or directory.
+     * @param path The path to the file or directory.
+     * @param atime The new access time.
+     * @param mtime The new modification time.
      * @returns A promise that resolves when the operation is complete.
      */
     utime(
@@ -830,10 +944,10 @@ export interface FileSystem {
     ): Promise<void>;
 
     /**
-     * Changes the access time and modification time of a file or directory synchronously.
-     * @param path - The path to the file or directory.
-     * @param atime - The new access time.
-     * @param mtime - The new modification time.
+     * Synchronously changes the access time and modification time of a file or directory.
+     * @param path The path to the file or directory.
+     * @param atime The new access time.
+     * @param mtime The new modification time.
      */
     utimeSync(
         path: string | URL,

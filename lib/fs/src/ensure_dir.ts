@@ -1,5 +1,12 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { isAlreadyExistsError, makeDir, makeDirSync, stat, statSync, isNotFoundError } from "./std.ts";
+import {
+    isAlreadyExistsError,
+    isNotFoundError,
+    makeDir,
+    makeDirSync,
+    stat,
+    statSync,
+} from "./std.ts";
 import { getFileInfoType } from "./utils.ts";
 
 /**

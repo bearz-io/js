@@ -9,7 +9,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
 } else if (g.process) {
     fs = await import("./node/mod.ts");
 } else {
-    fs  = await import("./base_fs.ts");
+    fs = await import("./base_fs.ts");
 }
 
 // destructuring can not handled by deno/jsr's fast check

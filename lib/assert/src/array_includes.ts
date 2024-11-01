@@ -31,7 +31,7 @@ export function arrayIncludes<T>(): void {
                     assert.include(actual, expected);
                 }
             }
-         
+
             break;
 
         case 3:

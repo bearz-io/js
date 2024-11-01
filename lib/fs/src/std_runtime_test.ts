@@ -1,16 +1,15 @@
-import {} from "@bearz/assert/use-node"
+import {} from "@bearz/assert/use-node";
 import { ok } from "@bearz/assert";
 import {
-    isFile,
-    isFileSync,
+    gid,
     isDir,
     isDirSync,
+    isFile,
+    isFileSync,
     makeDir,
     makeDirSync,
     readFile,
     readFileSync,
-    writeFileSync,
-    writeFile,
     readTextFile,
     readTextFileSync,
     remove,
@@ -18,25 +17,27 @@ import {
     stat,
     statSync,
     uid,
-    gid,
+    writeFile,
+    writeFileSync,
 } from "./std.ts";
-import { fromFileUrl, dirname, join } from "@std/path";
+import { dirname, fromFileUrl, join } from "@std/path";
 
 const test = Deno.test;
 const usingNode = Deno.env.get("BEARZ_USE_NODE") === "true";
-const runtime  = usingNode ? "node" : "deno";
+const runtime = usingNode ? "node" : "deno";
 const dir = dirname(fromFileUrl(import.meta.url));
 const root = dirname(dir);
 const readme = join(root, "README.md");
 
-function quietRemove(path: string) : Promise<void> {
+function quietRemove(path: string): Promise<void> {
     return stat(path).then(() => remove(path)).catch(() => {});
 }
 
 function quietRemoveSync(path: string) {
     try {
-        if (statSync(path))
+        if (statSync(path)) {
             removeSync(path);
+        }
     } catch {
         // do nothing
     }
@@ -101,7 +102,7 @@ test(`fs::readFile ${runtime}`, async () => {
     ok(data.length > 0);
 });
 
-test(`fs::readFileSync ${runtime}`,() => {
+test(`fs::readFileSync ${runtime}`, () => {
     const data = readFileSync(readme);
     ok(data.length > 0);
 });
@@ -111,7 +112,7 @@ test(`fs::readTextFile ${runtime}`, async () => {
     ok(data.length > 0);
 });
 
-test(`fs::readTextFileSync ${runtime}`,() => {
+test(`fs::readTextFileSync ${runtime}`, () => {
     const data = readTextFileSync(readme);
     ok(data.length > 0);
 });

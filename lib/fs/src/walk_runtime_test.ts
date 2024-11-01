@@ -48,9 +48,11 @@ test("fs::walkSync() returns current dir for empty dir", async () => {
     await remove(emptyDir);
 });
 
-test("fs::walk() returns current dir and single file", async () => await assertWalkPaths("single_file", [".", "x"]));
+test("fs::walk() returns current dir and single file", async () =>
+    await assertWalkPaths("single_file", [".", "x"]));
 
-test("fs::walkSync() returns current dir and single file", () => assertWalkSyncPaths("single_file", [".", "x"]));
+test("fs::walkSync() returns current dir and single file", () =>
+    assertWalkSyncPaths("single_file", [".", "x"]));
 
 test("fs::walk() returns current dir, subdir, and nested file", async () =>
     await assertWalkPaths("nested_single_file", [".", "a", "a/x"]));

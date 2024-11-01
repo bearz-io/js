@@ -1,5 +1,15 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { isNotFoundError, lstat, lstatSync, remove, removeSync, rename, renameSync, stat, statSync } from "./std.ts";
+import {
+    isNotFoundError,
+    lstat,
+    lstatSync,
+    remove,
+    removeSync,
+    rename,
+    renameSync,
+    stat,
+    statSync,
+} from "./std.ts";
 import { isSamePath, isSubdir } from "./utils.ts";
 import { AlreadyExistsError, SubdirectoryMoveError } from "./errors.ts";
 

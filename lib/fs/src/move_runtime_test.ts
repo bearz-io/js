@@ -1,5 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { ok, equal, rejects, throws } from "@bearz/assert";
+import { equal, ok, rejects, throws } from "@bearz/assert";
 import * as path from "@std/path";
 import { SubdirectoryMoveError } from "./errors.ts";
 import { move, moveSync } from "./move.ts";

@@ -2,7 +2,15 @@
 import { dirname, resolve } from "@std/path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { getFileInfoType, toPathString } from "./utils.ts";
-import { isAlreadyExistsError, lstat, lstatSync, readLink, readLinkSync, symlink, symlinkSync } from "./std.ts";
+import {
+    isAlreadyExistsError,
+    lstat,
+    lstatSync,
+    readLink,
+    readLinkSync,
+    symlink,
+    symlinkSync,
+} from "./std.ts";
 import type { SymlinkOptions } from "./types.ts";
 import { AlreadyExistsError } from "./errors.ts";
 import { WINDOWS } from "@bearz/runtime-info/os";

@@ -1,5 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { ok, equal, stringIncludes, instanceOf } from "@bearz/assert";
+import { equal, instanceOf, stringIncludes } from "@bearz/assert";
 import * as path from "@std/path";
 import { exists, existsSync } from "./exists.ts";
 import {

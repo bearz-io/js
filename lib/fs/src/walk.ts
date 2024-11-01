@@ -252,7 +252,6 @@ export function* walkSync(
 
         if (isSymlink) {
             if (!followSymlinks) {
-               
                 if (includeSymlinks && include(path, exts, match, skip)) {
                     yield { path, ...entry };
                 }

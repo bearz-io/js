@@ -1,4 +1,12 @@
-import { type GlobOptions, globToRegExp, isAbsolute, isGlob, joinGlobs, resolve, SEPARATOR_PATTERN } from "@std/path";
+import {
+    type GlobOptions,
+    globToRegExp,
+    isAbsolute,
+    isGlob,
+    joinGlobs,
+    resolve,
+    SEPARATOR_PATTERN,
+} from "@std/path";
 import { walk, walkSync } from "./walk.ts";
 import { toPathString } from "./utils.ts";
 import { createWalkEntry, createWalkEntrySync } from "./utils.ts";
@@ -140,7 +148,8 @@ export async function* expandGlob(
     const excludePatterns = exclude
         .map(resolveFromRoot)
         .map((s: string): RegExp => globToRegExp(s, globOptions));
-    const shouldInclude = (path: string): boolean => !excludePatterns.some((p: RegExp): boolean => !!path.match(p));
+    const shouldInclude = (path: string): boolean =>
+        !excludePatterns.some((p: RegExp): boolean => !!path.match(p));
 
     let fixedRoot = isGlobAbsolute ? winRoot !== undefined ? winRoot : "/" : absRoot;
     while (segments.length > 0 && !isGlob(segments[0]!)) {
@@ -297,7 +306,8 @@ export function* expandGlobSync(
     const excludePatterns = exclude
         .map(resolveFromRoot)
         .map((s: string): RegExp => globToRegExp(s, globOptions));
-    const shouldInclude = (path: string): boolean => !excludePatterns.some((p: RegExp): boolean => !!path.match(p));
+    const shouldInclude = (path: string): boolean =>
+        !excludePatterns.some((p: RegExp): boolean => !!path.match(p));
 
     let fixedRoot = isGlobAbsolute ? winRoot !== undefined ? winRoot : "/" : absRoot;
     while (segments.length > 0 && !isGlob(segments[0]!)) {

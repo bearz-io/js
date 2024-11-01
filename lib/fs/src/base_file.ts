@@ -1,11 +1,7 @@
 // deno-lint-ignore-file no-unused-vars
 import type { FileInfo, FsFile, FsSupports, SeekMode } from "./types.ts";
 
-
 export abstract class BaseFile implements FsFile {
-
-
-
     [key: string]: unknown;
 
     get readable(): ReadableStream<Uint8Array> {
@@ -30,12 +26,10 @@ export abstract class BaseFile implements FsFile {
 
     close(): Promise<void> {
         throw new Error("Not implemented");
-
     }
 
     closeSync(): void {
         throw new Error("Not implemented");
-        
     }
 
     flush(): Promise<void> {
@@ -64,17 +58,14 @@ export abstract class BaseFile implements FsFile {
 
     readSync(buffer: Uint8Array): number | null {
         throw new Error("Not implemented");
-
     }
 
     read(buffer: Uint8Array): Promise<number | null> {
         throw new Error("Not implemented");
-
     }
 
     seek(offset: number | bigint, whence?: SeekMode | undefined): Promise<number> {
         throw new Error("Not implemented");
-
     }
 
     seekSync(offset: number | bigint, whence?: SeekMode): number {

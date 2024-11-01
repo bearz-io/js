@@ -123,7 +123,7 @@ export async function exists(
         return true;
     } catch (error) {
         if (g.process && error instanceof Error) {
-            const { code } = error  as unknown as { code: string };
+            const { code } = error as unknown as { code: string };
 
             if (code === "ENOENT") {
                 return false;
@@ -268,7 +268,7 @@ export function existsSync(
         return true;
     } catch (error) {
         if (g.process && error instanceof Error) {
-            const { code } = error  as unknown as { code: string };
+            const { code } = error as unknown as { code: string };
 
             if (code === "ENOENT") {
                 return false;

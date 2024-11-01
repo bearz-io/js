@@ -135,7 +135,9 @@ export function assert(): void {
         case 3:
             {
                 if (!arguments[0]) {
-                    const error = new Error(sprintf(arguments[1], ...Array.from(arguments).slice(2)));
+                    const error = new Error(
+                        sprintf(arguments[1], ...Array.from(arguments).slice(2)),
+                    );
                     if (error.stack) {
                         debugStream.writeLine(error.stack);
                     }

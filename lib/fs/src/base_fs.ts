@@ -13,7 +13,6 @@ import type {
     WriteOptions,
 } from "./types.ts";
 
-
 export function uid(): number | null {
     return null;
 }
@@ -267,7 +266,6 @@ export function utime(
 ): Promise<void> {
     throw new Error("Not implemented");
 }
-
 
 export function utimeSync(
     path: string | URL,

@@ -1,5 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { ok, equal, stringIncludes } from "@bearz/assert";
+import { equal, ok, stringIncludes } from "@bearz/assert";
 import { fromFileUrl, join, joinGlobs, normalize, relative } from "@std/path";
 import { expandGlob, type ExpandGlobOptions, expandGlobSync } from "./expand_glob.ts";
 import { cwd } from "./std.ts";
@@ -378,5 +378,4 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
             );
         },
     );
-
 }

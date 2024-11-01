@@ -19,7 +19,13 @@ export type PathType = "file" | "dir" | "symlink";
  *                 `lstat`
  */
 export function getFileInfoType(fileInfo: FileInfo): PathType | undefined {
-    return fileInfo.isFile ? "file" : fileInfo.isDirectory ? "dir" : fileInfo.isSymlink ? "symlink" : undefined;
+    return fileInfo.isFile
+        ? "file"
+        : fileInfo.isDirectory
+        ? "dir"
+        : fileInfo.isSymlink
+        ? "symlink"
+        : undefined;
 }
 
 /**

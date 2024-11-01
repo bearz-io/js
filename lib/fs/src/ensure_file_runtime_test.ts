@@ -2,7 +2,16 @@
 import { rejects, throws } from "@bearz/assert";
 import * as path from "@std/path";
 import { ensureFile, ensureFileSync } from "./ensure_file.ts";
-import { makeDir, makeDirSync, remove, removeSync, stat, statSync, writeFile, writeFileSync } from "./std.ts";
+import {
+    makeDir,
+    makeDirSync,
+    remove,
+    removeSync,
+    stat,
+    statSync,
+    writeFile,
+    writeFileSync,
+} from "./std.ts";
 
 const test = Deno.test;
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));

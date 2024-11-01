@@ -1,5 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
-import { ok, equal, rejects, throws } from "@bearz/assert";
+import { equal, ok, rejects, throws } from "@bearz/assert";
 import * as path from "@std/path";
 import { copy, copySync } from "./copy.ts";
 import { existsSync } from "./exists.ts";
@@ -24,8 +24,6 @@ import {
 const test = Deno.test;
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");
-
-
 
 function testCopy(
     name: string,
