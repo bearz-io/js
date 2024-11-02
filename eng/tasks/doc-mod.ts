@@ -1,5 +1,5 @@
 import { dirname, fromFileUrl, join } from "@std/path";
-import {  walk } from "jsr:@std/fs@1.0.0";
+import { walk } from "jsr:@std/fs@1.0.0";
 
 const __dirname = dirname(fromFileUrl(import.meta.url));
 
@@ -8,7 +8,7 @@ const rootDir = dirname(engDir);
 const libDir = join(rootDir, "lib");
 console.log(libDir);
 
-async function isFile(path: string) : Promise<boolean> {
+async function isFile(path: string): Promise<boolean> {
     try {
         return (await Deno.stat(path)).isFile;
     } catch {
@@ -27,7 +27,6 @@ for await (const entry of walk(libDir)) {
             modExists = await isFile(mod);
         }
 
-        
         if (await isFile(mod) && await isFile(readme)) {
             const readmeContent = await Deno.readTextFile(readme);
             const modContent = await Deno.readTextFile(mod);

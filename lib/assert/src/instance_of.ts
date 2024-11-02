@@ -12,6 +12,6 @@ export function instanceOf<T>(
     // deno-lint-ignore no-explicit-any
     constructor: new (...args: any[]) => T,
     msg?: string,
-): void {
+): asserts value is T {
     return assert.instanceOf(value, constructor, msg);
 }

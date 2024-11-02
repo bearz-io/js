@@ -1,0 +1,8 @@
+{
+    "name": "@bearz/fs",
+    "description": "fs module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts"
+    }
+}
