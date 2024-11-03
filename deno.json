@@ -35,6 +35,7 @@
         "./lib/fs",
         "./lib/process",
         "./lib/runtime-info",
+        "./lib/secrets",
         "./lib/slices",
         "./lib/strings"
     ],
