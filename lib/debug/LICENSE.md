@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright 2022-2024 GnomeSoft, GnomeJs, BowTiedGnome
+Copyright 2022-2024 bearzSoft, bearzJs, BowTiedbearz
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the “Software”), to deal in

@@ -60,8 +60,8 @@ export function expand(
     o.unixExpansion ??= true;
     o.unixCustomErrorMessage ??= true;
     o.unixAssignment ??= true;
-    const getValue = o.getVariable ?? ((name: string) => get(name));
-    const setValue = o.setVariable ??
+    const getValue = o.get ?? ((name: string) => get(name));
+    const setValue = o.set ??
         ((name: string, value: string) => set(name, value));
     const tokenBuilder = new StringBuilder();
     const output = new StringBuilder();

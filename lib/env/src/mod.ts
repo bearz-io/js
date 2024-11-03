@@ -74,6 +74,7 @@
  * @module
  */
 import type { Env, EnvPath } from "./types.ts";
+export type { SubstitutionOptions } from "./expand.ts";
 // deno-lint-ignore no-explicit-any
 const g = globalThis as any;
 let env: Env;

@@ -1,7 +1,7 @@
-# @gnome/debug
+# @bearz/debug
 
 <div height=30" vertical-align="top">
-<image src="https://raw.githubusercontent.com/gnomejs/gnomejs/main/assets/icon.png"
+<image src="https://raw.githubusercontent.com/bearzjs/bearzjs/main/assets/icon.png"
     alt="logo" width="60" valign="middle" />
 <span>Work less. Do more. </span>
 </div>
@@ -24,7 +24,7 @@ a debug stream statement.
 ## Basic Usage
 
 ```ts
-import { isDebugEnabled, setDebugEnabled, assert, writeLine, writeLineIf } from "@gnome/debug"
+import { isDebugEnabled, setDebugEnabled, assert, writeLine, writeLineIf } from "@bearz/debug"
 
 setDebugEnabled(true);
 

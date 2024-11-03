@@ -1,0 +1,15 @@
+{
+    "name": "@bearz/dotenv",
+    "description": "dotenv module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./document": "./src/document.ts",
+        "./expand": "./src/expand.ts",
+        "./load": "./src/load.ts",
+        "./parse-document": "./src/parse_document.ts",
+        "./parse": "./src/parse.ts",
+        "./stringify": "./src/stringify.ts",
+        "./stringify-document": "./src/stringify_document.ts"
+    }
+}

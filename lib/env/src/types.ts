@@ -30,14 +30,14 @@ export interface SubstitutionOptions {
      * @param key - The name of the environment variable.
      * @returns The value of the environment variable, or `undefined` if it is not set.
      */
-    getVariable?: (key: string) => string | undefined;
+    get?: (key: string) => string | undefined;
     /**
      * A function that sets the value of an environment variable.
      * Setting this option overrides the default behavior.
      * @param key - The name of the environment variable.
      * @param value - The value to set.
      */
-    setVariable?: (key: string, value: string) => void;
+    set?: (key: string, value: string) => void;
 }
 
 export interface EnvPath extends Iterable<string> {

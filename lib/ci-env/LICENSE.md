@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright 2022-2024 bearzSoft, bearzJs, BowTiedbearz
+Copyright 2022-2024 bearz.io BowTiedBearz
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the “Software”), to deal in
@@ -18,8 +18,3 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-## Deno Code
-
-The code in printf.ts that was pulled from @std/fmt is under the
-[Deno MIT License](https://github.com/denoland/std/blob/main/LICENSE)
