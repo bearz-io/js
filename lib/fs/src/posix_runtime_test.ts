@@ -63,8 +63,8 @@ test(`fs::makeDirSync ${runtime}`, () => {
     }
 });
 
-test(`fs::isFile ${runtime}`, () => {
-    ok(isFile(readme));
+test(`fs::isFile ${runtime}`, async () => {
+    ok(await isFile(readme));
 });
 
 test(`fs::isFileSync ${runtime}`, () => {
