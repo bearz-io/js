@@ -16,7 +16,7 @@ test("dotenv::stringifyDocument", () => {
 BAR="baz
 "`;
     if (WINDOWS) {
-        expected = expected.replace(/\n/g, "\r\n");
+        expected = `FOO='bar'\r\nBAR="baz\n"`;
     }
 
     equal(source, expected);

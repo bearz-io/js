@@ -22,7 +22,7 @@ BAR="baz
 "
 `;
     if (WINDOWS) {
-        expected = expected.replace(/\n/g, "\r\n");
+        expected = `#comment=1\r\n\r\nFOO='bar'\r\nBAR="baz\n"\r\n`;
     }
 
     equal(source, expected);
