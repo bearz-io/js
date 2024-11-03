@@ -174,7 +174,9 @@ export class Result<T, E = Error> {
      * @returns A promise that resolves with the stored value or rejects with the stored error.
      */
     resolve(): Promise<T> {
-        return this.#state === State.Ok ? Promise.resolve<T>(this.#value!) : Promise.reject<T>(this.#error!);
+        return this.#state === State.Ok
+            ? Promise.resolve<T>(this.#value!)
+            : Promise.reject<T>(this.#error!);
     }
 
     /**
@@ -415,7 +417,7 @@ export function fail<T = never, E = Error>(error: E): Result<T, E> {
  * @param fn The function to execute
  * @returns The result of the function.
  */
-export function tryCatchSync<T>(fn: () => T) : Result<T, Error> {
+export function tryCatchSync<T>(fn: () => T): Result<T, Error> {
     try {
         return ok(fn());
     } catch (error) {

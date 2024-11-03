@@ -73,18 +73,5 @@
  * [MIT License](./LICENSE.md)
  * @module
  */
-import type { Env, EnvPath } from "./types.ts";
-export type { SubstitutionOptions } from "./expand.ts";
-// deno-lint-ignore no-explicit-any
-const g = globalThis as any;
-let env: Env;
-
-if (g.Deno && !g.BEARZ_USE_NODE && !g.BEARZ_USE_BROWSER) {
-    env = (await import("./deno/mod.ts")).env;
-} else if (g.process && !g.BEARZ_USE_BROWSER) {
-    env = (await import("./node/mod.ts")).env;
-} else {
-    env = (await import("./browser/mod.ts")).env;
-}
-
-export { type Env, env, type EnvPath };
+export * from "./expand.ts";
+export * from "./env.ts";

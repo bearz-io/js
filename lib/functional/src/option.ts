@@ -20,11 +20,6 @@ export class OptionError extends Error {
 
 /**
  * Represents an optional value that may or may not be present.
- *
- * @template T - The type of the value.
- */
-/**
- * Represents an optional value that may or may not be present.
  * @template T - The type of the value.
  */
 export class Option<T> {

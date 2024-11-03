@@ -1,24 +1,51 @@
 import { equalFold } from "@bearz/strings/equal";
-import { expand } from "../expand.ts";
-import type { Env, EnvPath, SubstitutionOptions } from "../types.ts";
+import { expand, type SubstitutionOptions } from "./expand.ts";
 import { BUN, DENO, NODE, PATH_SEP, WINDOWS } from "@bearz/runtime-info";
-import { decodeBase64 } from "@std/encoding";
 
 const RT = DENO || BUN || NODE;
 const SEP = RT ? PATH_SEP : ":";
 const PATH_NAME = WINDOWS && RT ? "Path" : "PATH";
 
 /**
+ * Decodes a base64-encoded string.
+ *
+ * @see {@link https://www.rfc-editor.org/rfc/rfc4648.html#section-4}
+ *
+ * @param b64 The base64-encoded string to decode.
+ * @returns The decoded data.
+ *
+ * @example Usage
+ * ```ts
+ * import { decodeBase64 } from "@std/encoding/base64";
+ * import { assertEquals } from "@std/assert";
+ *
+ * assertEquals(
+ *   decodeBase64("Zm9vYmFy"),
+ *   new TextEncoder().encode("foobar")
+ * );
+ * ```
+ */
+function decodeBase64(b64: string): Uint8Array {
+    const binString = atob(b64);
+    const size = binString.length;
+    const bytes = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+        bytes[i] = binString.charCodeAt(i);
+    }
+    return bytes;
+}
+
+/**
  * Represents a class that manages the environment path.
  */
-export class DefaultEnvPath implements EnvPath {
-    #env: EnvBase;
+export class EnvPath {
+    #env: Env;
 
     /**
      * Constructs a new instance of the DefaultEnvPath class.
      * @param env The environment object.
      */
-    constructor(env: EnvBase) {
+    constructor(env: Env) {
         this.#env = env;
     }
 
@@ -165,15 +192,17 @@ export class DefaultEnvPath implements EnvPath {
     }
 }
 
+const memoryProxy: Record<string, string | undefined> = {};
+
 /**
  * Represents the environment variables and provides methods to interact with them.
  */
-export abstract class EnvBase implements Env {
+export class Env {
     #path!: EnvPath;
     #proxy!: Record<string, string | undefined>;
 
     constructor() {
-        this.init();
+        this.#path = new EnvPath(this);
     }
 
     /**
@@ -181,11 +210,7 @@ export abstract class EnvBase implements Env {
      * environment variables as properties.
      */
     get proxy(): Record<string, string | undefined> {
-        return this.#proxy;
-    }
-
-    protected set proxy(obj: Record<string, string | undefined>) {
-        this.#proxy = obj;
+        return memoryProxy;
     }
 
     /**
@@ -194,10 +219,6 @@ export abstract class EnvBase implements Env {
      */
     get path(): EnvPath {
         return this.#path;
-    }
-
-    protected set path(path: EnvPath) {
-        this.#path = path;
     }
 
     /**
@@ -602,13 +623,5 @@ export abstract class EnvBase implements Env {
      */
     joinPath(paths: string[]): string {
         return paths.join(SEP);
-    }
-
-    /**
-     * Initializes the path and proxy objects
-     */
-    protected init() {
-        this.path = new DefaultEnvPath(this);
-        this.proxy = {} as Record<string, string | undefined>;
     }
 }

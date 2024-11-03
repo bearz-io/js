@@ -1,6 +1,5 @@
 import { isDigit, isLetter, isUpper } from "@bearz/chars";
 
-
 function randomBytes(length: number): Uint8Array {
     const buffer = new Uint8Array(length);
     globalThis.crypto.getRandomValues(buffer);

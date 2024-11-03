@@ -5,8 +5,6 @@
     "exports": {
         ".": "./src/mod.ts",
         "./expand": "./src/expand.ts",
-        "./browser": "./src/browser/mod.ts",
-        "./deno": "./src/deno/mod.ts",
-        "./node": "./src/node/mod.ts"
+        "./env": "./src/env.ts"
     }
 }

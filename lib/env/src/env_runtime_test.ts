@@ -1,12 +1,14 @@
-import { env } from "./mod.ts";
 import { equal, nope, ok, throws } from "@bearz/assert";
+import { env } from "./mod.ts";
 
-Deno.test("env::env.get", () => {
+const test = Deno.test;
+
+test("env::env.get", () => {
     env.set("DENO_TEST_1", "value");
     equal(env.get("DENO_TEST_1"), "value");
 });
 
-Deno.test("env::env.expand", () => {
+test("env::env.expand", () => {
     env.set("NAME", "Alice");
     equal(
         env.expand("Hello, ${NAME}! You are ${AGE:-30} years old."),
@@ -22,27 +24,27 @@ Deno.test("env::env.expand", () => {
     }, "Missing environment variable AGE_NEXT2");
 });
 
-Deno.test("env::env.has", () => {
+test("env::env.has", () => {
     env.set("DENO_TEST_2", "value");
     ok(env.has("DENO_TEST_2"));
     nope(env.has("NOT_SET"));
 });
 
-Deno.test("env::env.remove", () => {
+test("env::env.remove", () => {
     env.set("DENO_TEST_2_1", "value");
     ok(env.has("DENO_TEST_2_1"));
     env.remove("DENO_TEST_2_1");
     nope(env.has("DENO_TEST_2_1"));
 });
 
-Deno.test("env::env.merge", () => {
+test("env::env.merge", () => {
     env.set("DENO_TEST_3", "value");
     env.merge({ "DENO_TEST_4": "value", "DENO_TEST_3": undefined });
     nope(env.has("DENO_TEST_3"));
     ok(env.has("DENO_TEST_4"));
 });
 
-Deno.test("env::env.iterator", () => {
+test("env::env.iterator", () => {
     env.set("DENO_TEST_TEST5", "value");
     const envs: Array<{ key: string; value: string }> = [];
     for (const e of env) {
@@ -53,18 +55,18 @@ Deno.test("env::env.iterator", () => {
     ok(envs.some((e) => e.key === "DENO_TEST_TEST5" && e.value === "value"));
 });
 
-Deno.test("env::env.toObject", () => {
+test("env::env.toObject", () => {
     env.set("DENO_TEST_6", "value");
     const obj = env.toObject();
     ok(obj.DENO_TEST_6 === "value");
 });
 
-Deno.test("env::env.set", () => {
+test("env::env.set", () => {
     env.set("DENO_TEST_7", "value");
     ok(env.has("DENO_TEST_7"));
 });
 
-Deno.test("env::env.path.append", () => {
+test("env::env.path.append", () => {
     env.path.append("/deno_test_append");
     ok(env.path.has("/deno_test_append"));
     const paths = env.path.split();
@@ -73,7 +75,7 @@ Deno.test("env::env.path.append", () => {
     nope(env.path.has("/deno_test_append"));
 });
 
-Deno.test("env::env.path.prepend", () => {
+test("env::env.path.prepend", () => {
     env.path.prepend("/deno_test_prepend");
     ok(env.path.has("/deno_test_prepend"));
     const paths = env.path.split();
@@ -82,14 +84,14 @@ Deno.test("env::env.path.prepend", () => {
     nope(env.path.has("/deno_test_prepend"));
 });
 
-Deno.test("env::env.path.remove", () => {
+test("env::env.path.remove", () => {
     env.path.append("/deno_test_remove");
     ok(env.path.has("/deno_test_remove"));
     env.path.remove("/deno_test_remove");
     nope(env.path.has("/deno_test_remove"));
 });
 
-Deno.test("env::env.path.replace", () => {
+test("env::env.path.replace", () => {
     env.path.append("/test_replace");
     ok(env.path.has("/test_replace"));
     env.path.replace("/test_replace", "/test2");
@@ -98,30 +100,30 @@ Deno.test("env::env.path.replace", () => {
     env.path.remove("/test2");
 });
 
-Deno.test("env::env.path.split", () => {
+test("env::env.path.split", () => {
     env.path.append("/deno_test12");
     const paths = env.path.split();
     ok(paths.length > 0);
     ok(paths.some((p) => p === "/deno_test12"));
 });
 
-Deno.test("env::env.path.toString", () => {
+test("env::env.path.toString", () => {
     env.path.append("/deno_test13");
     ok(env.path.toString().includes("/deno_test13"));
 });
 
-Deno.test("env::env.path.has", () => {
+test("env::env.path.has", () => {
     env.path.append("/deno_test14");
     ok(env.path.has("/deno_test14"));
     nope(env.path.has("/deno_test15"));
 });
 
-Deno.test("env::env.path.get", () => {
+test("env::env.path.get", () => {
     env.path.append("/deno_test16");
     ok(env.path.get().includes("/deno_test16"));
 });
 
-Deno.test("env::env.path.overwrite", () => {
+test("env::env.path.overwrite", () => {
     const p = env.path.toString();
     try {
         env.path.append("/deno_test17");
@@ -133,7 +135,7 @@ Deno.test("env::env.path.overwrite", () => {
     }
 });
 
-Deno.test("evn::env.path.iterator", () => {
+test("evn::env.path.iterator", () => {
     env.path.append("/deno_test19");
     const paths: Array<string> = [];
     for (const p of env.path) {
@@ -143,14 +145,14 @@ Deno.test("evn::env.path.iterator", () => {
     ok(paths.some((p) => p === "/deno_test19"));
 });
 
-Deno.test("env::env.joinPath", () => {
+test("env::env.joinPath", () => {
     const paths = ["/deno_test20", "/deno_test21"];
     const joined = env.joinPath(paths);
     ok(joined.includes("/deno_test20"));
     ok(joined.includes("/deno_test21"));
 });
 
-Deno.test("env::env.getBool", () => {
+test("env::env.getBool", () => {
     env.set("TEST_BOOL", "1");
     env.set("NON_BOOL", "bool");
 
@@ -159,7 +161,7 @@ Deno.test("env::env.getBool", () => {
     ok(env.getBool("NO_EXIST") === undefined);
 });
 
-Deno.test("env::env.getInt", () => {
+test("env::env.getInt", () => {
     env.set("TEST_INT", "1");
     env.set("NON_INT", "int");
 
@@ -168,7 +170,7 @@ Deno.test("env::env.getInt", () => {
     ok(env.getInt("NO_EXIST") === undefined);
 });
 
-Deno.test("env::env.getNumber", () => {
+test("env::env.getNumber", () => {
     env.set("TEST_FLOAT", "1.1");
     env.set("NON_FLOAT", "float");
 
@@ -177,7 +179,7 @@ Deno.test("env::env.getNumber", () => {
     ok(env.getNumber("NO_EXIST") === undefined);
 });
 
-Deno.test("env::env.getArray", () => {
+test("env::env.getArray", () => {
     env.set("TEST_ARRAY", "1,2,3");
     env.set("NON_ARRAY", "array");
 
@@ -189,7 +191,7 @@ Deno.test("env::env.getArray", () => {
     equal(env.getArray("TEST_ARRAY", ";"), ["1", "2", "3"], "Delimiter is not correctly set");
 });
 
-Deno.test("env::env.getDate", () => {
+test("env::env.getDate", () => {
     env.set("TEST_DATE", "2021-01-01");
     env.set("NON_DATE", "date");
 
@@ -198,7 +200,7 @@ Deno.test("env::env.getDate", () => {
     ok(env.getDate("NO_EXIST") === undefined);
 });
 
-Deno.test("env::env.getJson", () => {
+test("env::env.getJson", () => {
     env.set("TEST_JSON", '{"key": "value"}');
     env.set("NON_JSON", "json");
 
@@ -207,7 +209,7 @@ Deno.test("env::env.getJson", () => {
     ok(env.getJson("NO_EXIST") === undefined);
 });
 
-Deno.test("env::env.getBinary", () => {
+test("env::env.getBinary", () => {
     env.set("TEST_BINARY", "SGVsbG8gV29ybGQ=");
     env.set("NON_BINARY", "binary");
 

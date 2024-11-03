@@ -1,8 +1,46 @@
 import { StringBuilder } from "@bearz/strings/string-builder";
 import { CHAR_BACKWARD_SLASH, CHAR_PERCENT, CHAR_UNDERSCORE } from "@bearz/chars/constants";
-import type { SubstitutionOptions } from "./types.ts";
-
-export type { SubstitutionOptions } from "./types.ts";
+export interface SubstitutionOptions {
+    /**
+     * Enables or disables Windows-style variable expansion.
+     * @default true
+     */
+    windowsExpansion?: boolean;
+    /**
+     * Enables or disables Unix-style variable expansion.
+     * @default true
+     */
+    unixExpansion?: boolean;
+    /**
+     * Enables or disables Unix-style variable assignment.
+     * @default true
+     */
+    unixAssignment?: boolean;
+    /**
+     * Enables or disables Unix-style custom error messages.
+     * @default true
+     */
+    unixCustomErrorMessage?: boolean;
+    /**
+     * Enables or disables Unix-style argument expansion.
+     * @default true
+     */
+    unixArgsExpansion?: boolean;
+    /**
+     * A function that retrieves the value of an environment variable.
+     * Setting this option overrides the default behavior
+     * @param key - The name of the environment variable.
+     * @returns The value of the environment variable, or `undefined` if it is not set.
+     */
+    get?: (key: string) => string | undefined;
+    /**
+     * A function that sets the value of an environment variable.
+     * Setting this option overrides the default behavior.
+     * @param key - The name of the environment variable.
+     * @param value - The value to set.
+     */
+    set?: (key: string, value: string) => void;
+}
 
 enum TokenKind {
     None,
