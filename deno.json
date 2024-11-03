@@ -33,6 +33,7 @@
         "./lib/exec",
         "./lib/fmt",
         "./lib/fs",
+        "./lib/functional",
         "./lib/process",
         "./lib/runtime-info",
         "./lib/secrets",
