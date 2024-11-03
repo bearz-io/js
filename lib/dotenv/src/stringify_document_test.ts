@@ -1,6 +1,7 @@
 import { equal } from "@bearz/assert";
 import { DotEnvDocument } from "./document.ts";
 import { stringifyDocument } from "./stringify_document.ts";
+import { WINDOWS } from "@bearz/runtime-info/os";
 
 const test = Deno.test;
 
@@ -14,15 +15,15 @@ test("dotenv::stringifyDocument", () => {
     console.log(doc.toArray());
 
     const source = stringifyDocument(doc);
-    console.log(source, "end");
-
-    equal(
-        source,
-        `#comment=1
+    let expected = `#comment=1
 
 FOO='bar'
 BAR="baz
 "
-`,
-    );
+`;
+    if (WINDOWS) {
+        expected = expected.replace(/\n/g, "\r\n");
+    }
+
+    equal(source, expected);
 });
