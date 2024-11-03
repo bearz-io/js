@@ -6,7 +6,7 @@ import {
     makeDirSync,
     stat,
     statSync,
-} from "./std.ts";
+} from "./posix.ts";
 import { getFileInfoType } from "./utils.ts";
 
 /**
@@ -20,7 +20,7 @@ import { getFileInfoType } from "./utils.ts";
  *
  * @example
  * ```ts
- * import { ensureDir } from "@gnome/fs";
+ * import { ensureDir } from "@bearz/fs";
  *
  * await ensureDir("./bar");
  * ```
@@ -67,7 +67,7 @@ export async function ensureDir(dir: string | URL) {
  *
  * @example
  * ```ts
- * import { ensureDir } from "@gnome/fs";
+ * import { ensureDir } from "@bearz/fs";
  *
  * await ensureDir("./bar");
  * ```

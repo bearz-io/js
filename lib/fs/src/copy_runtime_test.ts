@@ -19,7 +19,7 @@ import {
     statSync,
     writeFileSync,
     writeTextFile,
-} from "./std.ts";
+} from "./posix.ts";
 
 const test = Deno.test;
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));

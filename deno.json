@@ -26,6 +26,8 @@
         "./lib/assert",
         "./lib/chars",
         "./lib/debug",
+        "./lib/env",
+        "./lib/exec",
         "./lib/fmt",
         "./lib/fs",
         "./lib/process",
@@ -36,6 +38,7 @@
 
     "imports": {
         "@std/assert": "jsr:@std/assert@^1.0.6",
+        "@std/encoding": "jsr:@std/encoding@^1.0.5",
         "@std/path": "jsr:@std/path@^1.0.6",
         "@types/chai": "npm:@types/chai@^5.0.0",
         "@types/node": "npm:@types/node@^20.17.0",

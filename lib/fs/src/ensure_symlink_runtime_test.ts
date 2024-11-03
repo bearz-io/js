@@ -22,7 +22,7 @@ import {
     writeFileSync,
     writeTextFile,
     writeTextFileSync,
-} from "./std.ts";
+} from "./posix.ts";
 
 const moduleDir = path.dirname(path.fromFileUrl(import.meta.url));
 const testdataDir = path.resolve(moduleDir, "testdata");

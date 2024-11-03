@@ -1,7 +1,14 @@
 import { toPathString } from "./utils.ts";
 import { join } from "@std/path";
-import { makeDir, makeDirSync, readDir, readDirSync, remove, removeSync } from "./fs.ts";
-import { isNotFoundError } from "./fs.ts";
+import {
+    isNotFoundError,
+    makeDir,
+    makeDirSync,
+    readDir,
+    readDirSync,
+    remove,
+    removeSync,
+} from "./posix.ts";
 
 /**
  * Asynchronously ensures that a directory is empty deletes the directory
@@ -15,7 +22,7 @@ import { isNotFoundError } from "./fs.ts";
  *
  * @example
  * ```ts
- * import { emptyDir } from "@gnome/fs";
+ * import { emptyDir } from "@bearz/fs";
  *
  * await emptyDir("./foo");
  * ```
@@ -31,7 +38,7 @@ export async function emptyDir(dir: string | URL) {
             }
         }));
     } catch (err) {
-        if (err.e) {
+        if (err instanceof Error) {
             if (!isNotFoundError(err)) {
                 throw err;
             }
@@ -54,7 +61,7 @@ export async function emptyDir(dir: string | URL) {
  *
  * @example
  * ```ts
- * import { emptyDirSync } from "@gnome/fs";
+ * import { emptyDirSync } from "@bearz/fs";
  *
  * emptyDirSync("./foo");
  * ```

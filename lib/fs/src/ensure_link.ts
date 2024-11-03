@@ -2,7 +2,7 @@
 import { dirname } from "@std/path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { toPathString } from "./utils.ts";
-import { link, linkSync } from "./std.ts";
+import { link, linkSync } from "./posix.ts";
 
 /**
  * Asynchronously ensures that the hard link exists. If the directory structure
@@ -15,7 +15,7 @@ import { link, linkSync } from "./std.ts";
  *
  * @example
  * ```ts
- * import { ensureLink } from "@gnome/fs";
+ * import { ensureLink } from "@bearz/fs";
  *
  * await ensureLink("./folder/targetFile.dat", "./folder/targetFile.link.dat");
  * ```
@@ -38,7 +38,7 @@ export async function ensureLink(src: string | URL, dest: string | URL) {
  *
  * @example
  * ```ts
- * import { ensureLinkSync } from "@gnome/fs";
+ * import { ensureLinkSync } from "@bearz/fs";
  *
  * ensureLinkSync("./folder/targetFile.dat", "./folder/targetFile.link.dat");
  * ```

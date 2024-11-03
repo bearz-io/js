@@ -2,7 +2,7 @@
 import { equal, ok, stringIncludes } from "@bearz/assert";
 import { fromFileUrl, join, joinGlobs, normalize, relative } from "@std/path";
 import { expandGlob, type ExpandGlobOptions, expandGlobSync } from "./expand_glob.ts";
-import { cwd } from "./std.ts";
+import { cwd } from "./posix.ts";
 
 const test = Deno.test;
 

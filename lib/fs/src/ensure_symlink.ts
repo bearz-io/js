@@ -10,7 +10,7 @@ import {
     readLinkSync,
     symlink,
     symlinkSync,
-} from "./std.ts";
+} from "./posix.ts";
 import type { SymlinkOptions } from "./types.ts";
 import { AlreadyExistsError } from "./errors.ts";
 import { WINDOWS } from "@bearz/runtime-info/os";
@@ -40,7 +40,7 @@ function resolveSymlinkTarget(target: string | URL, linkName: string | URL) {
  *
  * @example
  * ```ts
- * import { ensureSymlink } from "@gnome/fs";
+ * import { ensureSymlink } from "@bearz/fs";
  *
  * await ensureSymlink("./folder/targetFile.dat", "./folder/targetFile.link.dat");
  * ```
@@ -101,7 +101,7 @@ export async function ensureSymlink(
  *
  * @example
  * ```ts
- * import { ensureSymlinkSync } from "@gnome/fs";
+ * import { ensureSymlinkSync } from "@bearz/fs";
  *
  * ensureSymlinkSync("./folder/targetFile.dat", "./folder/targetFile.link.dat");
  * ```

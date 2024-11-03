@@ -101,7 +101,7 @@ function comparePath(a: WalkEntry, b: WalkEntry): number {
  *
  * ```ts
  * // script.ts
- * import { expandGlob } from "@gnome/fs";
+ * import { expandGlob } from "@bearz/fs";
  *
  * const entries = [];
  * for await (const entry of expandGlob("*.ts")) {
@@ -259,7 +259,7 @@ export async function* expandGlob(
  *
  * ```ts
  * // script.ts
- * import { expandGlobSync } from "@gnome/fs";
+ * import { expandGlobSync } from "@bearz/fs";
  *
  * const entries = [];
  * for (const entry of expandGlobSync("*.ts")) {

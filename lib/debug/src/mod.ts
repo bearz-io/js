@@ -181,7 +181,7 @@ export function writeLine(message: string, ...args: unknown[]): void;
  * @returns void
  * @example
  * ```ts
- * import { writeLine, isDebugEnabled } from "@gnome/debug";
+ * import { writeLine, isDebugEnabled } from "@bearz/debug";
  *
  * if (isDebugEnabled())
  *      writeLine("Hello, %s!", "world");

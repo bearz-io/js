@@ -16,6 +16,7 @@
         "./not-strict-equal": "./src/not_strict_equal.ts",
         "./ok": "./src/ok.ts",
         "./rejects": "./src/rejects.ts",
+        "./skip": "./src/skip.ts",
         "./strict-equal": "./src/strict_equal.ts",
         "./string-includes": "./src/string_includes.ts",
         "./unimplemented": "./src/unimplemented.ts",

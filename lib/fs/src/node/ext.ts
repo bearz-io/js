@@ -12,7 +12,7 @@ import type { SeekMode } from "../types.ts";
  *
  * @example ts
  * ```ts
- * import { ext } from "@gnome/fs/node/ext";
+ * import { ext } from "@bearz/fs/node/ext";
  * import { flock, flockSync,} from "npm:fs-ext@2.0.0";
  *
  * ext.lockFile = (fd: number, exclusive?: boolean) =>

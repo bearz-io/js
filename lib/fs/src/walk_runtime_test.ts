@@ -2,7 +2,7 @@
 import { walk, WalkError, type WalkOptions, walkSync } from "./walk.ts";
 import { arrayIncludes, equal, rejects, throws } from "@bearz/assert";
 import { fromFileUrl, resolve } from "@std/path";
-import { makeDir, remove } from "./std.ts";
+import { makeDir, remove } from "./posix.ts";
 import { WINDOWS } from "@bearz/runtime-info/os";
 
 const test = Deno.test;
