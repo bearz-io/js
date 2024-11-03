@@ -3,6 +3,19 @@
     "description": "fs module",
     "version": "0.0.0",
     "exports": {
-        ".": "./src/mod.ts"
+        ".": "./src/mod.ts",
+        "./posix": "./src/posix.ts",
+        "./node/ext": "./src/node/ext.ts",
+        "./copy": "./src/copy.ts",
+        "./empty-dir": "./src/empty_dir.ts",
+        "./ensure-dir": "./src/ensure_dir.ts",
+        "./ensure-file": "./src/ensure_file.ts",
+        "./ensure-link": "./src/ensure_link.ts",
+        "./ensure-symlink": "./src/ensure_symlink.ts",
+        "./errors": "./src/errors.ts",
+        "./exists": "./src/exists.ts",
+        "./expand-glob": "./src/expand_glob.ts",
+        "./move": "./src/move.ts",
+        "./walk": "./src/walk.ts"
     }
 }

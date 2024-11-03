@@ -669,7 +669,7 @@ export interface FileSystem {
      * the `using` keyword.
      *
      * ```ts
-     * import { open } from "@gnome/fs"
+     * import { open } from "@bearz/fs"
      * using file = await open("/foo/bar.txt", { read: true, write: true });
      * // Do work with file
      * ```
@@ -678,7 +678,7 @@ export interface FileSystem {
      * it.
      *
      * ```ts
-     * import { open } from "@gnome/fs"
+     * import { open } from "@bearz/fs"
      * const file = await open("/foo/bar.txt", { read: true, write: true });
      * // Do work with file
      * file.close();
@@ -700,7 +700,7 @@ export interface FileSystem {
      * by declaring the file variable with the `using` keyword.
      *
      * ```ts
-     * import { openSync } from "@gnome/fs";
+     * import { openSync } from "@bearz/fs";
      * using file = openSync("/foo/bar.txt", { read: true, write: true });
      * // Do work with file
      * ```
@@ -709,7 +709,7 @@ export interface FileSystem {
      * it.
      *
      * ```ts
-     * import { openSync } from "@gnome/fs";
+     * import { openSync } from "@bearz/fs";
      * const file = openSync("/foo/bar.txt", { read: true, write: true });
      * // Do work with file
      * file.close();

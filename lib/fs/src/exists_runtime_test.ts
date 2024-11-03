@@ -13,7 +13,7 @@ import {
     symlinkSync,
     writeFile,
     writeFileSync,
-} from "./std.ts";
+} from "./posix.ts";
 import { WINDOWS } from "@bearz/runtime-info/os";
 
 const test = Deno.test;

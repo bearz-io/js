@@ -2,21 +2,405 @@ import fs from "node:fs";
 import fsa from "node:fs/promises";
 import process from "node:process";
 import { basename, join } from "@std/path";
-import { File } from "./file.ts";
 import type {
     CreateDirectoryOptions,
     DirectoryInfo,
     FileInfo,
-    FsFile,
     FsSupports,
     MakeTempOptions,
     OpenOptions,
     ReadOptions,
     RemoveOptions,
+    SeekMode,
     SymlinkOptions,
     WriteOptions,
 } from "../types.ts";
-import { isDebugEnabled, writeLine } from "@gnome/debug";
+import { isDebugEnabled, writeLine } from "@bearz/debug";
+import { fs as fs2, FsFile } from "../posix_abstractions.ts";
+import { ext } from "./ext.ts";
+
+const defaultSupports: FsSupports[] = [];
+
+export class NodeFsFile extends FsFile {
+    #fd: number;
+    #path: string;
+    #supports: FsSupports[] = [];
+    #readable?: ReadableStream<Uint8Array>;
+    #writeable?: WritableStream<Uint8Array>;
+
+    constructor(fd: number, path: string, supports: FsSupports[] = []) {
+        super();
+        this.#fd = fd;
+        this.#path = path;
+        this.#supports = supports.concat(defaultSupports);
+    }
+
+    /**
+     * The readable stream for the file.
+     */
+    override get readable(): ReadableStream<Uint8Array> {
+        const fd = this.#fd;
+        this.#readable ??= new ReadableStream({
+            start: (controller) => {
+                while (true) {
+                    const buf = new Uint8Array(1024);
+                    const size = this.readSync(buf);
+                    if (size === null) {
+                        controller.close();
+                        this.closeSync();
+                        break;
+                    }
+                    controller.enqueue(buf.slice(0, size));
+                }
+            },
+            cancel() {
+                fs.closeSync(fd);
+            },
+        });
+
+        return this.#readable;
+    }
+
+    /**
+     * The writeable stream for the file.
+     */
+    override get writeable(): WritableStream<Uint8Array> {
+        const fd = this.#fd;
+        this.#writeable ??= new WritableStream({
+            write(chunk, controller) {
+                return new Promise((resolve) => {
+                    fs.write(fd, chunk, (err) => {
+                        if (err) {
+                            controller.error(err);
+                            return;
+                        }
+
+                        resolve();
+                    });
+                });
+            },
+            close() {
+                fs.closeSync(fd);
+            },
+        });
+
+        return this.writeable;
+    }
+
+    /**
+     * Provides information about the file system support for the file.
+     */
+    override get supports(): FsSupports[] {
+        return this.#supports;
+    }
+    /**
+     * Synchronously closes the file.
+     */
+    override closeSync(): void {
+        fs.closeSync(this.#fd);
+    }
+
+    /**
+     * Closes the file.
+     * @returns A promise that resolves when the file is closed.
+     */
+    override close(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            fs.close(this.#fd, (err) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve();
+            });
+        });
+    }
+
+    /**
+     * Flushes any pending data and metadata operations
+     * of the given file stream to disk.
+     * @returns A promise that resolves when the data is flushed.
+     */
+    override flush(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            fs.fsync(this.#fd, (err) => {
+                if (err) reject(err);
+                resolve();
+            });
+        });
+    }
+
+    /**
+     * Synchronously flushes any pending data and metadata operations
+     * of the given file stream to disk.
+     */
+    override flushSync(): void {
+        fs.fsyncSync(this.#fd);
+    }
+
+    /**
+     * Flushes any pending data operations of
+     * the given file stream to disk.
+     * @returns A promise that resolves when the data is flushed.
+     */
+    override flushData(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            fs.fdatasync(this.#fd, (err) => {
+                if (err) reject(err);
+                resolve();
+            });
+        });
+    }
+
+    /**
+     * Synchronously flushes any pending data operations of
+     * the given file stream to disk.
+     * @returns
+     */
+    override flushDataSync(): void {
+        return fs.fdatasyncSync(this.#fd);
+    }
+
+    /**
+     * Acquire an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @param exclusive Acquire an exclusive lock.
+     * @returns A promise that resolves when the lock is acquired.
+     * @throws An error when not impelemented.
+     */
+    override lock(exclusive?: boolean | undefined): Promise<void> {
+        return ext.lockFile(this.#fd, exclusive);
+    }
+
+    /**
+     * Synchronously acquire an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @param exclusive Acquire an exclusive lock.
+     * @returns A promise that resolves when the lock is acquired.
+     * @throws An error when not impelemented.
+     */
+    override lockSync(exclusive?: boolean | undefined): void {
+        return ext.lockFileSync(this.#fd, exclusive);
+    }
+
+    /**
+     * Synchronously read from the file into an array buffer (`buffer`).
+     *
+     * Returns either the number of bytes read during the operation
+     * or EOF (`null`) if there was nothing more to read.
+     *
+     * It is possible for a read to successfully return with `0`
+     * bytes read. This does not indicate EOF.
+     *
+     * It is not guaranteed that the full buffer will be read in
+     * a single call.
+     * @param buffer The buffer to read into.
+     * @returns The number of bytes read or `null` if EOF.
+     */
+    override readSync(buffer: Uint8Array): number | null {
+        const v = fs.readSync(this.#fd, buffer);
+        if (v < 1) {
+            return null;
+        }
+
+        return v;
+    }
+
+    /**
+     * Read from the file into an array buffer (`buffer`).
+     *
+     * Returns either the number of bytes read during the operation
+     * or EOF (`null`) if there was nothing more to read.
+     *
+     * It is possible for a read to successfully return with `0`
+     * bytes read. This does not indicate EOF.
+     *
+     * It is not guaranteed that the full buffer will be read in
+     * a single call.
+     * @param buffer The buffer to read into.
+     * @returns A promise of the number of bytes read or `null` if EOF.
+     */
+    override read(p: Uint8Array): Promise<number | null> {
+        return new Promise((resolve, reject) => {
+            fs.read(this.#fd, p, 0, p.length, null, (err, size) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(size);
+            });
+        });
+    }
+
+    /**
+     * Synchronously seek to the given `offset` under mode given by `whence`. The
+     * call resolves to the new position within the resource
+     * (bytes from the start).
+     *
+     * **The runtime may not support this operation or may require
+     * implementation of the `seek` method.**
+     * @param offset The offset to seek to.
+     * @param whence The `start`, `current`, or `end` of the steam.
+     * @returns The new position within the resource.
+     */
+    override seekSync(offset: number | bigint, whence?: SeekMode | undefined): number {
+        return ext.seekFileSync(this.#fd, offset, whence);
+    }
+
+    /**
+     * Seek to the given `offset` under mode given by `whence`. The
+     * call resolves to the new position within the resource
+     * (bytes from the start).
+     *
+     * **The runtime may not support this operation or may require
+     * implementation of the `seek` method.**
+     * @param offset The offset to seek to.
+     * @param whence The `start`, `current`, or `end` of the steam.
+     * @returns The new position within the resource.
+     * @throws An error when not impelemented.
+     */
+    override seek(offset: number | bigint, whence?: SeekMode | undefined): Promise<number> {
+        return ext.seekFile(this.#fd, offset, whence);
+    }
+
+    /**
+     * Gets the file information for the file.
+     * @returns A file information object.
+     * @throws An error if the file information cannot be retrieved.
+     */
+    override stat(): Promise<FileInfo> {
+        return new Promise((resolve, reject) => {
+            fs.fstat(this.#fd, (err, stat) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                const p = this.#path;
+                resolve({
+                    isFile: stat.isFile(),
+                    isDirectory: stat.isDirectory(),
+                    isSymlink: stat.isSymbolicLink(),
+                    name: basename(p),
+                    path: p,
+                    size: stat.size,
+                    birthtime: stat.birthtime,
+                    mtime: stat.mtime,
+                    atime: stat.atime,
+                    mode: stat.mode,
+                    uid: stat.uid,
+                    gid: stat.gid,
+                    dev: stat.dev,
+                    blksize: stat.blksize,
+                    ino: stat.ino,
+                    nlink: stat.nlink,
+                    rdev: stat.rdev,
+                    blocks: stat.blocks,
+                    isBlockDevice: stat.isBlockDevice(),
+                    isCharDevice: stat.isCharacterDevice(),
+                    isSocket: stat.isSocket(),
+                    isFifo: stat.isFIFO(),
+                } as FileInfo);
+            });
+        });
+    }
+
+    /**
+     * Synchronously gets the file information for the file.
+     * @returns A file information object.
+     * @throws An error if the file information cannot be retrieved.
+     */
+    override statSync(): FileInfo {
+        const p = this.#path;
+        const stat = fs.fstatSync(this.#fd);
+        return {
+            isFile: stat.isFile(),
+            isDirectory: stat.isDirectory(),
+            isSymlink: stat.isSymbolicLink(),
+            name: basename(p),
+            path: p,
+            size: stat.size,
+            birthtime: stat.birthtime,
+            mtime: stat.mtime,
+            atime: stat.atime,
+            mode: stat.mode,
+            uid: stat.uid,
+            gid: stat.gid,
+            dev: stat.dev,
+            blksize: stat.blksize,
+            ino: stat.ino,
+            nlink: stat.nlink,
+            rdev: stat.rdev,
+            blocks: stat.blocks,
+            isBlockDevice: stat.isBlockDevice(),
+            isCharDevice: stat.isCharacterDevice(),
+            isSocket: stat.isSocket(),
+            isFifo: stat.isFIFO(),
+        } as FileInfo;
+    }
+
+    /**
+     * Synchronously write the contents of the array buffer (`buffer`)
+     * to the file.
+     *
+     * Returns the number of bytes written.
+     *
+     * **It is not guaranteed that the full buffer
+     * will be written in a single call.**
+     * @param buffer The buffer to write.
+     * @returns A promise of the number of bytes written.
+     */
+    override writeSync(buffer: Uint8Array): number {
+        return fs.writeSync(this.#fd, buffer);
+    }
+
+    /**
+     * Synchronously write the contents of the array buffer (`buffer`)
+     * to the file.
+     *
+     * Returns the number of bytes written.
+     *
+     * **It is not guaranteed that the full buffer
+     * will be written in a single call.**
+     * @param buffer The buffer to write.
+     * @returns A promise of the number of bytes written.
+     */
+    override write(p: Uint8Array): Promise<number> {
+        return new Promise((resolve, reject) => {
+            fs.write(this.#fd, p, (err, size) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(size);
+            });
+        });
+    }
+
+    /**
+     * Release an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @returns A promise that resolves when the lock is released.
+     * @throws An error if not implemented.
+     */
+    override unlock(): Promise<void> {
+        return ext.unlockFile(this.#fd);
+    }
+
+    /**
+     * Release an advisory file-system lock for the file.
+     * **The current runtime may not support this operation or may require
+     * implementation of the `lock` and `unlock` methods.**
+     * @throws An error if not implemented.
+     */
+    override unlockSync(): void {
+        return ext.unlockFileSync(this.#fd);
+    }
+}
 
 const WIN = process.platform === "win32";
 
@@ -48,18 +432,18 @@ function randomName(prefix?: string, suffix?: string): string {
  * @param mode The new permissions mode.
  * @returns A promise that resolves when the operation is complete.
  */
-export function chmod(path: string | URL, mode: number): Promise<void> {
+fs2.chmod = function (path: string | URL, mode: number): Promise<void> {
     return fsa.chmod(path, mode);
-}
+};
 
 /**
  * Synchronously changes the permissions of a file or directory.
  * @param path The path to the file or directory.
  * @param mode The new permissions mode.
  */
-export function chmodSync(path: string | URL, mode: number): void {
+fs2.chmodSync = function (path: string | URL, mode: number): void {
     fs.chmodSync(path, mode);
-}
+};
 /**
  * Changes the owner and group of a file or directory.
  * @param path The path to the file or directory.
@@ -67,13 +451,13 @@ export function chmodSync(path: string | URL, mode: number): void {
  * @param gid The new owner group ID.
  * @returns A promise that resolves when the operation is complete.
  */
-export function chown(
+fs2.chown = function (
     path: string | URL,
     uid: number,
     gid: number,
 ): Promise<void> {
     return fsa.chown(path, uid, gid);
-}
+};
 
 /**
  * Synchronously changes the owner and group of a file or directory.
@@ -81,9 +465,9 @@ export function chown(
  * @param uid The new owner user ID.
  * @param gid The new owner group ID.
  */
-export function chownSync(path: string | URL, uid: number, gid: number): void {
+fs2.chownSync = function (path: string | URL, uid: number, gid: number): void {
     fs.chownSync(path, uid, gid);
-}
+};
 
 /**
  * Copies a file.
@@ -91,38 +475,38 @@ export function chownSync(path: string | URL, uid: number, gid: number): void {
  * @param to The path to the destination file.
  * @returns A promise that resolves when the operation is complete.
  */
-export async function copyFile(
+fs2.copyFile = function (
     src: string | URL,
     dest: string | URL,
 ): Promise<void> {
-    return await fsa.copyFile(src, dest);
-}
+    return fsa.copyFile(src, dest);
+};
 
 /**
  * Synchronously copies a file.
  * @param from The path to the source file.
  * @param to The path to the destination file.
  */
-export function copyFileSync(
+fs2.copyFileSync = function (
     src: string | URL,
     dest: string | URL,
 ): void {
     fs.copyFileSync(src, dest);
-}
+};
 
 /**
  * Gets the current working directory.
  * @returns The current working directory.
  */
-export function cwd(): string {
+fs2.cwd = function (): string {
     return process.cwd();
-}
+};
 
 /**
  * Gets the current group id on POSIX platforms.
  * Returns `null` on Windows.
  */
-export function gid(): number | null {
+fs2.gid = function (): number | null {
     if (process.getgid === undefined) {
         return null;
     }
@@ -133,83 +517,83 @@ export function gid(): number | null {
     }
 
     return gid;
-}
+};
 
 /**
  * Checks if an error indicates that a file or directory already exists.
  * @param err The error to check.
  * @returns A boolean indicating whether the error indicates that the file or directory already exists.
  */
-export function isAlreadyExistsError(err: unknown): boolean {
+fs2.isAlreadyExistsError = function (err: unknown): boolean {
     if (!(err instanceof Error)) {
         return false;
     }
 
     // deno-lint-ignore no-explicit-any
     return (err as any).code === "EEXIST";
-}
+};
 
 /**
  * Checks if a path is a directory.
  * @param path The path to check.
  * @returns A promise that resolves with a boolean indicating whether the path is a directory.
  */
-export function isDir(path: string | URL): Promise<boolean> {
+fs2.isDir = function (path: string | URL): Promise<boolean> {
     return fsa.stat(path)
         .then((stat) => stat.isDirectory())
         .catch(() => false);
-}
+};
 
 /**
  * Synchronously checks if a path is a directory.
  * @param path The path to check.
  * @returns A boolean indicating whether the path is a directory.
  */
-export function isDirSync(path: string | URL): boolean {
+fs2.isDirSync = function (path: string | URL): boolean {
     try {
         return fs.statSync(path).isDirectory();
     } catch {
         return false;
     }
-}
+};
 
 /**
  * Checks if a path is a file.
  * @param path The path to check.
  * @returns A promise that resolves with a boolean indicating whether the path is a file.
  */
-export function isFile(path: string | URL): Promise<boolean> {
+fs2.isFile = function (path: string | URL): Promise<boolean> {
     return fsa.stat(path)
         .then((stat) => stat.isFile())
         .catch(() => false);
-}
+};
 
 /**
  * Synchronously checks if a path is a file.
  * @param path The path to check.
  * @returns A boolean indicating whether the path is a file.
  */
-export function isFileSync(path: string | URL): boolean {
+fs2.isFileSync = function (path: string | URL): boolean {
     try {
         return fs.statSync(path).isFile();
     } catch {
         return false;
     }
-}
+};
 
 /**
  * Checks if an error indicates that a file or directory was not found.
  * @param err The error to check.
  * @returns A boolean indicating whether the error indicates that the file or directory was not found.
  */
-export function isNotFoundError(err: unknown): boolean {
+fs2.isNotFoundError = function (err: unknown): boolean {
     if (!(err instanceof Error)) {
         return false;
     }
 
     // deno-lint-ignore no-explicit-any
     return (err as any).code === "ENOENT";
-}
+};
 
 /**
  * Creates a hard link.
@@ -217,25 +601,25 @@ export function isNotFoundError(err: unknown): boolean {
  * @param newPath The path to the new link.
  * @returns A promise that resolves when the operation is complete.
  */
-export function link(oldPath: string | URL, newPath: string | URL): Promise<void> {
+fs2.link = function (oldPath: string | URL, newPath: string | URL): Promise<void> {
     return fsa.link(oldPath, newPath);
-}
+};
 
 /**
  * Synchronously creates a hard link.
  * @param oldPath The path to the existing file.
  * @param newPath The path to the new link.
  */
-export function linkSync(oldPath: string | URL, newPath: string | URL): void {
+fs2.linkSync = function (oldPath: string | URL, newPath: string | URL): void {
     fs.linkSync(oldPath, newPath);
-}
+};
 
 /**
  * Gets information about a file or directory.
  * @param path The path to the file or directory.
  * @returns A promise that resolves with the file information.
  */
-export function lstat(path: string | URL): Promise<FileInfo> {
+fs2.lstat = function (path: string | URL): Promise<FileInfo> {
     return fsa.lstat(path).then((stat) => {
         const p = path instanceof URL ? path.toString() : path;
         return {
@@ -263,14 +647,14 @@ export function lstat(path: string | URL): Promise<FileInfo> {
             isFifo: stat.isFIFO(),
         } as FileInfo;
     });
-}
+};
 
 /**
  * Gets information about a file or directory synchronously.
  * @param path The path to the file or directory.
  * @returns The file information.
  */
-export function lstatSync(path: string | URL): FileInfo {
+fs2.lstatSync = function (path: string | URL): FileInfo {
     const stat = fs.lstatSync(path);
     const p = path instanceof URL ? path.toString() : path;
     return {
@@ -297,7 +681,7 @@ export function lstatSync(path: string | URL): FileInfo {
         isSocket: stat.isSocket(),
         isFifo: stat.isFIFO(),
     };
-}
+};
 
 /**
  * Creates a directory.
@@ -305,30 +689,30 @@ export function lstatSync(path: string | URL): FileInfo {
  * @param options The options for creating the directory (optional).
  * @returns A promise that resolves when the operation is complete.
  */
-export async function makeDir(
+fs2.makeDir = async function (
     path: string | URL,
     options?: CreateDirectoryOptions | undefined,
 ): Promise<void> {
     await fsa.mkdir(path, options);
-}
+};
 /**
  * Synchronously a directory.
  * @param path The path to the directory.
  * @param options The options for creating the directory (optional).
  */
-export function makeDirSync(
+fs2.makeDirSync = function (
     path: string | URL,
     options?: CreateDirectoryOptions | undefined,
 ): void {
     fs.mkdirSync(path, options);
-}
+};
 
 /**
  * Creates a temporary directory.
  * @param options The options for creating the temporary directory (optional).
  * @returns A promise that resolves with the path to the created temporary directory.
  */
-export async function makeTempDir(options?: MakeTempOptions): Promise<string> {
+fs2.makeTempDir = function (options?: MakeTempOptions): Promise<string> {
     options ??= {};
     options.prefix ??= "tmp";
 
@@ -341,15 +725,15 @@ export async function makeTempDir(options?: MakeTempOptions): Promise<string> {
         dir = join(dir, options.prefix);
     }
 
-    return await fsa.mkdtemp(dir);
-}
+    return fsa.mkdtemp(dir);
+};
 
 /**
  * Synchronously creates a temporary directory.
  * @param options The options for creating the temporary directory (optional).
  * @returns The path to the created temporary directory.
  */
-export function makeTempDirSync(options?: MakeTempOptions): string {
+fs2.makeTempDirSync = function (options?: MakeTempOptions): string {
     options ??= {};
     options.prefix ??= "tmp";
 
@@ -363,14 +747,14 @@ export function makeTempDirSync(options?: MakeTempOptions): string {
     }
 
     return fs.mkdtempSync(dir);
-}
+};
 
 /**
  * Creates a temporary file.
  * @param options The options for creating the temporary file (optional).
  * @returns A promise that resolves with the path to the created temporary file.
  */
-export async function makeTempFile(options?: MakeTempOptions): Promise<string> {
+fs2.makeTempFile = async function (options?: MakeTempOptions): Promise<string> {
     options ??= {};
     options.prefix ??= "tmp";
 
@@ -384,21 +768,21 @@ export async function makeTempFile(options?: MakeTempOptions): Promise<string> {
     const r = randomName(options.prefix, options.suffix);
     const sep = WIN ? "\\" : "/";
 
-    await makeDir(dir, { recursive: true });
+    await fs2.makeDir(dir, { recursive: true });
 
     const file = `${options.dir}${sep}${r}`;
 
     fs.writeFileSync(file, new Uint8Array(0), { mode: 0o644 });
 
     return file;
-}
+};
 
 /**
  * Synchronously creates a temporary file.
  * @param options The options for creating the temporary file (optional).
  * @returns The path to the created temporary file.
  */
-export function makeTempFileSync(options?: MakeTempOptions): string {
+fs2.makeTempFileSync = function (options?: MakeTempOptions): string {
     options ??= {};
     options.prefix ??= "tmp";
 
@@ -409,13 +793,13 @@ export function makeTempFileSync(options?: MakeTempOptions): string {
     const r = randomName(options.prefix, options.suffix);
     const sep = WIN ? "\\" : "/";
 
-    makeDirSync(options.dir, { recursive: true });
+    fs2.makeDirSync(options.dir, { recursive: true });
 
     const file = `${options.dir}${sep}${r}`;
 
     fs.writeFileSync(file, new Uint8Array(0), { mode: 0o644 });
     return file;
-}
+};
 
 /**
  * Open a file and resolve to an instance of {@linkcode FsFile}. The
@@ -425,7 +809,7 @@ export function makeTempFileSync(options?: MakeTempOptions): string {
  * the `using` keyword.
  *
  * ```ts
- * import { open } from "@gnome/fs"
+ * import { open } from "@bearz/fs"
  * using file = await open("/foo/bar.txt", { read: true, write: true });
  * // Do work with file
  * ```
@@ -434,7 +818,7 @@ export function makeTempFileSync(options?: MakeTempOptions): string {
  * it.
  *
  * ```ts
- * import { open } from "@gnome/fs"
+ * import { open } from "@bearz/fs"
  * const file = await open("/foo/bar.txt", { read: true, write: true });
  * // Do work with file
  * file.close();
@@ -446,7 +830,7 @@ export function makeTempFileSync(options?: MakeTempOptions): string {
  * @tags allow-read, allow-write
  * @category File System
  */
-export function open(path: string | URL, options: OpenOptions): Promise<FsFile> {
+fs2.open = function (path: string | URL, options: OpenOptions): Promise<FsFile> {
     let flags = "r";
     const supports: FsSupports[] = [];
     if (options.read) {
@@ -476,10 +860,10 @@ export function open(path: string | URL, options: OpenOptions): Promise<FsFile> 
                 return;
             }
             const p = path instanceof URL ? path.toString() : path;
-            resolve(new File(fd, p, supports));
+            resolve(new NodeFsFile(fd, p, supports));
         });
     });
-}
+};
 
 /**
  * Synchronously open a file and return an instance of
@@ -489,7 +873,7 @@ export function open(path: string | URL, options: OpenOptions): Promise<FsFile> 
  * by declaring the file variable with the `using` keyword.
  *
  * ```ts
- * import { openSync } from "@gnome/fs";
+ * import { openSync } from "@bearz/fs";
  * using file = openSync("/foo/bar.txt", { read: true, write: true });
  * // Do work with file
  * ```
@@ -498,7 +882,7 @@ export function open(path: string | URL, options: OpenOptions): Promise<FsFile> 
  * it.
  *
  * ```ts
- * import { openSync } from "@gnome/fs";
+ * import { openSync } from "@bearz/fs";
  * const file = openSync("/foo/bar.txt", { read: true, write: true });
  * // Do work with file
  * file.close();
@@ -510,7 +894,7 @@ export function open(path: string | URL, options: OpenOptions): Promise<FsFile> 
  * @tags allow-read, allow-write
  * @category File System
  */
-export function openSync(path: string | URL, options: OpenOptions): FsFile {
+fs2.openSync = function (path: string | URL, options: OpenOptions): FsFile {
     let flags = "r";
     const supports: FsSupports[] = [];
     if (options.read) {
@@ -535,15 +919,15 @@ export function openSync(path: string | URL, options: OpenOptions): FsFile {
 
     const fd = fs.openSync(path, flags, options.mode);
     const p = path instanceof URL ? path.toString() : path;
-    return new File(fd, p, supports);
-}
+    return new NodeFsFile(fd, p, supports);
+};
 
 /**
  * Reads the contents of a directory.
  * @param path The path to the directory.
  * @returns An async iterable that yields directory information.
  */
-export function readDir(
+fs2.readDir = function (
     path: string | URL,
 ): AsyncIterable<DirectoryInfo> {
     if (path instanceof URL) {
@@ -555,7 +939,7 @@ export function readDir(
         for (const d of data) {
             const next = join(path, d);
             try {
-                const info = await lstat(join(path, d));
+                const info = await fs2.lstat(join(path, d));
                 yield {
                     name: d,
                     isFile: info.isFile,
@@ -577,14 +961,14 @@ export function readDir(
     };
 
     return iterator();
-}
+};
 
 /**
  * Synchronously reads the contents of a directory.
  * @param path The path to the directory.
  * @returns An iterable that yields directory information.
  */
-export function* readDirSync(
+fs2.readDirSync = function* (
     path: string | URL,
 ): Iterable<DirectoryInfo> {
     if (path instanceof URL) {
@@ -595,7 +979,7 @@ export function* readDirSync(
     for (const d of data) {
         const next = join(path, d);
         try {
-            const info = lstatSync(next);
+            const info = fs2.lstatSync(next);
 
             yield {
                 name: d,
@@ -615,7 +999,7 @@ export function* readDirSync(
             }
         }
     }
-}
+};
 
 /**
  * Reads the contents of a file.
@@ -623,7 +1007,7 @@ export function* readDirSync(
  * @param options The options for reading the file (optional).
  * @returns A promise that resolves with the file contents as a Uint8Array.
  */
-export function readFile(path: string | URL, options?: ReadOptions): Promise<Uint8Array> {
+fs2.readFile = function (path: string | URL, options?: ReadOptions): Promise<Uint8Array> {
     if (options?.signal) {
         options.signal.throwIfAborted();
         // deno-lint-ignore no-explicit-any
@@ -643,34 +1027,34 @@ export function readFile(path: string | URL, options?: ReadOptions): Promise<Uin
     }
 
     return fsa.readFile(path);
-}
+};
 
 /**
  * Synchronously reads the contents of a file.
  * @param path The path to the file.
  * @returns The file contents as a Uint8Array.
  */
-export function readFileSync(path: string | URL): Uint8Array {
+fs2.readFileSync = function (path: string | URL): Uint8Array {
     return fs.readFileSync(path);
-}
+};
 
 /**
  * Reads the target of a symbolic link.
  * @param path The path to the symbolic link.
  * @returns A promise that resolves with the target path as a string.
  */
-export function readLink(path: string | URL): Promise<string> {
+fs2.readLink = function (path: string | URL): Promise<string> {
     return fsa.readlink(path);
-}
+};
 
 /**
  * Synchronously reads the target of a symbolic link.
  * @param path The path to the symbolic link.
  * @returns The target path as a string.
  */
-export function readLinkSync(path: string | URL): string {
+fs2.readLinkSync = function (path: string | URL): string {
     return fs.readlinkSync(path);
-}
+};
 
 /**
  * Reads the contents of a file as text.
@@ -678,7 +1062,7 @@ export function readLinkSync(path: string | URL): string {
  * @param options The options for reading the file (optional).
  * @returns A promise that resolves with the file contents as a string.
  */
-export function readTextFile(path: string | URL, options?: ReadOptions): Promise<string> {
+fs2.readTextFile = function (path: string | URL, options?: ReadOptions): Promise<string> {
     if (options?.signal) {
         options.signal.throwIfAborted();
         // deno-lint-ignore no-explicit-any
@@ -698,34 +1082,34 @@ export function readTextFile(path: string | URL, options?: ReadOptions): Promise
     }
 
     return fsa.readFile(path, { encoding: "utf8" });
-}
+};
 
 /**
  * Synchronously Reads the contents of a file as text.
  * @param path The path to the file.
  * @returns The file contents as a string.
  */
-export function readTextFileSync(path: string | URL): string {
+fs2.readTextFileSync = function (path: string | URL): string {
     return fs.readFileSync(path, { encoding: "utf8" });
-}
+};
 
 /**
  * Resolves the real path of a file or directory.
  * @param path The path to the file or directory.
  * @returns A promise that resolves with the real path as a string.
  */
-export function realPath(path: string | URL): Promise<string> {
+fs2.realPath = function (path: string | URL): Promise<string> {
     return fsa.realpath(path);
-}
+};
 
 /**
  * Synchronously resolves the real path of a file or directory.
  * @param path The path to the file or directory.
  * @returns The real path as a string.
  */
-export function realPathSync(path: string | URL): string {
+fs2.realPathSync = function (path: string | URL): string {
     return fs.realpathSync(path);
-}
+};
 
 /**
  * Removes a file or directory.
@@ -733,31 +1117,31 @@ export function realPathSync(path: string | URL): string {
  * @param options The options for removing the file or directory (optional).
  * @returns A promise that resolves when the operation is complete.
  */
-export async function remove(
+fs2.remove = async function (
     path: string | URL,
     options?: RemoveOptions,
 ): Promise<void> {
-    const isFolder = await isDir(path);
+    const isFolder = await fs2.isDir(path);
     if (isFolder) {
         return await fsa.rmdir(path, { ...options });
     }
 
     return fsa.rm(path, { ...options, force: true });
-}
+};
 
 /**
  * Synchronously removes a file or directory.
  * @param path The path to the file or directory.
  * @param options The options for removing the file or directory (optional).
  */
-export function removeSync(path: string | URL, options?: RemoveOptions): void {
-    const isFolder = isDirSync(path);
+fs2.removeSync = function (path: string | URL, options?: RemoveOptions): void {
+    const isFolder = fs2.isDirSync(path);
     if (isFolder) {
         return fs.rmdirSync(path, { ...options });
     }
 
     return fs.rmSync(path, { ...options, force: true });
-}
+};
 
 /**
  * Renames a file or directory.
@@ -765,28 +1149,28 @@ export function removeSync(path: string | URL, options?: RemoveOptions): void {
  * @param newPath The path to the new file or directory.
  * @returns A promise that resolves when the operation is complete.
  */
-export function rename(
+fs2.rename = function (
     oldPath: string | URL,
     newPath: string | URL,
 ): Promise<void> {
     return fsa.rename(oldPath, newPath);
-}
+};
 
 /**
  * Synchronously renames a file or directory.
  * @param oldPath The path to the existing file or directory.
  * @param newPath The path to the new file or directory.
  */
-export function renameSync(oldPath: string | URL, newPath: string | URL): void {
+fs2.renameSync = function (oldPath: string | URL, newPath: string | URL): void {
     return fs.renameSync(oldPath, newPath);
-}
+};
 
 /**
  * Gets information about a file or directory.
  * @param path The path to the file or directory.
  * @returns A promise that resolves with the file information.
  */
-export function stat(path: string | URL): Promise<FileInfo> {
+fs2.stat = function (path: string | URL): Promise<FileInfo> {
     return fsa.stat(path).then((stat) => {
         const p = path instanceof URL ? path.toString() : path;
         return {
@@ -814,14 +1198,14 @@ export function stat(path: string | URL): Promise<FileInfo> {
             isFifo: stat.isFIFO(),
         };
     });
-}
+};
 
 /**
  * Synchronously gets information about a file or directory.
  * @param path The path to the file or directory.
  * @returns The file information.
  */
-export function statSync(path: string | URL): FileInfo {
+fs2.statSync = function (path: string | URL): FileInfo {
     const stat = fs.statSync(path);
     const p = path instanceof URL ? path.toString() : path;
 
@@ -849,7 +1233,7 @@ export function statSync(path: string | URL): FileInfo {
         isSocket: stat.isSocket(),
         isFifo: stat.isFIFO(),
     };
-}
+};
 
 /**
  * Creates a symbolic link.
@@ -858,13 +1242,13 @@ export function statSync(path: string | URL): FileInfo {
  * @param type The type of the symbolic link (optional).
  * @returns A promise that resolves when the operation is complete.
  */
-export function symlink(
+fs2.symlink = function (
     target: string | URL,
     path: string | URL,
     opttions?: SymlinkOptions,
 ): Promise<void> {
     return fsa.symlink(target, path, opttions?.type);
-}
+};
 
 /**
  * Synchronously creates a symbolic link.
@@ -872,13 +1256,13 @@ export function symlink(
  * @param path The path to the symbolic link.
  * @param type The type of the symbolic link (optional).
  */
-export function symlinkSync(
+fs2.symlinkSync = function (
     target: string | URL,
     path: string | URL,
     options?: SymlinkOptions,
 ): void {
     fs.symlinkSync(target, path, options?.type);
-}
+};
 
 /**
  * Writes binary data to a file.
@@ -887,7 +1271,7 @@ export function symlinkSync(
  * @param options The options for writing the file (optional).
  * @returns A promise that resolves when the operation is complete.
  */
-export function writeFile(
+fs2.writeFile = function (
     path: string | URL,
     data: Uint8Array | ReadableStream<Uint8Array>,
     options?: WriteOptions | undefined,
@@ -931,7 +1315,7 @@ export function writeFile(
     }
 
     return fsa.writeFile(path, data, o);
-}
+};
 
 /**
  * Synchronously writes binary data to a file.
@@ -939,7 +1323,7 @@ export function writeFile(
  * @param data The binary data to write.
  * @param options The options for writing the file (optional).
  */
-export function writeFileSync(
+fs2.writeFileSync = function (
     path: string | URL,
     data: Uint8Array,
     options?: WriteOptions | undefined,
@@ -970,7 +1354,7 @@ export function writeFileSync(
     }
 
     fs.writeFileSync(path, data, o);
-}
+};
 
 /**
  * Writes text data to a file.
@@ -979,7 +1363,7 @@ export function writeFileSync(
  * @param options The options for writing the file (optional).
  * @returns A promise that resolves when the operation is complete.
  */
-export async function writeTextFile(
+fs2.writeTextFile = async function (
     path: string | URL,
     data: string,
     options?: WriteOptions,
@@ -1011,7 +1395,7 @@ export async function writeTextFile(
     }
 
     await fsa.writeFile(path, data, o);
-}
+};
 
 /**
  * Synchronously writes text data to a file.
@@ -1019,7 +1403,7 @@ export async function writeTextFile(
  * @param data The text data to write.
  * @param options The options for writing the file (optional).
  */
-export function writeTextFileSync(
+fs2.writeTextFileSync = function (
     path: string | URL,
     data: string,
     options?: WriteOptions,
@@ -1050,13 +1434,13 @@ export function writeTextFileSync(
         o.signal = c.signal;
     }
     fs.writeFileSync(path, data, o);
-}
+};
 
 /**
  * Gets the current user id on POSIX platforms.
  * Returns `null` on Windows.
  */
-export function uid(): number | null {
+fs2.uid = function (): number | null {
     if (process.getuid === undefined) {
         return null;
     }
@@ -1067,7 +1451,7 @@ export function uid(): number | null {
     }
 
     return uid;
-}
+};
 
 /**
  * Changes the access time and modification time of a file or directory.
@@ -1076,13 +1460,13 @@ export function uid(): number | null {
  * @param mtime The new modification time.
  * @returns A promise that resolves when the operation is complete.
  */
-export function utime(
+fs2.utime = function (
     path: string | URL,
     atime: number | Date,
     mtime: number | Date,
 ): Promise<void> {
     return fsa.utimes(path, atime, mtime);
-}
+};
 
 /**
  * Synchronously changes the access time and modification time of a file or directory.
@@ -1090,10 +1474,10 @@ export function utime(
  * @param atime The new access time.
  * @param mtime The new modification time.
  */
-export function utimeSync(
+fs2.utimeSync = function (
     path: string | URL,
     atime: number | Date,
     mtime: number | Date,
 ): void {
     fs.utimesSync(path, atime, mtime);
-}
+};

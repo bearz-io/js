@@ -9,7 +9,7 @@ import {
     renameSync,
     stat,
     statSync,
-} from "./std.ts";
+} from "./posix.ts";
 import { isSamePath, isSubdir } from "./utils.ts";
 import { AlreadyExistsError, SubdirectoryMoveError } from "./errors.ts";
 
@@ -35,7 +35,7 @@ export interface MoveOptions {
  *
  * @example Basic usage
  * ```ts
- * import { move } from "@gnome/fs";
+ * import { move } from "@bearz/fs";
  *
  * await move("./foo", "./bar");
  * ```
@@ -45,7 +45,7 @@ export interface MoveOptions {
  *
  * @example Overwriting
  * ```ts
- * import { move } from "@gnome/fs";
+ * import { move } from "@bearz/fs";
  *
  * await move("./foo", "./bar", { overwrite: true });
  * ```
@@ -98,7 +98,7 @@ export async function move(
  *
  * @example Basic usage
  * ```ts
- * import { moveSync } from "@gnome/fs";
+ * import { moveSync } from "@bearz/fs";
  *
  * moveSync("./foo", "./bar");
  * ```
@@ -108,7 +108,7 @@ export async function move(
  *
  * @example Overwriting
  * ```ts
- * import { moveSync } from "@gnome/fs";
+ * import { moveSync } from "@bearz/fs";
  *
  * moveSync("./foo", "./bar", { overwrite: true });
  * ```

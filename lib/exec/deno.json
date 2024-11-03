@@ -1,0 +1,15 @@
+{
+    "name": "@bearz/exec",
+    "description": "exec module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./command": "./src/command.ts",
+        "./errors": "./src/errors.ts",
+        "./path-finder": "./src/path_finder.ts",
+        "./set-logger": "./src/set_logger.ts",
+        "./splat": "./src/splat.ts",
+        "./split-arguments": "./src/split_arguments.ts",
+        "./which": "./src/which.ts"
+    }
+}

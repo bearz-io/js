@@ -2,8 +2,8 @@
 import { dirname } from "@std/path";
 import { ensureDir, ensureDirSync } from "./ensure_dir.ts";
 import { getFileInfoType, toPathString } from "./utils.ts";
-import { lstat, lstatSync, writeFile, writeFileSync } from "./std.ts";
-import { isNotFoundError } from "./std.ts";
+import { lstat, lstatSync, writeFile, writeFileSync } from "./posix.ts";
+import { isNotFoundError } from "./posix.ts";
 
 /**
  * Asynchronously ensures that the file exists. If the file that is requested to
@@ -17,7 +17,7 @@ import { isNotFoundError } from "./std.ts";
  *
  * @example
  * ```ts
- * import { ensureFile } from "@gnome/fs";
+ * import { ensureFile } from "@bearz/fs";
  *
  * await ensureFile("./folder/targetFile.dat");
  * ```
@@ -57,7 +57,7 @@ export async function ensureFile(filePath: string | URL): Promise<void> {
  *
  * @example
  * ```ts
- * import { ensureFileSync } from "@gnome/fs";
+ * import { ensureFileSync } from "@bearz/fs";
  *
  * ensureFileSync("./folder/targetFile.dat");
  * ```

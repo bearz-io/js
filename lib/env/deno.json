@@ -1,0 +1,10 @@
+{
+    "name": "@bearz/env",
+    "description": "env module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./expand": "./src/expand.ts",
+        "./env": "./src/env.ts"
+    }
+}

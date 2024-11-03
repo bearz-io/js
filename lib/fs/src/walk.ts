@@ -1,7 +1,7 @@
 import { join, normalize } from "@std/path";
 import { createWalkEntry, createWalkEntrySync, toPathString } from "./utils.ts";
 import type { WalkEntry } from "./types.ts";
-import { lstat, lstatSync, readDir, readDirSync, realPath, realPathSync } from "./std.ts";
+import { lstat, lstatSync, readDir, readDirSync, realPath, realPathSync } from "./posix.ts";
 
 /** Error thrown in {@linkcode walk} or {@linkcode walkSync} during iteration. */
 export class WalkError extends Error {
@@ -127,7 +127,7 @@ export type { WalkEntry };
  * ```
  *
  * ```ts
- * import { walk } from "@gnome/fs";
+ * import { walk } from "@bearz/fs";
  *
  * const entries = [];
  * for await (const entry of walk(".")) {

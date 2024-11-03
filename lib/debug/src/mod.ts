@@ -1,26 +1,54 @@
+/**
+ * ## Overview
+ *
+ * A runtime agnostic implementation writing debug statements
+ * in library code without the need for a logging framework
+ * or library. Similary to Rust's `std:dbg`, .Net's `System.Diagnostics.Debug`,
+ * etc.
+ *
+ * Unfortunately because JavaScript is not compiled, the statements
+ * can not be removed from a library, so this module should be
+ * used sparingly.
+ *
+ * When it is used, you'll want to `isDebugEnabled` for avoid any
+ * costly calls that require extra processing before writing out
+ * a debug stream statement.
+ *
+ * ## Basic Usage
+ *
+ * ```ts
+ * import { isDebugEnabled, setDebugEnabled, assert, writeLine, writeLineIf } from "@bearz/debug"
+ *
+ * setDebugEnabled(true);
+ *
+ * try {
+ *     // some low level call
+ * } catch(e) {
+ *     if (isDebugEnabled() && e.stack) {
+ *         writeLine(e.stack)
+ *     }
+ * }
+ *
+ * let x = 5;
+ * // perform some logic
+ *
+ * if (isDebugEnabled())
+ *     assert(x >= 5, "x must be 5 or greater");
+ *
+ * if (isDebugEnabled())
+ *     writeLineIf(x < 5, `x was ${x}`);
+ *
+ * ```
+ *
+ * ## See also
+ *
+ * [MIT License](./LICENSE.md)
+ * [CHANGELOG](./CHANGELOG.md)
+ */
 import { print, printLn, sprintf } from "@bearz/fmt/printf";
 
 let debugEnabled = false;
 
-// deno-lint-ignore no-explicit-any
-const g = globalThis as any;
-if (g.Deno && !g.BEARZ_USE_NODE) {
-    debugEnabled = Deno.env.get("DEBUG") === "true" || Deno.env.get("DEBUG") === "1";
-} else if (g.process) {
-    // deno-lint-ignore no-explicit-any
-    const process = g.process as any;
-    debugEnabled = process.env.DEBUG === "true" || process.env.DEBUG === "1";
-}
-
-if (g.BEARZ_DEBUG !== undefined) {
-    debugEnabled = g.BEARZ_DEBUG === "true" || g.BEARZ_DEBUG === "1";
-}
-
-/**
- * Sets the debug enabled flag.
- *
- * @param enabled The value to set the debug enabled flag to.
- */
 export function setDebugEnabled(enabled: boolean): void {
     debugEnabled = enabled;
 }
@@ -181,7 +209,7 @@ export function writeLine(message: string, ...args: unknown[]): void;
  * @returns void
  * @example
  * ```ts
- * import { writeLine, isDebugEnabled } from "@gnome/debug";
+ * import { writeLine, isDebugEnabled } from "@bearz/debug";
  *
  * if (isDebugEnabled())
  *      writeLine("Hello, %s!", "world");

@@ -1,6 +1,55 @@
 // deno-lint-ignore-file no-unused-vars
 import type { SeekMode } from "../types.ts";
 
+export interface Extras {
+    /**
+     * Lock a file descriptor.
+     * @param fd The file descriptor
+     * @param exclusive The lock type
+     * @returns A promise that resolves when the file is locked.
+     */
+    lockFile(fd: number, exclusive?: boolean): Promise<void>;
+    /**
+     * Synchronously lock a file descriptor.
+     * @param fd The file descriptor
+     * @param exclusive The lock type
+     * @returns A promise that resolves when the file is locked.
+     */
+    lockFileSync(fd: number, exclusive?: boolean): void;
+
+    /**
+     * Unlock a file descriptor.
+     * @param fd The file descriptor
+     * @returns A promise that resolves when the file is unlocked.
+     */
+    unlockFile(fd: number): Promise<void>;
+
+    /**
+     * Synchronously unlock a file descriptor.
+     * @param fd The file descriptor
+     * @returns A promise that resolves when the file is unlocked.
+     */
+    unlockFileSync(fd: number): void;
+
+    /**
+     * Seek to a position in a file descriptor.
+     * @param fd The file descriptor
+     * @param offset The offset to seek to
+     * @param whence The seek mode
+     * @returns A promise that resolves with the new position.
+     */
+    seekFile(fd: number, offset: number | bigint, whence?: SeekMode): Promise<number>;
+
+    /**
+     * Synchronously seek to a position in a file descriptor.
+     * @param fd The file descriptor
+     * @param offset The offset to seek to
+     * @param whence The seek mode
+     * @returns The new position.
+     */
+    seekFileSync(fd: number, offset: number | bigint, whence?: SeekMode): number;
+}
+
 /**
  * The ext constant provides an extension point for adding
  * additional functionality to the file system module that
@@ -12,7 +61,7 @@ import type { SeekMode } from "../types.ts";
  *
  * @example ts
  * ```ts
- * import { ext } from "@gnome/fs/node/ext";
+ * import { ext } from "@bearz/fs/node/ext";
  * import { flock, flockSync,} from "npm:fs-ext@2.0.0";
  *
  * ext.lockFile = (fd: number, exclusive?: boolean) =>
@@ -29,7 +78,7 @@ import type { SeekMode } from "../types.ts";
  *
  * ```
  */
-export const ext = {
+export const ext: Extras = {
     /**
      * Lock a file descriptor.
      * @param fd The file descriptor

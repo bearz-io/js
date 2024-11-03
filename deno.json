@@ -24,18 +24,26 @@
 
     "workspace": [
         "./lib/assert",
+        "./lib/ansi",
         "./lib/chars",
+        "./lib/ci-env",
         "./lib/debug",
+        "./lib/dotenv",
+        "./lib/env",
+        "./lib/exec",
         "./lib/fmt",
         "./lib/fs",
+        "./lib/functional",
         "./lib/process",
         "./lib/runtime-info",
+        "./lib/secrets",
         "./lib/slices",
         "./lib/strings"
     ],
 
     "imports": {
         "@std/assert": "jsr:@std/assert@^1.0.6",
+        "@std/dotenv": "jsr:@std/dotenv@^0.225.2",
         "@std/path": "jsr:@std/path@^1.0.6",
         "@types/chai": "npm:@types/chai@^5.0.0",
         "@types/node": "npm:@types/node@^20.17.0",

@@ -1,15 +1,11 @@
-import type { FileSystem } from "./types.ts";
+import { fs } from "./posix_abstractions.ts";
 
-let fs: FileSystem;
+const g = globalThis as { Deno?: unknown; BEARZ_USE_NODE?: boolean; process?: unknown };
 
-// deno-lint-ignore no-explicit-any
-const g = globalThis as any;
 if (g.Deno && !g.BEARZ_USE_NODE) {
-    fs = await import("./deno/mod.ts");
+    await import("./deno/mod.ts");
 } else if (g.process) {
-    fs = await import("./node/mod.ts");
-} else {
-    fs = await import("./base_fs.ts");
+    await import("./node/mod.ts");
 }
 
 // destructuring can not handled by deno/jsr's fast check
@@ -65,3 +61,5 @@ export const writeTextFile = fs.writeTextFile;
 export const writeTextFileSync = fs.writeTextFileSync;
 export const utime = fs.utime;
 export const utimeSync = fs.utimeSync;
+
+export default fs;

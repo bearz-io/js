@@ -13,9 +13,9 @@ import {
     symlink,
     symlinkSync,
     utime,
-} from "./std.ts";
+} from "./posix.ts";
 import { getFileInfoType, isSubdir, toPathString } from "./utils.ts";
-import { isNotFoundError, readLink, utimeSync } from "./std.ts";
+import { isNotFoundError, readLink, utimeSync } from "./posix.ts";
 import { AlreadyExistsError } from "./errors.ts";
 import type { FileInfo } from "./types.ts";
 import { WINDOWS } from "@bearz/runtime-info/os";
@@ -311,7 +311,7 @@ function copyDirSync(
  *
  * @example Basic usage
  * ```ts
- * import { copy } from "@gnome/fs";
+ * import { copy } from "@bearz/fs";
  *
  * await copy("./foo", "./bar");
  * ```
@@ -321,7 +321,7 @@ function copyDirSync(
  *
  * @example Overwriting files/directories
  * ```ts
- * import { copy } from "@gnome/fs";
+ * import { copy } from "@bearz/fs";
  *
  * await copy("./foo", "./bar", { overwrite: true });
  * ```
@@ -331,7 +331,7 @@ function copyDirSync(
  *
  * @example Preserving timestamps
  * ```ts
- * import { copy } from "@gnome/fs";
+ * import { copy } from "@bearz/fs";
  *
  * await copy("./foo", "./bar", { preserveTimestamps: true });
  * ```
@@ -385,7 +385,7 @@ export async function copy(
  *
  * @example Basic usage
  * ```ts
- * import { copySync } from "@gnome/fs";
+ * import { copySync } from "@bearz/fs";
  *
  * copySync("./foo", "./bar");
  * ```
@@ -395,7 +395,7 @@ export async function copy(
  *
  * @example Overwriting files/directories
  * ```ts
- * import { copySync } from "@gnome/fs";
+ * import { copySync } from "@bearz/fs";
  *
  * copySync("./foo", "./bar", { overwrite: true });
  * ```
@@ -405,7 +405,7 @@ export async function copy(
  *
  * @example Preserving timestamps
  * ```ts
- * import { copySync } from "@gnome/fs";
+ * import { copySync } from "@bearz/fs";
  *
  * copySync("./foo", "./bar", { preserveTimestamps: true });
  * ```

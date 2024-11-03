@@ -19,7 +19,7 @@ import {
     uid,
     writeFile,
     writeFileSync,
-} from "./std.ts";
+} from "./posix.ts";
 import { dirname, fromFileUrl, join } from "@std/path";
 
 const test = Deno.test;
@@ -63,8 +63,8 @@ test(`fs::makeDirSync ${runtime}`, () => {
     }
 });
 
-test(`fs::isFile ${runtime}`, () => {
-    ok(isFile(readme));
+test(`fs::isFile ${runtime}`, async () => {
+    ok(await isFile(readme));
 });
 
 test(`fs::isFileSync ${runtime}`, () => {
