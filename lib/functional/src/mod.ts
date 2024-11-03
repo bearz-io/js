@@ -1,14 +1,22 @@
 /**
  * ## Overview
  *
- * The optional module provides the types `Option<T>`, `Result<T, E>`,
- * and `Lazy<T>` with helper functions such as `ok`, `err`, `some`,
- * `none`, `from`, and `lazy`.
+ * The functional module provides the types `Option<T>`, `Result<T, E>`,
+ * and `Lazy<T>` with helper functions such as `ok`, `fail`, `some`,
+ * `none`, `from`, `lazy`, `tryCatch` and `tryCatchSync`.
  *
- * ## Basic Usage
+ * Option is sometimes called `Maybe` in other libraries and languages.
  *
+ * These primitives are useful for avoiding throwing errors and handling
+ * nulls using monads.
+ *
+ * ## Documentation
+ *
+ * Documentation is available on [jsr.io](https://jsr.io/@bearz/functional/doc)
+ *
+ * ## Usage
  * ```typescript
- * import { ok, err, some, none, lazy } from "@gnome/optional";
+ * import { ok, err, some, none, lazy } from "@bearz/functional";
  *
  * const r = ok(10);
  * console.log(r.isOk);
@@ -36,6 +44,8 @@
  * console.log(v.hasValue); // true
  *
  * ```
+ *
+ * ## License
  *
  * [MIT License](./LICENSE.md)
  */

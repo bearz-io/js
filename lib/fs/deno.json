@@ -5,6 +5,7 @@
     "exports": {
         ".": "./src/mod.ts",
         "./posix": "./src/posix.ts",
+        "./node/ext": "./src/node/ext.ts",
         "./copy": "./src/copy.ts",
         "./empty-dir": "./src/empty_dir.ts",
         "./ensure-dir": "./src/ensure_dir.ts",

@@ -5,14 +5,17 @@
  * executables.  A unified API is created for deno, node, bun
  * to executables such as but not limited to git, which, echo, etc.
  *
- * The API is influenced by Deno's `Deno.Command` api with some ehancements
+ * The API is influenced by deno, bun, go's api with some ehancements
  * such as providing `which` and `whichSync` and converting string or objects
  * into an array of arguments for the excutable.
  *
- * ## Basic Usage
+ * ## Documentation
  *
+ * Documentation is available on [jsr.io](https://jsr.io/@bearz/exec/doc)
+ *
+ * ## Usage
  * ```typescript
- * import { Command, command, run, output, type SplatObject, which } from "@bearz/exec";
+ * import { Command, cmd, run, output, type SplatObject, which } from "@gnome/exec";
  *
  * // string, array, or objects can be used for "args".
  * const cmd1 = new Command("git", "show-ref master", {
@@ -35,17 +38,17 @@
  * console.log(output.lines()) // string[]
  * console.log(output.json()) // will throw if output is not valid json
  *
- * const cmd1 = command("git", "show-ref master");
+ * const cmd2 = cmd("git", "show-ref master");
  *
  * // these are the same.
- * console.log(await cmd1.output())
- * console.log(await cmd1);
+ * console.log(await cmd2.output())
+ * console.log(await cmd2);
  * console.log(await new Command("git", "show-ref master"));
  *
- * console.log(await cmd1.text()); // get only the text from stdout instead
+ * console.log(await cmd2.text()); // get only the text from stdout instead
  *
  * // pipe commands together
- * const result = await new Command("echo", ["my test"])
+ * const result = cmd("echo", ["my test"])
  *     .pipe("grep", ["test"])
  *     .pipe("cat")
  *     .output();
@@ -55,14 +58,15 @@
  *
  * // output is the short hand for new Command().output()
  * // and output defaults stdout and stderr to 'piped'
- * // which returns the output as Uint8Array
+ * // which returns the stdout and stderr streams a as Uint8Array
  * const text = await output("git", ["show-ref", "master"]).then(o => o.text())
  * console.log(text);
  *
  * ```
  *
+ * ## License
+ *
  * [MIT License](./LICENSE.md)
- * @module
  */
 export * from "./splat.ts";
 export * from "./split_arguments.ts";

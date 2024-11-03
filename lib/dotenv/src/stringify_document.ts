@@ -2,10 +2,23 @@ import type { DotEnvDocument } from "./document.ts";
 import { StringBuilder } from "@bearz/strings";
 import { EOL } from "@bearz/runtime-info/os";
 
+/**
+ * Options for {@linkcode stringifyDocument} a document.
+ */
 export interface StringifyDocumentOptions {
+    /**
+     * If true, only line feeds will be used as newlines `\n`.
+     */
     onlyLineFeed?: boolean;
 }
 
+/**
+ * Converts a DotEnvDocument into a string representation.
+ *
+ * @param document - The DotEnvDocument to be converted.
+ * @param options - Optional settings to customize the stringification process.
+ * @returns The string representation of the DotEnvDocument.
+ */
 export function stringifyDocument(
     document: DotEnvDocument,
     options?: StringifyDocumentOptions,
