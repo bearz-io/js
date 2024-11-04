@@ -1,7 +1,7 @@
 /**
  * ## Overview
  *
- * @bearz/os-constants provides constant values for basic os information
+ * @bearz/runtime-info/os provides constant values for basic os information
  * such as `PLATFORM`, `ARCH`, `WINDOWS`, `DARWIN`, `PATH_SEP`, `DEV_NULL`.
  *
  * ## Basic Usage
