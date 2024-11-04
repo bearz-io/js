@@ -114,7 +114,7 @@ export class BunScriptCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { bun } from "@spawn/xv/bun";
+ * import { bun } from "@bearz/shells/bun";
  *
  * const result = await bun("--version");
  * console.log(result.code);
@@ -123,7 +123,7 @@ export class BunScriptCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { bun } from "@spawn/xv/bun";
+ * import { bun } from "@bearz/shells/bun";
  *
  * /// execute the Deno command and writes the version to stdout.
  * await bun(["--version"]).run();
@@ -141,7 +141,7 @@ export function bun(args?: CommandArgs, options?: CommandOptions): BunCommand {
  * @returns A new instance of the BunScriptCommand class.
  * @example
  * ```ts
- * import { bunScript } from "@spawn/dev/bun";
+ * import { bunScript } from "@bearz/shells/dev/bun";
  *
  * const result = await bunScript("console.log('Hello, World!');");
  * console.log(result.code);
@@ -149,7 +149,7 @@ export function bun(args?: CommandArgs, options?: CommandOptions): BunCommand {
  * ```
  * @example
  * ```ts
- * import { bunScript } from "@spawn/dev/bun";
+ * import { bunScript } from "@bearz/shells/dev/bun";
  *
  * const result = await bunScript("test.ts");
  * console.log(result.code);

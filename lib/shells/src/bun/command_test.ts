@@ -1,4 +1,4 @@
-import { ok, equal } from "@bearz/assert";
+import { equal, ok } from "@bearz/assert";
 import { skip } from "@bearz/assert/skip";
 import { bun, bunScript } from "./command.ts";
 import { remove, writeTextFile } from "@bearz/fs";

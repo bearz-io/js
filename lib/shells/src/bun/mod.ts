@@ -10,7 +10,7 @@
  * ## Basic Usage
  *
  * ```typescript
- * import { bunScript } from "@spawn/dev/bun";
+ * import { bunScript } from "@bearz/shells/dev/bun";
  *
  * const cmd = bunScript("console.log('Hello, World!');");
  *

@@ -1,4 +1,4 @@
-import { ok, equal } from "@bearz/assert";
+import { equal, ok } from "@bearz/assert";
 import { skip } from "@bearz/assert/skip";
 import { remove, writeTextFile } from "@bearz/fs";
 import { pathFinder } from "@bearz/exec/path-finder";
@@ -13,13 +13,13 @@ test("shells::python", skip(!shell), async () => {
     ok((await cmd.text()).startsWith("Python"));
 });
 
-test("shells::python - invoke inline script", skip(!shell),  async () => {
+test("shells::python - invoke inline script", skip(!shell), async () => {
     const cmd = await pythonScript("print('Hello, World!')");
     equal(cmd.text(), `Hello, World!${EOL}`);
     equal(0, cmd.code);
 });
 
-test("shells::python - invoke inline multi-line script", skip(!shell),  async () => {
+test("shells::python - invoke inline multi-line script", skip(!shell), async () => {
     const cmd = await pythonScript(`
 print('1')
 print('2')

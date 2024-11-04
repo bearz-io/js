@@ -1,12 +1,11 @@
 import { equal } from "@bearz/assert";
-import { skip  } from "@bearz/assert/skip";
+import { skip } from "@bearz/assert/skip";
 import { remove, writeTextFile } from "@bearz/fs";
 import { shScript } from "./command.ts";
 import { pathFinder } from "@bearz/exec";
 
 const test = Deno.test;
 const shell = await pathFinder.findExe("sh");
-
 
 test("shells::sh - simple inline test", skip(!shell), async () => {
     const cmd = await shScript("echo 'Hello, World!'");

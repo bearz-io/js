@@ -10,7 +10,7 @@
  * ## Basic Usage
  *
  * ```typescript
- * import { cmdScript, cmd } from "@spawn/cmd";
+ * import { cmdScript, cmd } from "@bearz/shells/cmd";
  *
  * const cmd2 = await cmdScript("echo Hello, World!");
  * console.log(cmd2.text());

@@ -109,7 +109,7 @@ export class BashScriptCommand extends ShellCommand {
  * @see {BashCommand}
  * @example
  * ```ts
- * import { bash } from "@spawn/bash";
+ * import { bash } from "@bearz/shells/bash";
  *
  * const result = await bash(["--version"]);
  * console.log(result.code);
@@ -129,7 +129,7 @@ export function bash(args?: CommandArgs, options?: CommandOptions): BashCommand 
  * @see {BashScriptCommand}
  * @example
  * ```ts
- * import { bashScript } from "@spawn/bash";
+ * import { bashScript } from "@bearz/shells/bash";
  *
  * const result = bashScript("echo 'Hello, World!'");
  * console.log(result.code);
@@ -137,7 +137,7 @@ export function bash(args?: CommandArgs, options?: CommandOptions): BashCommand 
  * ```
  * @example
  * ```ts
- * import { bashScript } from "@spawn/bash";
+ * import { bashScript } from "@bearz/shells/bash";
  *
  * const result = await bashScript("test.sh");
  * console.log(result.code);

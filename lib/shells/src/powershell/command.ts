@@ -100,7 +100,7 @@ export function powershell(args?: CommandArgs, options?: CommandOptions): PowerS
  * @returns A new instance of the PwshCommand class.
  * @example
  * ```ts
- * import { powershellScript } from "@spawn/powershell";
+ * import { powershellScript } from "@bearz/shells/powershell";
  *
  * const result = await powershellScript("Write-Host 'Hello, World!'");
  * console.log(result.code);
@@ -108,7 +108,7 @@ export function powershell(args?: CommandArgs, options?: CommandOptions): PowerS
  * ```
  * @example
  * ```ts
- * import { powershellScript } from "@spawn/powershell";
+ * import { powershellScript } from "@bearz/shells/powershell";
  *
  * const result = await powershellScript("test.ps1");
  * console.log(result.code);

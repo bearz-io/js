@@ -10,7 +10,7 @@
  * ## Basic Usage
  *
  * ```typescript
- * import { nodeScript } from '@spawn/node'
+ * import { nodeScript } from '@bearz/shells/node'
  *
  * // outputs directly to stdout and stderror streams.
  * await nodeScript("console.log('Hello')").run();
@@ -29,7 +29,7 @@
  * ```
  *
  * ```typescript
- * import { node } from '@spawn/node'
+ * import { node } from '@bearz/shells/node'
  *
  * // outputs directly to stdout and stderror streams.
  * await node("-h").run();

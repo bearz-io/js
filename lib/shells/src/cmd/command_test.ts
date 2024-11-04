@@ -8,7 +8,7 @@ import { cmdScript } from "./command.ts";
 
 const test = Deno.test;
 
-test("shells::cmd - simple inline test", skip(!WINDOWS),  async () => {
+test("shells::cmd - simple inline test", skip(!WINDOWS), async () => {
     const cmd1 = await cmdScript("echo Hello, World!");
     equal(cmd1.text(), "Hello, World!\r\n");
     equal(0, cmd1.code);
@@ -25,7 +25,7 @@ test("shells::cmd - multi-line inline test", skip(!WINDOWS), async () => {
 
 test("shells::cmd - simple inline test with options", skip(!WINDOWS), async () => {
     const cmd1 = await cmdScript("echo Hello, World!").run();
-    equal(0, cmd1.code);   
+    equal(0, cmd1.code);
 });
 
 test("shells::cmd - multi-line inline test", skip(!WINDOWS), async () => {

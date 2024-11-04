@@ -121,7 +121,7 @@ export class PythonScriptCommand extends ShellCommand {
  * @see {PythonCommand}
  * @example
  * ```ts
- * import { python } from "@spawn/xv/python";
+ * import { python } from "@bearz/shells/python";
  *
  * const result = await python(["-V"]);
  * console.log(result.code);
@@ -140,7 +140,7 @@ export function python(args?: CommandArgs, options?: CommandOptions): PythonComm
  * @returns A new instance of the PythonScriptCommand class.
  * @example
  * ```ts
- * import { pythonScript } from "@spawn/xv/python";
+ * import { pythonScript } from "@bearz/shells/python";
  *
  * const result = await pythonScript("print('Hello, World!')");
  * console.log(result.code);

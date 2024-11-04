@@ -123,7 +123,7 @@ export function cmd(args?: CommandArgs, options?: CommandOptions): CmdCommand {
  * @returns A new instance of the CmdCliCommand class.
  * @example
  * ```ts
- * import { cmdScript } from "@spawn/cmd";
+ * import { cmdScript } from "@bearz/shells/cmd";
  *
  * const result = await cmdScript("echo Hello, World!");
  * console.log(result.code);
@@ -131,7 +131,7 @@ export function cmd(args?: CommandArgs, options?: CommandOptions): CmdCommand {
  * ```
  * @example
  * ```ts
- * import { cmdScript } from "@spawn/cmd";
+ * import { cmdScript } from "@bearz/shells/cmd";
  *
  * const result = await cmdScript("test.cmd");
  * console.log(result.code);

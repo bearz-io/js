@@ -9,7 +9,7 @@
  * ## Basic Usage
  *
  * ```typescript
- * import { shScript, sh } from "@spawn/sh";
+ * import { shScript, sh } from "@bearz/shells/sh";
  *
  * const cmd = await shScript("echo 'Hello, World!'");
  * console.log(cmd.text());

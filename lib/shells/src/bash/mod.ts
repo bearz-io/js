@@ -10,7 +10,7 @@
  * ## Basic Usage
  *
  * ```typescript
- * import { bashScript, bash } from "@spawn/bash";
+ * import { bashScript, bash } from "@bearz/shells/bash";
  *
  * const cmd = await bashScript("echo 'Hello, World!'");
  * console.log(cmd.text());

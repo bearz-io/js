@@ -1,4 +1,11 @@
-import { pathFinder, Command, type CommandArgs, type CommandOptions, ShellCommand, type ShellCommandOptions } from "@bearz/exec";
+import {
+    Command,
+    type CommandArgs,
+    type CommandOptions,
+    pathFinder,
+    ShellCommand,
+    type ShellCommandOptions,
+} from "@bearz/exec";
 
 pathFinder.set("sh", {
     name: "sh",
@@ -76,7 +83,7 @@ export class ShScriptCommand extends ShellCommand {
  * @returns a new instance of the ShCommand class.
  * @example
  * ```ts
- * import { sh } from "@spawn/sh";
+ * import { sh } from "@bearz/shells/sh";
  *
  * const r = await sh(["-c", "echo 'Hello, World!'"]);
  * console.log(r.code);
@@ -85,7 +92,7 @@ export class ShScriptCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { sh } from "@spawn/sh";
+ * import { sh } from "@bearz/shells/sh";
  *
  * const r = await sh(["test.sh"]);
  * console.log(r.code);
@@ -105,7 +112,7 @@ export function sh(args?: CommandArgs, options?: CommandOptions): ShCommand {
  * @see {ShScriptCommand}
  * @example
  * ```ts
- * import { shScript } from "@spawn/sh";
+ * import { shScript } from "@bearz/shells/sh";
  *
  * const r = await shScript("echo 'Hello, World!';");
  * console.log(r.code);
@@ -114,7 +121,7 @@ export function sh(args?: CommandArgs, options?: CommandOptions): ShCommand {
  *
  * @example
  * ```ts
- * import { shScript } from "@spawn/sh";
+ * import { shScript } from "@bearz/shells/sh";
  *
  * const r = await shScript("test.sh");
  * console.log(r.code);

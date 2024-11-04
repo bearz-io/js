@@ -10,7 +10,7 @@
  * ## Basic Usage
  *
  * ```typescript
- * import { pythonScript, python } from "@spawn/python";
+ * import { pythonScript, python } from "@bearz/shells/python";
  *
  * const cmd = await pythonScript("print('Hello, World!')");
  * console.log(await cmd.text());
@@ -33,4 +33,3 @@
  * @module
  */
 export { python, pythonScript } from "./command.ts";
-export { pip } from "./pip/command.ts";

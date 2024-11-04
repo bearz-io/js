@@ -14,7 +14,7 @@ test("shells::pwsh - simple inline test", skip(!shell), async () => {
     equal(0, cmd.code);
 });
 
-test("shells::pwsh - multi-line inline test", skip(!shell),  async () => {
+test("shells::pwsh - multi-line inline test", skip(!shell), async () => {
     const cmd = await pwshScript(`
         $a = 1
         $b = 2

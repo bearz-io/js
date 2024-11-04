@@ -113,7 +113,7 @@ export class TsxScriptCommand extends ShellCommand {
  * @see {TsxCommand}
  * @example
  * ```ts
- * import { tsx } from "@spawn/node/tsx";
+ * import { tsx } from "@bearz/shells/node/tsx";
  *
  * const result = await tsx("--version");
  * console.log(result.code);
@@ -133,7 +133,7 @@ export function tsx(args?: CommandArgs, options?: CommandOptions): TsxCommand {
  * @see {TsxScriptCommand}
  * @example
  * ```ts
- * import { tsxScript } from "@spawn/node/tsx";
+ * import { tsxScript } from "@bearz/shells/node/tsx";
  *
  * const result = await tsxScript("console.log('Hello, World!');");
  * console.log(result.code);

@@ -116,7 +116,7 @@ export class NodeScriptCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { nodeCli } from "@spawn/node";
+ * import { nodeCli } from "@bearz/shells/node";
  *
  * const result = await node("--version");
  * console.log(result.code);
@@ -125,7 +125,7 @@ export class NodeScriptCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { node } from "@spawn/node";
+ * import { node } from "@bearz/shells/node";
  *
  * /// execute the node command and writes the version to stdout.
  * await node(["--version"]).run();
@@ -144,14 +144,14 @@ export function node(args?: CommandArgs, options?: CommandOptions): NodeCommand 
  * @see {NodeScriptCommand}
  * @example
  * ```ts
- * import { nodeScript } from "@spawn/node";
+ * import { nodeScript } from "@bearz/shells/node";
  *
  * await nodeScript("console.log('Hello World')").run();
  * ```
  *
  * @example
  * ```ts
- * import { nodeScript } from "@spawn/node";
+ * import { nodeScript } from "@bearz/shells/node";
  *
  * const r = await nodeScript("console.log('Hello World')");
  * console.log(r.code);
@@ -159,7 +159,7 @@ export function node(args?: CommandArgs, options?: CommandOptions): NodeCommand 
  * ```
  * @example
  * ```ts
- * import { nodeScript } from "@spawn/node";
+ * import { nodeScript } from "@bearz/shells/node";
  *
  * const r = await nodeScript("test.js");
  * console.log(r.code);

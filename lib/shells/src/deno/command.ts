@@ -122,7 +122,7 @@ export class DenoShellCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { deno } from "@spawn/xv/deno";
+ * import { deno } from "@bearz/shells/deno";
  *
  * const result = await deno("--version");
  * console.log(result.code);
@@ -131,7 +131,7 @@ export class DenoShellCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { deno } from "@spawn/xv/deno";
+ * import { deno } from "@bearz/shells/deno";
  *
  * /// execute the Deno command and writes the version to stdout.
  * await deno(["--version"]).run();
@@ -149,7 +149,7 @@ export function deno(args?: CommandArgs, options?: CommandOptions): DenoCommand 
  * @returns A new instance of the DenoShellCommand class.
  * @example
  * ```ts
- * import { denoScript } from "@spawn/xv/deno";
+ * import { denoScript } from "@bearz/shells/deno";
  *
  * const result = await denoScript("console.log('Hello, World!');");
  * console.log(result.code);
@@ -157,7 +157,7 @@ export function deno(args?: CommandArgs, options?: CommandOptions): DenoCommand 
  * ```
  * @example
  * ```ts
- * import { denoScript } from "@spawn/xv/deno";
+ * import { denoScript } from "@bearz/shells/deno";
  *
  * const result = await denoScript("test.ts");
  * console.log(result.code);

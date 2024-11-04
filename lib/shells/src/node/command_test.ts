@@ -1,4 +1,4 @@
-import { ok, equal } from "@bearz/assert";
+import { equal, ok } from "@bearz/assert";
 import { skip } from "@bearz/assert/skip";
 import { node, nodeScript } from "./command.ts";
 import { remove, writeTextFile } from "@bearz/fs";
@@ -13,7 +13,7 @@ test("shells::node - script", skip(!shell), async () => {
     equal(result.code, 0);
 });
 
-test("shells::node",  skip(!shell), async () => {
+test("shells::node", skip(!shell), async () => {
     const result = await node("--version");
     equal(result.code, 0);
     ok(result.text().startsWith("v"));

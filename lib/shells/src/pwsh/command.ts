@@ -87,7 +87,7 @@ export class PwshScriptCommand extends ShellCommand {
  * @see {PwshCommand}
  * @example
  * ```ts
- * import { pwsh } from "@spawn/pwsh";
+ * import { pwsh } from "@bearz/shells/pwsh";
  *
  * const result = pwsh(["-Command", "Write-Host 'Hello, World!'"]);
  * console.log(result.code);
@@ -107,7 +107,7 @@ export function pwsh(args?: CommandArgs, options?: CommandOptions): PwshCommand 
  * @see {PwshScriptCommand}
  * @example
  * ```ts
- * import { pwshScript } from "@spawn/pwsh";
+ * import { pwshScript } from "@bearz/shells/pwsh";
  *
  * const result = await pwshScript("Write-Host 'Hello, World!'");
  * console.log(result.code);
@@ -115,7 +115,7 @@ export function pwsh(args?: CommandArgs, options?: CommandOptions): PwshCommand 
  * ```
  * @example
  * ```ts
- * import { pwshScript } from "@spawn/pwsh";
+ * import { pwshScript } from "@bearz/shells/pwsh";
  *
  * const result = await pwshScript("test.ps1");
  * console.log(result.code);

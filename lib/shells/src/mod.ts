@@ -1,1 +1,1 @@
-// TODO: Write module code here
+export * from "./script.ts";
