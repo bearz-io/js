@@ -71,8 +71,8 @@ test(`fs::isFileSync ${runtime}`, () => {
     ok(isFileSync(readme));
 });
 
-test(`fs::isDir ${runtime}`, () => {
-    ok(isDir(dir));
+test(`fs::isDir ${runtime}`, async () => {
+    ok(await isDir(dir));
 });
 
 test(`fs::isDirSync ${runtime}`, () => {
