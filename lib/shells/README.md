@@ -33,7 +33,7 @@ import { pwshScript } from "@bearz/pwsh";
 // on windows this is powershell, for others this is bash
 // this will work on both
 const cmd0 = await script("echo 'Hello, World!'");
-equal(cmd0.text(), "Hello, World!\n");
+equal(cmd0.text().trim(), "Hello, World!");
 equal(0, cmd0.code);
 
 // this will script using deno

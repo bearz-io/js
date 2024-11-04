@@ -9,7 +9,7 @@ const deno = await pathFinder.findExe("deno");
 
 test("shells::run - default", async () => {
     const cmd = await script("echo 'Hello, World!'");
-    equal(cmd.text(), "Hello, World!\n");
+    equal(cmd.text().trim(), "Hello, World!");
     equal(0, cmd.code);
 });
 
