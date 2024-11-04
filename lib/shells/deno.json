@@ -1,0 +1,19 @@
+{
+    "name": "@bearz/shells",
+    "description": "shells module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./registry": "./src/registry.ts",
+        "./bash": "./src/bash/mod.ts",
+        "./cmd": "./src/cmd/mod.ts",
+        "./deno": "./src/deno/mod.ts",
+        "./node": "./src/node/mod.ts",
+        "./powershell": "./src/powershell/mod.ts",
+        "./pwsh": "./src/powershell/mod.ts",
+        "./python": "./src/python/mod.ts",
+        "./ruby": "./src/ruby/mod.ts",
+        "./sh": "./src/sh/mod.ts",
+        "./tsx": "./src/tsx/mod.ts"
+    }
+}

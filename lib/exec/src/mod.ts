@@ -15,7 +15,7 @@
  *
  * ## Usage
  * ```typescript
- * import { Command, cmd, run, output, type SplatObject, which } from "@gnome/exec";
+ * import { Command, cmd, run, output, type SplatObject, which } from "@bearz/exec";
  *
  * // string, array, or objects can be used for "args".
  * const cmd1 = new Command("git", "show-ref master", {
