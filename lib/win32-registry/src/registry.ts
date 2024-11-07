@@ -42,20 +42,25 @@ export interface KeyInfo {
 export interface Key {
     isNull(): boolean;
     unwrap(): unknown;
-    path: string;
+    readonly path: string;
+    readonly created: boolean,
     close(): void;
     [Symbol.dispose](): void;
     openKey(path: string, access?: number): Key;
-    createKey(path: string, access?: number): { key: Key; openedExisting: boolean };
+    createKey(path: string, access?: number): Key;
+    deleteKey(name: string): boolean
+    deleteValue(name: string): boolean;
     getSubKeyNames(n?: number): string[];
     getValueNames(n?: number): string[];
     getValue(name: string, buffer?: Uint8Array): { data: Uint8Array; type: number };
     getString(name: string): string;
+    getMultiString(name: string): string[];
     getInt32(name: string): number;
     getInt64(name: string): bigint;
     getBinary(name: string): Uint8Array;
-    deleteKey(name: string): boolean;
     setValue(name: string, data: Uint8Array, type: Types): void;
+    setMultiString(name: string, data: string[]): void;
+    setBinary(name: string, data: Uint8Array) : void
     setString(name: string, value: string): void;
     setExpandString(name: string, value: string): void;
     setInt32(name: string, value: number): void;
@@ -102,9 +107,9 @@ export class Registry {
         throw new Error("property not implemented.");
     }
 
-    static createKey(key: Key, path: string, access?: number): { key: Key; openedExisting: boolean };
-    static createKey(path: string, access?: number): { key: Key; openedExisting: boolean };
-    static createKey(): { key: Key; openedExisting: boolean } {
+    static createKey(key: Key, path: string, access?: number):Key;
+    static createKey(path: string, access?: number): Key;
+    static createKey(): Key {
         throw new Error("property not implemented.");
     }
 

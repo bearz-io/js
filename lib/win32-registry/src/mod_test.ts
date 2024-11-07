@@ -1,5 +1,5 @@
 import { Registry } from "./mod.ts";
-import { exists, ok } from "@bearz/assert";
+import { equal, exists, ok, throws } from "@bearz/assert";
 import { skip } from "@bearz/assert/skip";
 import { WINDOWS } from "@bearz/runtime-info/os";
 
@@ -43,4 +43,49 @@ test("win32-registry::Key.getValueNames", skip(!WINDOWS), () => {
     ok(names.length > 0);
     ok(names.includes("CurrentTheme"));
     console.log(names);
+});
+
+test("win32-registry::Key.createKey", skip(!WINDOWS), () => {
+    using key = Registry.HKCU.createKey("BEARZ_TEST_KEY");
+    exists(key);
+    equal(key.created, true);
+    equal("HKCU\\BEARZ_TEST_KEY", key.path);
+    console.log(key);
+    const res = Registry.HKCU.deleteKey("BEARZ_TEST_KEY");
+    ok(res);
+});
+
+test("win32-registry::Key - test setting values", skip(!WINDOWS), () => {
+    using key = Registry.HKCU.createKey("BEARZ_TEST_VALUES");
+    try {
+        key.setString("Tick", "Spoon");
+        const value = key.getString("Tick");
+        equal("Spoon", value)
+
+        key.setInt32("Age", 200);
+        const age = key.getInt32("Age");
+        equal(age, 200);
+
+        key.setInt64("Age3", 12312412n);
+        const age3 = key.getInt64("Age3");
+        equal(age3, 12312412n)
+
+        const text = new TextEncoder().encode("Hello");
+        key.setBinary("binary", text);
+
+        equal(key.getBinary("binary"), text);
+
+        const values = ["first", "second", "third"];
+        key.setMultiString("m", values);
+        const mt = key.getMultiString("m");
+        equal(mt, values);
+
+        key.deleteValue("m");
+        throws(() => {
+            key.getMultiString("m")
+        });
+
+    } finally {
+        Registry.HKCU.deleteKey("BEARZ_TEST_VALUES")
+    }
 });

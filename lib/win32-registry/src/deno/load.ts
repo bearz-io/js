@@ -40,6 +40,10 @@ if (DENO && WINDOWS) {
             parameters: [HKEY, LPCTSTR],
             result: LONG,
         },
+        RegDeleteValueW: {
+            parameters: [HKEY, LPCTSTR],
+            result: LONG,
+        },
         RegEnumKeyExW: {
             parameters: [HKEY, DWORD, LPTSTR, Pointer, Pointer, LPTSTR, Pointer, Pointer],
             result: LONG,
@@ -101,6 +105,8 @@ if (DENO && WINDOWS) {
         return Deno.UnsafePointer.of(buffer);
     }
 
+   
+
     function openKey(k: Key, path: string | Uint8Array | Uint16Array, access?: number): Key {
         const p = pwstrPointer(path);
         const subkey = new BigUint64Array(1);
@@ -129,7 +135,7 @@ if (DENO && WINDOWS) {
         k: Key,
         path: string | Uint8Array | Uint16Array,
         access?: number,
-    ): { key: Key; openedExisting: boolean } {
+    ): Key {
         const p = pwstrPointer(path);
         const subkey = new BigUint64Array(1);
         const subkeyPtr = Deno.UnsafePointer.of(subkey);
@@ -153,10 +159,9 @@ if (DENO && WINDOWS) {
             throw new Error("Failed to create key");
         }
 
-        const id = Deno.UnsafePointer.value(subkeyPtr);
-        const handle = Deno.UnsafePointer.create(id);
-        const h = new KeyHandle(handle, k.path + "\\" + path);
-        return { key: h, openedExisting: disposition[0] === _REG_OPENED_EXISTING_KEY };
+        const handle = Deno.UnsafePointer.create(subkey[0]);
+        const h = new KeyHandle(handle, k.path + "\\" + path, true);
+        return h;
     }
 
     function deleteKey(k: Key, path: string | Uint8Array | Uint16Array): void {
@@ -175,15 +180,21 @@ if (DENO && WINDOWS) {
         #ptr: unknown | null = null;
         #path: string;
         #disposed: boolean;
+        #created: boolean
 
-        constructor(ptr: unknown | null, path: string) {
+        constructor(ptr: unknown | null, path: string, created?: boolean) {
             this.#ptr = ptr;
             this.#path = path;
             this.#disposed = false;
+            this.#created = created === true;
         }
 
         isNull(): boolean {
             return this.#ptr === null;
+        }
+
+        get created() : boolean {
+            return this.#created;
         }
 
         unwrap(): unknown {
@@ -220,7 +231,7 @@ if (DENO && WINDOWS) {
         createKey(
             path: string,
             access?: number,
-        ): { key: Key; openedExisting: boolean } {
+        ): Key {
             if (this.#disposed) {
                 throw new Error(`Key ${this.path} is already disposed.`);
             }
@@ -230,6 +241,16 @@ if (DENO && WINDOWS) {
         deleteKey(name: string): boolean {
             deleteKey(this, name);
             return true;
+        }
+
+        deleteValue(name: string): boolean {
+            const p = pwstrPointer(name);
+            const result = advapi32.symbols.RegDeleteValueW(
+                this.unwrap() as Deno.PointerValue,
+                p,
+            );
+
+            return result === 0;
         }
 
         getSubKeyNames(n: number = 0): string[] {
@@ -351,13 +372,25 @@ if (DENO && WINDOWS) {
             return result.data;
         }
 
+        getMultiString(name: string): string[] {
+            const result = this.getValue(name, new Uint8Array(64));
+            if (result.type !== Types.MULTI_SZ) {
+                throw new Error(`Value ${name} is not a multi-string`);
+            }
+
+            let test = new TextDecoder("utf-16").decode(result.data.slice(0, result.data.byteLength - 2));
+            if (test.endsWith("\x00"))
+                test =  test.substring(0, test.lastIndexOf("\x00"));
+            return test.split("\x00");
+        }
+
         getString(name: string): string {
             const result = this.getValue(name, new Uint8Array(64));
             if (result.type !== Types.SZ && result.type !== Types.EXPAND_SZ) {
                 throw new Error(`Value ${name} is not a string`);
             }
 
-            return new TextDecoder("utf-16").decode(result.data);
+            return new TextDecoder("utf-16").decode(result.data.slice(0, result.data.byteLength -2));
         }
 
         getInt32(name: string): number {
@@ -390,8 +423,12 @@ if (DENO && WINDOWS) {
             );
 
             if (result !== 0) {
-                throw new Error(`Failed to set value ${name}`);
+                throw new Error(`Failed to set value ${name}.  Error Code ${result}`);
             }
+        }
+
+        setBinary(name: string, data: Uint8Array) : void {
+            this.setValue(name, data, Types.BINARY);
         }
 
         setString(name: string, value: string): void {
@@ -400,6 +437,12 @@ if (DENO && WINDOWS) {
 
         setExpandString(name: string, value: string): void {
             this.setStringType(name, value, Types.EXPAND_SZ);
+        }
+
+        setMultiString(name: string, value: string[]): void {
+            const strings = value.join("\x00") + "\x00";
+            const data = pwstr(strings);
+            this.setValue(name, data, Types.MULTI_SZ);
         }
 
         setInt32(name: string, value: number): void {
@@ -452,7 +495,7 @@ if (DENO && WINDOWS) {
         }
 
         protected setStringType(name: string, value: string, type: Types): void {
-            const data = new TextEncoder().encode(value);
+            const data = pwstr(value);
 
             this.setValue(name, data, type);
         }
@@ -629,7 +672,7 @@ if (DENO && WINDOWS) {
         }
     };
 
-    Registry.createKey = function (): { key: Key; openedExisting: boolean } {
+    Registry.createKey = function (): Key {
         switch (arguments.length) {
             case 2:
                 {
