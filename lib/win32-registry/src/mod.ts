@@ -110,14 +110,14 @@ export interface Key {
     getValueNames(n?: number): string[];
     getValue(name: string, buffer?: Uint8Array): { data: Uint8Array, type: number };
     getString(name: string): string;
-    getInt(name: string): number;
+    getInt32(name: string): number;
     getInt64(name: string): bigint;
     getBinary(name: string): Uint8Array;
     deleteKey(name: string): boolean;
     setValue(name: string, data: Uint8Array, type: Types): void;
     setString(name: string, value: string): void;
     setExpandString(name: string, value: string): void;
-    setInt(name: string, value: number): void;
+    setInt32(name: string, value: number): void;
     setInt64(name: string, value: bigint): void;
     stat(): KeyInfo;
 }
@@ -226,7 +226,7 @@ class KeyHandle implements Key {
                     throw new Error(`Failed to enumerate value names.  Error: ${result}`);
                 }
 
-                name = new TextDecoder("utf-16").decode(buf); 
+                name = new TextDecoder("utf-16").decode(buf.slice(0, length[0])); 
                 i++;
                 break;
             }
@@ -302,7 +302,7 @@ class KeyHandle implements Key {
         return new TextDecoder("utf-16").decode(result.data);
     }
 
-    getInt(name: string): number {
+    getInt32(name: string): number {
         const result = this.getValue(name, new Uint8Array(4));
         if (result.type !== Types.DWORD) {
             throw new Error(`Value ${name} is not a DWORD`);
@@ -344,7 +344,7 @@ class KeyHandle implements Key {
         this.setStringType(name, value, Types.EXPAND_SZ);
     }
 
-    setInt(name: string, value: number): void {
+    setInt32(name: string, value: number): void {
         const data = new Uint8Array(4);
         new DataView(data.buffer).setInt32(0, value, true);
         this.setValue(name, data, Types.DWORD);
