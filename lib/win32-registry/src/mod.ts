@@ -1,4 +1,3 @@
-
 // Windows types
 const HKEY = "pointer";
 const DWORD = "u32";
@@ -7,34 +6,34 @@ const LPCTSTR = "pointer";
 const LPTSTR = "pointer";
 const REGSAM = "u32";
 const PHKEY = "pointer";
-const LPDWORD = "u32";
+// const LPDWORD = "u32";
 const Pointer = "pointer";
 
 // Load advapi32.dll
 const advapi32 = Deno.dlopen("advapi32.dll", {
     RegOpenKeyExW: {
-      parameters: [HKEY, LPCTSTR, DWORD, REGSAM, PHKEY],
-      result: LONG,
+        parameters: [HKEY, LPCTSTR, DWORD, REGSAM, PHKEY],
+        result: LONG,
     },
     RegCloseKey: {
-      parameters: [HKEY],
-      result: LONG,
+        parameters: [HKEY],
+        result: LONG,
     },
     RegQueryValueExW: {
-      parameters: [HKEY, LPCTSTR, Pointer, Pointer, Pointer, Pointer],
-      result: LONG,
+        parameters: [HKEY, LPCTSTR, Pointer, Pointer, Pointer, Pointer],
+        result: LONG,
     },
     RegSetValueExW: {
-      parameters: [HKEY, LPCTSTR, DWORD, DWORD, LPTSTR, DWORD],
-      result: LONG,
+        parameters: [HKEY, LPCTSTR, DWORD, DWORD, LPTSTR, DWORD],
+        result: LONG,
     },
     RegCreateKeyExW: {
-      parameters: [HKEY, LPCTSTR, DWORD, LPCTSTR, DWORD, REGSAM, Pointer, PHKEY, Pointer],
-      result: LONG,
+        parameters: [HKEY, LPCTSTR, DWORD, LPCTSTR, DWORD, REGSAM, Pointer, PHKEY, Pointer],
+        result: LONG,
     },
     RegDeleteKeyW: {
-      parameters: [HKEY, LPCTSTR],
-      result: LONG,
+        parameters: [HKEY, LPCTSTR],
+        result: LONG,
     },
     RegEnumKeyExW: {
         parameters: [HKEY, DWORD, LPTSTR, Pointer, Pointer, LPTSTR, Pointer, Pointer],
@@ -45,70 +44,82 @@ const advapi32 = Deno.dlopen("advapi32.dll", {
         result: LONG,
     },
     RegQueryInfoKeyW: {
-        parameters: [HKEY, LPTSTR, Pointer, Pointer, Pointer, Pointer, Pointer, Pointer, Pointer, Pointer,Pointer, Pointer],
+        parameters: [
+            HKEY,
+            LPTSTR,
+            Pointer,
+            Pointer,
+            Pointer,
+            Pointer,
+            Pointer,
+            Pointer,
+            Pointer,
+            Pointer,
+            Pointer,
+            Pointer,
+        ],
         result: LONG,
     },
-  });
-  
+});
 
 export enum Rights {
-    ALL_ACCESS         = 0xf003f,
-	CREATE_LINK        = 0x00020,
-	CREATE_SUB_KEY     = 0x00004,
-	ENUMERATE_SUB_KEYS = 0x00008,
-	EXECUTE            = 0x20019,
-	NOTIFY             = 0x00010,
-	QUERY_VALUE        = 0x00001,
-	READ               = 0x20019,
-	SET_VALUE          = 0x00002,
-	WOW64_32KEY        = 0x00200,
-	WOW64_64KEY        = 0x00100,
-	WRITE              = 0x20006,
+    ALL_ACCESS = 0xf003f,
+    CREATE_LINK = 0x00020,
+    CREATE_SUB_KEY = 0x00004,
+    ENUMERATE_SUB_KEYS = 0x00008,
+    EXECUTE = 0x20019,
+    NOTIFY = 0x00010,
+    QUERY_VALUE = 0x00001,
+    READ = 0x20019,
+    SET_VALUE = 0x00002,
+    WOW64_32KEY = 0x00200,
+    WOW64_64KEY = 0x00100,
+    WRITE = 0x20006,
 }
 
 export enum Types {
-    	// Registry value types.
-	NONE                       = 0,
-	SZ                         = 1,
-	EXPAND_SZ                  = 2,
-	BINARY                     = 3,
-	DWORD                      = 4,
-	DWORD_BIG_ENDIAN           = 5,
-	LINK                       = 6,
-	MULTI_SZ                   = 7,
-	RESOURCE_LIST              = 8,
-	FULL_RESOURCE_DESCRIPTOR   = 9,
-	RESOURCE_REQUIREMENTS_LIST = 10,
-	QWORD                      = 11
+    // Registry value types.
+    NONE = 0,
+    SZ = 1,
+    EXPAND_SZ = 2,
+    BINARY = 3,
+    DWORD = 4,
+    DWORD_BIG_ENDIAN = 5,
+    LINK = 6,
+    MULTI_SZ = 7,
+    RESOURCE_LIST = 8,
+    FULL_RESOURCE_DESCRIPTOR = 9,
+    RESOURCE_REQUIREMENTS_LIST = 10,
+    QWORD = 11,
 }
 
-const _REG_OPTION_NON_VOLATILE = 0
+const _REG_OPTION_NON_VOLATILE = 0;
 
-const _REG_CREATED_NEW_KEY     = 1
-const _REG_OPENED_EXISTING_KEY = 2
+const _REG_CREATED_NEW_KEY = 1;
+const _REG_OPENED_EXISTING_KEY = 2;
 
-const _ERROR_NO_MORE_ITEMS  = 259;
+const _ERROR_NO_MORE_ITEMS = 259;
 
 export interface KeyInfo {
-	subKeyCount:    number
-	maxSubKeyLength:    number // size of the key's subkey with the longest name, in Unicode characters, not including the terminating zero byte
-	valueCount:      number
-	maxValueNameLength: number // size of the key's longest value name, in Unicode characters, not including the terminating zero byte
-	maxValueLength:     number // longest data component among the key's values, in bytes
-	lastWriteTime?:  number
+    subKeyCount: number;
+    maxSubKeyLength: number; // size of the key's subkey with the longest name, in Unicode characters, not including the terminating zero byte
+    valueCount: number;
+    maxValueNameLength: number; // size of the key's longest value name, in Unicode characters, not including the terminating zero byte
+    maxValueLength: number; // longest data component among the key's values, in bytes
+    lastWriteTime?: number;
 }
 
 export interface Key {
     isNull(): boolean;
     unwrap(): unknown;
-    path: string
-    close() : void 
-    [Symbol.dispose]() : void
+    path: string;
+    close(): void;
+    [Symbol.dispose](): void;
     openKey(path: string, access?: Rights): Key;
-    createKey(path: string, access?: Rights): { key: Key, openedExisting: boolean };
+    createKey(path: string, access?: Rights): { key: Key; openedExisting: boolean };
     getSubKeyNames(n?: number): string[];
     getValueNames(n?: number): string[];
-    getValue(name: string, buffer?: Uint8Array): { data: Uint8Array, type: number };
+    getValue(name: string, buffer?: Uint8Array): { data: Uint8Array; type: number };
     getString(name: string): string;
     getInt32(name: string): number;
     getInt64(name: string): bigint;
@@ -122,16 +133,15 @@ export interface Key {
     stat(): KeyInfo;
 }
 
-
 class KeyHandle implements Key {
     #ptr: unknown | null = null;
-    #path: string
-    #disposed: boolean
+    #path: string;
+    #disposed: boolean;
 
     constructor(ptr: unknown | null, path: string) {
         this.#ptr = ptr;
         this.#path = path;
-        this.#disposed= false;
+        this.#disposed = false;
     }
 
     isNull(): boolean {
@@ -145,15 +155,16 @@ class KeyHandle implements Key {
         return this.#ptr;
     }
 
-    get path() :string {
+    get path(): string {
         return this.#path;
     }
 
     close(): void {
-        if (this.#disposed)
-            return
+        if (this.#disposed) {
+            return;
+        }
         advapi32.symbols.RegCloseKey(this.unwrap() as Deno.PointerValue);
-        this.#disposed = true
+        this.#disposed = true;
         this.#ptr = null;
     }
 
@@ -162,25 +173,31 @@ class KeyHandle implements Key {
     }
 
     openKey(path: string, access: Rights = Rights.ALL_ACCESS): Key {
-        if (this.#disposed)
-            throw new Error (`Key ${this.path} is already disposed.`);
+        if (this.#disposed) {
+            throw new Error(`Key ${this.path} is already disposed.`);
+        }
         return openKey(this, path, access);
     }
 
-    createKey(path: string, access: Rights = Rights.ALL_ACCESS): { key: Key, openedExisting: boolean } {
-        if (this.#disposed)
-            throw new Error (`Key ${this.path} is already disposed.`);
+    createKey(
+        path: string,
+        access: Rights = Rights.ALL_ACCESS,
+    ): { key: Key; openedExisting: boolean } {
+        if (this.#disposed) {
+            throw new Error(`Key ${this.path} is already disposed.`);
+        }
         return createKey(this, path, access);
     }
 
-    deleteKey(name: string) : boolean {
+    deleteKey(name: string): boolean {
         deleteKey(this, name);
         return true;
     }
 
-    getSubKeyNames(n : number = 0): string[] {
-        if (this.#disposed)
-            throw new Error (`Key ${this.path} is already disposed.`);
+    getSubKeyNames(n: number = 0): string[] {
+        if (this.#disposed) {
+            throw new Error(`Key ${this.path} is already disposed.`);
+        }
         if (!Number.isInteger(n) || n < 0) {
             n = 0;
         }
@@ -192,13 +209,13 @@ class KeyHandle implements Key {
         const names: string[] = [];
         let done = false;
         let name = "";
-        while(true) {
+        while (true) {
             if (n > 0 && names.length === n) {
                 return names;
             }
 
             length = new Uint32Array([buf.length]);
-            while(true) {
+            while (true) {
                 result = advapi32.symbols.RegEnumKeyExW(
                     this.unwrap() as Deno.PointerValue,
                     i,
@@ -209,7 +226,7 @@ class KeyHandle implements Key {
                     null,
                     null,
                 );
-    
+
                 if (result === 234) {
                     const l2 = length[0] * 2;
                     length = new Uint32Array([l2]);
@@ -226,7 +243,7 @@ class KeyHandle implements Key {
                     throw new Error(`Failed to enumerate value names.  Error: ${result}`);
                 }
 
-                name = new TextDecoder("utf-16").decode(buf.slice(0, length[0])); 
+                name = new TextDecoder("utf-16").decode(buf.slice(0, length[0]));
                 i++;
                 break;
             }
@@ -239,9 +256,10 @@ class KeyHandle implements Key {
         }
     }
 
-    getValue(name: string, buffer?: Uint8Array) : { data: Uint8Array, type: number } {
-        if (this.#disposed)
-            throw new Error (`Key ${this.path} is already disposed.`);
+    getValue(name: string, buffer?: Uint8Array): { data: Uint8Array; type: number } {
+        if (this.#disposed) {
+            throw new Error(`Key ${this.path} is already disposed.`);
+        }
         const p = pwstrPointer(name);
         const t = new Uint32Array([0]);
         buffer ??= new Uint8Array(255);
@@ -263,11 +281,13 @@ class KeyHandle implements Key {
                 return {
                     data: buffer.slice(0, n[0]),
                     type: t[0],
-                }
+                };
             }
 
             if (result === 6) {
-                throw new Error(`Invalid handle ${id} for ${this.path}\\${name}. Error code ${result}`)
+                throw new Error(
+                    `Invalid handle ${id} for ${this.path}\\${name}. Error code ${result}`,
+                );
             }
 
             if (result == 2) {
@@ -281,7 +301,7 @@ class KeyHandle implements Key {
             }
 
             throw new Error(`"Failed to query value ${name}.  Error: ${result}`);
-        }     
+        }
     }
 
     getBinary(name: string): Uint8Array {
@@ -356,7 +376,6 @@ class KeyHandle implements Key {
         this.setValue(name, data, Types.QWORD);
     }
 
-
     stat() {
         const subKeyCount = new Uint32Array(1);
         const maxSubKeyLength = new Uint32Array(1);
@@ -364,7 +383,7 @@ class KeyHandle implements Key {
         const maxValueNameLength = new Uint32Array(1);
         const maxValueLength = new Uint32Array(1);
         const modified = new BigUint64Array(1);
-    
+
         const result = advapi32.symbols.RegQueryInfoKeyW(
             this.unwrap() as Deno.PointerValue,
             null,
@@ -379,11 +398,11 @@ class KeyHandle implements Key {
             null,
             Deno.UnsafePointer.of(modified),
         );
-    
+
         if (result !== 0) {
             throw new Error("Failed to query key info");
         }
-    
+
         return {
             subKeyCount: subKeyCount[0],
             maxSubKeyLength: maxSubKeyLength[0],
@@ -413,13 +432,13 @@ class KeyHandle implements Key {
         const names: string[] = new Array<string>(ki.valueCount);
         let done = false;
         let name = "";
-        while(true) {
+        while (true) {
             if (n > 0 && names.length === n) {
                 return names;
             }
 
             length = new Uint32Array([buf.length]);
-            while(true) {
+            while (true) {
                 result = advapi32.symbols.RegEnumValueW(
                     this.unwrap() as Deno.PointerValue,
                     i,
@@ -430,7 +449,7 @@ class KeyHandle implements Key {
                     null,
                     null,
                 );
-    
+
                 if (result === 234) {
                     const l2 = length[0] * 2;
                     length = new Uint32Array([l2]);
@@ -448,14 +467,14 @@ class KeyHandle implements Key {
                     throw new Error(`Failed to enumerate value names.  Error: ${result}`);
                 }
 
-                name = new TextDecoder("utf-16").decode(buf); 
+                name = new TextDecoder("utf-16").decode(buf);
                 i++;
                 break;
             }
 
             names.push(name);
             if (names.length === ki.valueCount) {
-                return names 
+                return names;
             }
 
             if (done) {
@@ -515,7 +534,11 @@ function openKey(k: Key, path: string | Uint8Array | Uint16Array, access: number
     return new KeyHandle(handle, k.path + "\\" + path);
 }
 
-function createKey(k: Key, path: string | Uint8Array | Uint16Array, access: number): { key: Key, openedExisting: boolean } {
+function createKey(
+    k: Key,
+    path: string | Uint8Array | Uint16Array,
+    access: number,
+): { key: Key; openedExisting: boolean } {
     const p = pwstrPointer(path);
     const subkey = new BigUint64Array(1);
     const subkeyPtr = Deno.UnsafePointer.of(subkey);
@@ -563,7 +586,6 @@ export const HKEY_USERS = 0x80000003n;
 export const HKEY_PERFORMANCE_DATA = 0x80000004n;
 export const HKEY_CURRENT_CONFIG = 0x80000005n;
 
-
 export class Registry {
     static #hkcr?: Key;
     static #hkcu?: Key;
@@ -571,7 +593,6 @@ export class Registry {
     static #hku?: Key;
     static #hkpd?: Key;
     static #hkcc?: Key;
-
 
     static get HKCR(): Key {
         if (this.#hkcr === undefined) {
@@ -621,14 +642,13 @@ export class Registry {
         return this.#hkcc;
     }
 
-
-    static openKey(path: string, access: number): Key 
-    static openKey(key: Key, path: string, access: number): Key
+    static openKey(path: string, access: number): Key;
+    static openKey(key: Key, path: string, access: number): Key;
     static openKey(): Key {
         switch (arguments.length) {
             case 2:
                 {
-                    let path = arguments[0] as string
+                    let path = arguments[0] as string;
                     path = path.replaceAll("/", "\\");
                     const hiveName = path.substring(0, path.indexOf("\\"));
                     path = path.substring(path.indexOf("\\") + 1);
@@ -657,23 +677,22 @@ export class Registry {
                 }
                 break;
 
-            case 3:
-                {
-                    return openKey(arguments[0] as Key, arguments[1] as string, arguments[2] as number);
-                }
+            case 3: {
+                return openKey(arguments[0] as Key, arguments[1] as string, arguments[2] as number);
+            }
 
             default:
                 throw new Error("Invalid number of arguments");
         }
     }
 
-    static createKey(key: Key, path: string, access: number): { key: Key, openedExisting: boolean }
-    static createKey(path: string, access: number): { key: Key, openedExisting: boolean }
-    static createKey(): { key: Key, openedExisting: boolean } {
+    static createKey(key: Key, path: string, access: number): { key: Key; openedExisting: boolean };
+    static createKey(path: string, access: number): { key: Key; openedExisting: boolean };
+    static createKey(): { key: Key; openedExisting: boolean } {
         switch (arguments.length) {
             case 2:
                 {
-                    let path = arguments[0] as string
+                    let path = arguments[0] as string;
                     path = path.replaceAll("/", "\\");
                     const hiveName = path.substring(0, path.indexOf("\\"));
                     path = path.substring(path.indexOf("\\") + 1);
@@ -702,23 +721,26 @@ export class Registry {
                 }
                 break;
 
-            case 3:
-                {
-                    return createKey(arguments[0] as Key, arguments[1] as string, arguments[2] as number);
-                }
+            case 3: {
+                return createKey(
+                    arguments[0] as Key,
+                    arguments[1] as string,
+                    arguments[2] as number,
+                );
+            }
 
             default:
                 throw new Error("Invalid number of arguments");
         }
     }
 
-    static deleteKey(path: string): void
-    static deleteKey(key: Key, path: string): void
+    static deleteKey(path: string): void;
+    static deleteKey(key: Key, path: string): void;
     static deleteKey(): void {
         switch (arguments.length) {
             case 2:
                 {
-                    let path = arguments[0] as string
+                    let path = arguments[0] as string;
                     path = path.replaceAll("/", "\\");
                     const hiveName = path.substring(0, path.indexOf("\\"));
                     path = path.substring(path.indexOf("\\") + 1);
@@ -747,14 +769,12 @@ export class Registry {
                 }
                 break;
 
-            case 3:
-                {
-                    return deleteKey(arguments[0] as Key, arguments[1] as string);
-                }
+            case 3: {
+                return deleteKey(arguments[0] as Key, arguments[1] as string);
+            }
 
             default:
                 throw new Error("Invalid number of arguments");
         }
     }
 }
-

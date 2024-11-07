@@ -1,10 +1,9 @@
 import { Registry } from "./mod.ts";
 import { exists, ok } from "@bearz/assert";
-import { skip } from "@bearz/assert/skip"
-import { WINDOWS } from "@bearz/runtime-info/os"
+import { skip } from "@bearz/assert/skip";
+import { WINDOWS } from "@bearz/runtime-info/os";
 
-
-const test = Deno.test; 
+const test = Deno.test;
 
 test("win32-registry::Registry.openKey", skip(!WINDOWS), () => {
     using key = Registry.HKCU.openKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion");
@@ -28,10 +27,10 @@ test("win32-registry::Key.getString", skip(!WINDOWS), () => {
     console.log(theme);
 });
 
-test("win32-registry::Key.getInt32", skip(!WINDOWS), () =>{
+test("win32-registry::Key.getInt32", skip(!WINDOWS), () => {
     using key = Registry.HKCU.openKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes");
     exists(key);
     const value = key.getInt32("ThemeChangesDesktopIcons");
     exists(value);
     console.log(value);
-})
+});
