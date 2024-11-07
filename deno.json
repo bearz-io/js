@@ -40,7 +40,8 @@
         "./lib/secrets",
         "./lib/shells",
         "./lib/slices",
-        "./lib/strings"
+        "./lib/strings",
+        "./lib/win32-registry"
     ],
 
     "imports": {
