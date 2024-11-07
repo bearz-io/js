@@ -34,3 +34,13 @@ test("win32-registry::Key.getInt32", skip(!WINDOWS), () => {
     exists(value);
     console.log(value);
 });
+
+test("win32-registry::Key.getValueNames", skip(!WINDOWS), () => {
+    using key = Registry.HKCU.openKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes");
+    exists(key);
+    const names = key.getValueNames();
+    exists(names);
+    ok(names.length > 0);
+    ok(names.includes("CurrentTheme"));
+    console.log(names);
+});

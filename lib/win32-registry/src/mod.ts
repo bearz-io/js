@@ -429,7 +429,7 @@ class KeyHandle implements Key {
         let length = new Uint32Array(1);
         let i = 0;
         let result: number;
-        const names: string[] = new Array<string>(ki.valueCount);
+        const names: string[] = new Array<string>();
         let done = false;
         let name = "";
         while (true) {
@@ -467,12 +467,14 @@ class KeyHandle implements Key {
                     throw new Error(`Failed to enumerate value names.  Error: ${result}`);
                 }
 
-                name = new TextDecoder("utf-16").decode(buf);
+                name = new TextDecoder("utf-16").decode(buf.slice(0, length[0]));
                 i++;
                 break;
             }
 
             names.push(name);
+               
+            
             if (names.length === ki.valueCount) {
                 return names;
             }
