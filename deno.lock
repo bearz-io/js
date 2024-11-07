@@ -14,6 +14,7 @@
     "jsr:@std/path@^1.0.2": "1.0.6",
     "jsr:@std/path@^1.0.6": "1.0.6",
     "jsr:@std/text@~1.0.7": "1.0.7",
+    "npm:@types/bun@^1.1.13": "1.1.13",
     "npm:@types/chai@5": "5.0.0",
     "npm:@types/node@*": "22.5.4",
     "npm:@types/node@^20.17.0": "20.17.0",
@@ -82,19 +83,37 @@
         "regenerator-runtime"
       ]
     },
+    "@types/bun@1.1.13": {
+      "integrity": "sha512-KmQxSBgVWCl6RSuerlLGZlIWfdxkKqat0nxN61+qu4y1KDn0Ll3j7v1Pl8GnaL3a/U6GGWVTJh75ap62kR1E8Q==",
+      "dependencies": [
+        "bun-types"
+      ]
+    },
     "@types/chai@5.0.0": {
       "integrity": "sha512-+DwhEHAaFPPdJ2ral3kNHFQXnTfscEEFsUxzD+d7nlcLrFK23JtNjH71RGasTcHb88b4vVi4mTyfpf8u2L8bdA=="
+    },
+    "@types/node@20.12.14": {
+      "integrity": "sha512-scnD59RpYD91xngrQQLGkE+6UrHUPzeKZWhhjBSa3HSkwjbQc38+q3RoIVEwxQGRw3M+j5hpNAM+lgV3cVormg==",
+      "dependencies": [
+        "undici-types@5.26.5"
+      ]
     },
     "@types/node@20.17.0": {
       "integrity": "sha512-a7zRo0f0eLo9K5X9Wp5cAqTUNGzuFLDG2R7C4HY2BhcMAsxgSPuRvAC1ZB6QkuUQXf0YZAgfOX2ZyrBa2n4nHQ==",
       "dependencies": [
-        "undici-types"
+        "undici-types@6.19.8"
       ]
     },
     "@types/node@22.5.4": {
       "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
       "dependencies": [
-        "undici-types"
+        "undici-types@6.19.8"
+      ]
+    },
+    "@types/ws@8.5.13": {
+      "integrity": "sha512-osM/gWBTPKgHV8XkTunnegTRIsvF6owmf5w+JtAfOw472dptdm0dlGv4xCt6GwQRcC2XVOvvRE/0bAoQcL2QkA==",
+      "dependencies": [
+        "@types/node@22.5.4"
       ]
     },
     "assertion-error@2.0.1": {
@@ -108,6 +127,13 @@
       "dependencies": [
         "balanced-match",
         "concat-map"
+      ]
+    },
+    "bun-types@1.1.34": {
+      "integrity": "sha512-br5QygTEL/TwB4uQOb96Ky22j4Gq2WxWH/8Oqv20fk5HagwKXo/akB+LiYgSfzexCt6kkcUaVm+bKiPl71xPvw==",
+      "dependencies": [
+        "@types/node@20.12.14",
+        "@types/ws"
       ]
     },
     "chai@5.1.1": {
@@ -159,6 +185,9 @@
         "walk"
       ]
     },
+    "undici-types@5.26.5": {
+      "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="
+    },
     "undici-types@6.19.8": {
       "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw=="
     },
@@ -174,6 +203,7 @@
       "jsr:@std/assert@^1.0.6",
       "jsr:@std/dotenv@~0.225.2",
       "jsr:@std/path@^1.0.6",
+      "npm:@types/bun@^1.1.13",
       "npm:@types/chai@5",
       "npm:@types/node@^20.17.0",
       "npm:assertion-error@^2.0.1",

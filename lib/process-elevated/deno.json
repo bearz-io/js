@@ -1,0 +1,8 @@
+{
+    "name": "@bearz/process-elevated",
+    "description": "process-elevated module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts"
+    }
+}
