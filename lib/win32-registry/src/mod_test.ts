@@ -1,4 +1,4 @@
-import { Registry, Rights } from "./mod.ts";
+import { Registry } from "./mod.ts";
 import { exists } from "@bearz/assert";
 import { skip } from "@bearz/assert/skip"
 import { WINDOWS } from "@bearz/runtime-info/os"
@@ -7,7 +7,7 @@ import { WINDOWS } from "@bearz/runtime-info/os"
 const test = Deno.test; 
 
 test("win32-registry::Registry does not throw", skip(!WINDOWS), () => {
-    using key = Registry.HKCU.openKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion", Rights.ALL_ACCESS);
+    using key = Registry.HKCU.openKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion");
     exists(key);
     for(const value of key.getSubKeyNames()) {
         console.log(value);
