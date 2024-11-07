@@ -1,0 +1,8 @@
+{
+    "name": "@bearz/win32-registry",
+    "description": "win32-registry module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./src/mod.ts"
+    }
+}
