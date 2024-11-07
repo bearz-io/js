@@ -60,7 +60,7 @@ test("win32-registry::Key - test setting values", skip(!WINDOWS), () => {
     try {
         key.setString("Tick", "Spoon");
         const value = key.getString("Tick");
-        equal("Spoon", value)
+        equal("Spoon", value);
 
         key.setInt32("Age", 200);
         const age = key.getInt32("Age");
@@ -68,7 +68,7 @@ test("win32-registry::Key - test setting values", skip(!WINDOWS), () => {
 
         key.setInt64("Age3", 12312412n);
         const age3 = key.getInt64("Age3");
-        equal(age3, 12312412n)
+        equal(age3, 12312412n);
 
         const text = new TextEncoder().encode("Hello");
         key.setBinary("binary", text);
@@ -82,10 +82,9 @@ test("win32-registry::Key - test setting values", skip(!WINDOWS), () => {
 
         key.deleteValue("m");
         throws(() => {
-            key.getMultiString("m")
+            key.getMultiString("m");
         });
-
     } finally {
-        Registry.HKCU.deleteKey("BEARZ_TEST_VALUES")
+        Registry.HKCU.deleteKey("BEARZ_TEST_VALUES");
     }
 });

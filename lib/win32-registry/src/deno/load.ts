@@ -105,8 +105,6 @@ if (DENO && WINDOWS) {
         return Deno.UnsafePointer.of(buffer);
     }
 
-   
-
     function openKey(k: Key, path: string | Uint8Array | Uint16Array, access?: number): Key {
         const p = pwstrPointer(path);
         const subkey = new BigUint64Array(1);
@@ -180,7 +178,7 @@ if (DENO && WINDOWS) {
         #ptr: unknown | null = null;
         #path: string;
         #disposed: boolean;
-        #created: boolean
+        #created: boolean;
 
         constructor(ptr: unknown | null, path: string, created?: boolean) {
             this.#ptr = ptr;
@@ -193,7 +191,7 @@ if (DENO && WINDOWS) {
             return this.#ptr === null;
         }
 
-        get created() : boolean {
+        get created(): boolean {
             return this.#created;
         }
 
@@ -378,9 +376,12 @@ if (DENO && WINDOWS) {
                 throw new Error(`Value ${name} is not a multi-string`);
             }
 
-            let test = new TextDecoder("utf-16").decode(result.data.slice(0, result.data.byteLength - 2));
-            if (test.endsWith("\x00"))
-                test =  test.substring(0, test.lastIndexOf("\x00"));
+            let test = new TextDecoder("utf-16").decode(
+                result.data.slice(0, result.data.byteLength - 2),
+            );
+            if (test.endsWith("\x00")) {
+                test = test.substring(0, test.lastIndexOf("\x00"));
+            }
             return test.split("\x00");
         }
 
@@ -390,7 +391,9 @@ if (DENO && WINDOWS) {
                 throw new Error(`Value ${name} is not a string`);
             }
 
-            return new TextDecoder("utf-16").decode(result.data.slice(0, result.data.byteLength -2));
+            return new TextDecoder("utf-16").decode(
+                result.data.slice(0, result.data.byteLength - 2),
+            );
         }
 
         getInt32(name: string): number {
@@ -427,7 +430,7 @@ if (DENO && WINDOWS) {
             }
         }
 
-        setBinary(name: string, data: Uint8Array) : void {
+        setBinary(name: string, data: Uint8Array): void {
             this.setValue(name, data, Types.BINARY);
         }
 
