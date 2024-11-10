@@ -378,5 +378,4 @@ ShellCommand.prototype.spawn = function (): ChildProcess {
     return proc;
 };
 
-console.log("loaded");
 export { Command, ShellCommand };
