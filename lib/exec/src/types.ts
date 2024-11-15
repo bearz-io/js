@@ -3,7 +3,7 @@
  */
 export interface SplatOptions extends Record<string, unknown> {
     /**
-     * The command to execute.
+     * The subcommand command to execute.
      */
     command?: string[] | string;
     /**
@@ -70,7 +70,7 @@ export interface SplatOptions extends Record<string, unknown> {
      * console.log(args); // ["bar", "qux"]
      * ```
      */
-    arguments?: string[];
+    argumentNames?: string[];
     /**
      * Whether to append the arguments to the end of the command. Defaults to `false`.
      *
@@ -92,7 +92,7 @@ export interface SplatOptions extends Record<string, unknown> {
  * console.log(args); // ["-f", "bar"]
  * ```
  */
-export interface SplatObject extends Record<string, unknown> {
+export interface SplatObject extends Record<string | symbol | number, unknown> {
     splat?: SplatOptions;
 }
 

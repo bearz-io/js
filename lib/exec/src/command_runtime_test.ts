@@ -1,6 +1,6 @@
 import { equal, fail, nope, notEqual, ok, throws } from "@bearz/assert";
 import { skip } from "@bearz/assert/skip";
-import { Command, ShellCommand, type ShellCommandOptions } from "./command.ts";
+import { Command, exec, ShellCommand, type ShellCommandOptions } from "./command.ts";
 import { RUNTIME, WINDOWS } from "@bearz/runtime-info";
 import { env } from "@bearz/env";
 import { remove, writeTextFile } from "@bearz/fs";
@@ -55,6 +55,7 @@ const ls = await pathFinder.findExe("ls");
 const grep = await pathFinder.findExe("grep");
 const cat = await pathFinder.findExe("cat");
 const pwsh = await pathFinder.findExe("pwsh");
+const git = await pathFinder.findExe("git");
 
 test("exec::Command - with simple output", async () => {
     let exe = "deno";
@@ -87,12 +88,19 @@ test("exec::Command - with inherit returns no output", skip(!echo), async () => 
     equal(output.text(), "");
 });
 
-test("exec::Command - with bad command returns error", skip(!echo), async () => {
+test("exec::Command - with bad command returns error", skip(!git), async () => {
     const cmd = new Command("git", ["clone"], { stderr: "piped", stdout: "piped" });
     const output = await cmd.output();
     ok(output.code !== 0);
     notEqual(output.stderr.length, 0);
     notEqual(output.errorText(), "");
+});
+
+test("exec::exec runs inline command", skip(!git), async () => {
+    const cmd = exec(`git status \
+    --porcelain`);
+    const output = await cmd.output();
+    ok(output.code === 0);
 });
 
 test("exec::Command - set cwd", skip(!ls), async () => {

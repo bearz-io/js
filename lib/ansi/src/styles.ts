@@ -485,6 +485,43 @@ export function rgb8(str: string, color: number): string {
 }
 
 /**
+ * Stylizes the text with 8bit color and will downgrade 24bit color to 8bit.
+ * @param str The text to apply 8bit color to.
+ * @param color The color to downgrade to 8bit.
+ * @returns The text with the 8bit color applied.
+ */
+export function rgb24To8(str: string, color: number | Rgb) : string {
+    if (typeof color === "number") {
+        if (color < 256) {
+            return rgb8(str, color);
+        }
+
+        color = {
+            r: (color >> 16) & 0xff,
+            g: (color >> 8) & 0xff,
+            b: color & 0xff,
+        };
+    }
+    let { r, g, b } = color;
+
+    // Ensure input values are in valid range
+    r = Math.max(0, Math.min(r, 255));
+    g = Math.max(0, Math.min(g, 255));
+    b = Math.max(0, Math.min(b, 255));
+
+    // Convert to 6x6x6 color cube indices (0-5)
+    const rIndex = Math.round(r / 255 * 5);
+    const gIndex = Math.round(g / 255 * 5);
+    const bIndex = Math.round(b / 255 * 5);
+
+    // Calculate 8-bit color code
+    // Formula: 16 + (36 * r) + (6 * g) + b
+    const ansiCode = 16 + (36 * rIndex) + (6 * gIndex) + bIndex;
+
+    return rgb8(str, ansiCode);
+}
+
+/**
  * Set background color using paletted 8bit colors.
  * https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit
  * @param str text color to apply paletted 8bit background colors to

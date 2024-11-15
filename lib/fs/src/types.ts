@@ -87,9 +87,21 @@ export interface MakeTempOptions {
  * Options for {@linkcode writeTextFile} and {@linkcode writeTextFileSync}.
  */
 export interface WriteOptions {
+    /**
+     * If `true`, will append to the file instead of overwriting it.
+     */
     append?: boolean;
+    /**
+     * The character encoding of the file.
+     */
     create?: boolean;
+    /**
+     * The character encoding of the file.
+     */
     signal?: AbortSignal;
+    /**
+     * The character encoding of the file.
+     */
     mode?: number;
 }
 
