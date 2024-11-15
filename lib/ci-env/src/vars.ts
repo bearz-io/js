@@ -56,6 +56,14 @@ export function setSecretMasker(s: SecretMasker): void {
 }
 
 /**
+ * Gets the global secret masker for the ci-env module.
+ * @returns The global secret masker for the ci-env module.
+ */
+export function getSecretMasker(): SecretMasker {
+    return sm;
+}
+
+/**
  * Sets the name of the environment variables to use
  * for the output, env, path, and secrets variables
  * that map to files that temporarily store the

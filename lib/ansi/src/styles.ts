@@ -490,7 +490,7 @@ export function rgb8(str: string, color: number): string {
  * @param color The color to downgrade to 8bit.
  * @returns The text with the 8bit color applied.
  */
-export function rgb24To8(str: string, color: number | Rgb) : string {
+export function rgb24To8(str: string, color: number | Rgb): string {
     if (typeof color === "number") {
         if (color < 256) {
             return rgb8(str, color);

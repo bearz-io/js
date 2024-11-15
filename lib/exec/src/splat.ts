@@ -20,7 +20,7 @@ export type { SplatObject, SplatOptions };
  *
  * splat(args); // ["run", "task", "--yes"]
  */
-export const SplatSymbols : Record<string, symbol> = {
+export const SplatSymbols: Record<string, symbol> = {
     command: Symbol("@@command"),
     /**
      * The key for positional arguments values

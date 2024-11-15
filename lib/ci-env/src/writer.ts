@@ -1,7 +1,9 @@
-import { AnsiLogLevel, red } from "@bearz/ansi";
+import { AnsiLogLevel, type AnsiWriter, red } from "@bearz/ansi";
 import { DefaultAnsiWriter } from "@bearz/ansi/writer";
 import { CI_DRIVER } from "./driver.ts";
 import { sprintf } from "@bearz/fmt/printf";
+import type { SecretMasker } from "@bearz/secrets";
+import { getSecretMasker } from "./vars.ts";
 
 function handleStack(stack?: string) {
     stack = stack ?? "";
@@ -66,7 +68,78 @@ export function handleArguments(
     }
 }
 
-export class PipelineWriter extends DefaultAnsiWriter {
+/**
+ * The contract for the ci pipeline writer
+ * which extends the ansi writer to handle logging
+ * commands for Github Actions and Azure DevOps.
+ */
+export interface PipelineWriter extends AnsiWriter {
+    /**
+     * The secret masker used to mask secrets in the output.
+     */
+    readonly secretMasker: SecretMasker;
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output.
+     * @param value The value to update.
+     */
+    mask(value: string): this;
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output as new line.
+     * @param value The value to update.
+     */
+    maskLine(value: string): this;
+}
+
+/**
+ * The default pipeline writer implementation.
+ */
+export class DefaultPipelineWriter extends DefaultAnsiWriter {
+    #secretMasker: SecretMasker;
+
+    /**
+     * Creates a new instance of the default pipeline writer.
+     * @param level The log level to use.
+     * @param write The write function to use.
+     * @param secretMasker The secret masker to use.
+     */
+    constructor(
+        level?: AnsiLogLevel,
+        write?: (message?: string) => void,
+        secretMasker?: SecretMasker,
+    ) {
+        super(level, write);
+        this.#secretMasker = secretMasker ?? getSecretMasker();
+    }
+
+    /**
+     * The secret masker used to mask secrets in the output.
+     */
+    get secretMasker(): SecretMasker {
+        return this.#secretMasker;
+    }
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output.
+     * @param value The value to update.
+     */
+    mask(value: string): this {
+        return this.write(this.#secretMasker.mask(value) ?? "");
+    }
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output as a new line.
+     * @param value The value to update.
+     */
+    maskLine(value: string): this {
+        return this.writeLine(this.#secretMasker.mask(value) ?? "");
+    }
+
     /**
      * Write a command to the output.
      * @param command The name of the command.
@@ -297,4 +370,4 @@ export class PipelineWriter extends DefaultAnsiWriter {
 /**
  * The global writer instance.
  */
-export const writer: PipelineWriter = new PipelineWriter();
+export const writer: DefaultPipelineWriter = new DefaultPipelineWriter();
