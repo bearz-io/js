@@ -1,9 +1,13 @@
 import { env } from "@bearz/env";
 import { AnsiSettings } from "../src/settings.ts";
-import { blue, cyan, gray, green, magenta, red, yellow } from "./styles.ts";
+import { blue, brightBlack, cyan, gray, green, magenta, red, rgb24, yellow } from "./styles.ts";
 import { sprintf } from "@bearz/fmt/printf";
 import { AnsiLogLevel } from "../src/enums.ts";
 import { isStdoutTerminal } from "../src/settings.ts";
+import { AnsiMode } from "./mod.ts";
+
+const groupSymbol =
+    "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;90;0;255m❯\x1b[39m\x1b[38;2;121;0;255m❯\x1b[39m\x1b[38;2;151;0;255m❯\x1b[39m\x1b[38;2;182;0;255m❯\x1b[39m\x1b[38;2;212;0;255m\x16\x1b[39m";
 
 // deno-lint-ignore no-explicit-any
 const g = globalThis as any;
@@ -11,7 +15,7 @@ let args: string[] = [];
 let write = (message?: string) => {
     console.log(message);
 };
-if (typeof g.Deno !== "undefined") {
+if (typeof g.Deno !== "undefined" && !g.BEARZ_USE_NODE) {
     args = Deno.args;
     write = (message?: string) => {
         Deno.stdout.writeSync(new TextEncoder().encode(message));
@@ -20,6 +24,40 @@ if (typeof g.Deno !== "undefined") {
     args = g.process.argv.slice(2);
     write = (message?: string) => {
         g.process.stdout.write(message);
+    };
+} else {
+    let buffer = "";
+    write = (message?: string) => {
+        if (!message) {
+            return;
+        }
+
+        if (message.endsWith("\n")) {
+            if (buffer.length > 0) {
+                console.log(buffer + message);
+            } else {
+                console.log(message);
+            }
+
+            buffer = "";
+            return;
+        }
+
+        if (message.includes("\n")) {
+            const last = message.lastIndexOf("\n");
+            const nextBuffer = message.substring(last + 1);
+            const output = message.substring(0, last);
+            if (buffer.length > 0) {
+                console.log(buffer + output);
+            } else {
+                console.log(output);
+            }
+
+            buffer = nextBuffer;
+            return;
+        }
+
+        buffer += message;
     };
 }
 
@@ -143,8 +181,16 @@ export interface AnsiWriter {
      * @param args The arguments passed to the command.
      * @returns The writer.
      */
-    command(command: string, args: string[]): this;
+    command(command: string, args?: string[]): this;
 
+    /**
+     * Writes an error message to the output.
+     * @param e The error.
+     * @param message The message to write.
+     * @param args The message arguments.
+     * @returns The writer.
+     */
+    debug(e: Error, message?: string, ...args: unknown[]): this;
     /**
      * Writes a debug message to the output.
      * @param message The message to write.
@@ -154,6 +200,14 @@ export interface AnsiWriter {
     debug(message: string, ...args: unknown[]): this;
 
     /**
+     * Writes an error message to the output.
+     * @param e The error.
+     * @param message The message to write.
+     * @param args The message arguments.
+     * @returns The writer.
+     */
+    trace(e: Error, message?: string, ...args: unknown[]): this;
+    /**
      * Writes a trace message to the output.
      * @param message The message to write.
      * @param args The message arguments.
@@ -161,6 +215,14 @@ export interface AnsiWriter {
      */
     trace(message: string, ...args: unknown[]): this;
 
+    /**
+     * Writes an error message to the output.
+     * @param e The error.
+     * @param message The message to write.
+     * @param args The message arguments.
+     * @returns The writer.
+     */
+    info(e: Error, message?: string, ...args: unknown[]): this;
     /**
      * Writes an information message to the output.
      * @param message The message to write.
@@ -250,14 +312,18 @@ export interface AnsiWriter {
 export class DefaultAnsiWriter implements AnsiWriter {
     #interactive?: boolean;
     #level: AnsiLogLevel;
+    #write: (message?: string) => void = write;
 
     /**
      * Creates a new instance of DefaultAnsiWriter.
      * @param level The log level.
      * @param secretMasker The secret masker.
      */
-    constructor(level?: AnsiLogLevel) {
+    constructor(level?: AnsiLogLevel, write?: (message?: string) => void) {
         this.#level = level ?? AnsiLogLevel.Debug;
+        if (write) {
+            this.#write = write;
+        }
     }
 
     /**
@@ -334,26 +400,64 @@ export class DefaultAnsiWriter implements AnsiWriter {
 
     /**
      * Writes a command to the output.
-     * @param message The executable.
+     * @param command The executable.
      * @param args The arguments passed to the command.
      * @returns The writer.
      */
-    command(message: string, args: string[]): this {
-        if (this.#level < AnsiLogLevel.Warning) {
-            return this;
-        }
-        let splat = "";
-        if (args.length > 0) {
-            splat = args.join(" ");
-        }
-
-        const fmt = `$ ${message} ${splat}`;
-        if (this.settings.mode > 0) {
-            this.writeLine(cyan(fmt));
+    command(command: string, args?: string[]): this {
+        if (this.level === AnsiLogLevel.None) {
             return this;
         }
 
-        this.writeLine(fmt);
+        if (this.settings.mode >= AnsiMode.EightBit) {
+            this.write(cyan("❱ $ "));
+            this.write(rgb24(`${command}`, 0xff8700));
+            if (args && args.length > 0) {
+                for (const value of args) {
+                    if (value.startsWith("-") || value.startsWith("/")) {
+                        this.write(cyan(` ${value}`));
+                        continue;
+                    }
+
+                    if (value.includes(" ") || value.includes("\n") || value.includes("\t")) {
+                        if (!value.includes("'")) {
+                            this.write(magenta(` '${value}'`));
+                        } else {
+                            this.write(magenta(` "${value}"`));
+                        }
+                        continue;
+                    }
+
+                    this.write(` ${value}`);
+                }
+            }
+
+            this.writeLine();
+            return this;
+        }
+
+        this.write(`❱ $ ${command}`);
+        if (args && args.length > 0) {
+            for (const value of args) {
+                if (value.startsWith("-") || value.startsWith("/")) {
+                    this.write(` ${value}`);
+                    continue;
+                }
+
+                if (value.includes(" ") || value.includes("\n") || value.includes("\t")) {
+                    if (!value.includes("'")) {
+                        this.write(` '${value}'`);
+                    } else {
+                        this.write(` "${value}"`);
+                    }
+                    continue;
+                }
+
+                this.write(` ${value}`);
+            }
+        }
+
+        this.writeLine();
         return this;
     }
 
@@ -363,41 +467,76 @@ export class DefaultAnsiWriter implements AnsiWriter {
      * @param args The message arguments.
      * @returns the writer.
      */
-    trace(message: string, ...args: unknown[]): this {
-        if (this.#level > AnsiLogLevel.Debug) {
+    trace(): this {
+        if (this.#level < AnsiLogLevel.Trace) {
             return this;
         }
 
-        const fmt = `[TRC]: ${args.length > 0 ? sprintf(message, ...args) : message}`;
+        const { msg, stack } = handleArguments(arguments);
 
-        if (this.settings.mode > 0) {
-            this.writeLine(gray(fmt));
+        if (this.settings.mode !== AnsiMode.None) {
+            if (this.settings.mode >= AnsiMode.EightBit) {
+                this.write(rgb24("❱ [TRACE]: ", 0x626262));
+            } else {
+                this.write(brightBlack("❱ [TRACE]: "));
+            }
+
+            this.writeLine(msg);
+            if (stack) {
+                this.writeLine(stack);
+            }
             return this;
         }
 
-        this.writeLine(fmt);
+        this.writeLine(`❱ [TRACE]:  ${msg}`);
+        if (stack) {
+            this.writeLine(stack);
+        }
+
         return this;
     }
 
+    /**
+     * Writes an debug message to the output.
+     * @param e The error.
+     * @param message The message to write.
+     * @param args The message arguments.
+     * @returns the writer.
+     */
+    debug(e: Error, message?: string, ...args: unknown[]): this;
     /**
      * Writes a debug message to the output.
      * @param message The message to write.
      * @param args The message arguments.
      * @returns the writer.
      */
-    debug(message: string, ...args: unknown[]): this {
+    debug(message: string, ...args: unknown[]): this;
+    debug(): this {
         if (this.#level < AnsiLogLevel.Debug) {
             return this;
         }
 
-        const fmt = `[DBG]: ${args.length > 0 ? sprintf(message, ...args) : message}`;
+        const { msg, stack } = handleArguments(arguments);
 
-        if (this.settings.stdout) {
-            this.writeLine(gray(fmt));
+        if (this.settings.mode !== AnsiMode.None) {
+            if (this.settings.mode >= AnsiMode.EightBit) {
+                this.write(rgb24("❱ [DEBUG]: ", 0x808080));
+            } else {
+                this.write(gray("❱ [DEBUG]: "));
+            }
+
+            this.writeLine(msg);
+            if (stack) {
+                this.writeLine(stack);
+            }
             return this;
         }
 
-        this.writeLine(fmt);
+        this.writeLine(`❱ [DEBUG]:  ${msg}`);
+        if (stack) {
+            this.writeLine(stack);
+        }
+
         return this;
     }
 
@@ -422,17 +561,22 @@ export class DefaultAnsiWriter implements AnsiWriter {
         }
 
         const { msg, stack } = handleArguments(arguments);
-        const fmt = `[WRN]: ${msg}`;
 
-        if (this.settings.stdout) {
-            this.writeLine(yellow(fmt));
+        if (this.settings.mode !== AnsiMode.None) {
+            if (this.settings.mode >= AnsiMode.EightBit) {
+                this.write(rgb24("❱ [WARN]:  ", 0xff8700));
+            } else {
+                this.write(yellow("❱ [WARN]:  "));
+            }
+
+            this.writeLine(msg);
             if (stack) {
-                this.writeLine(yellow(stack));
+                this.writeLine(stack);
             }
             return this;
         }
 
-        this.writeLine(fmt);
+        this.writeLine(`❱ [WARN]:  ${msg}`);
         if (stack) {
             this.writeLine(stack);
         }
@@ -461,17 +605,22 @@ export class DefaultAnsiWriter implements AnsiWriter {
         }
 
         const { msg, stack } = handleArguments(arguments);
-        const fmt = `[ERR]: ${msg}`;
 
-        if (this.settings.stdout) {
-            this.writeLine(red(fmt));
+        if (this.settings.mode !== AnsiMode.None) {
+            if (this.settings.mode >= AnsiMode.EightBit) {
+                this.write(rgb24("❱ [ERROR]: ", 0xff0000));
+            } else {
+                this.write(red("❱ [ERROR]: "));
+            }
+
+            this.writeLine(msg);
             if (stack) {
-                this.writeLine(red(stack));
+                this.writeLine(stack);
             }
             return this;
         }
 
-        this.writeLine(fmt);
+        this.writeLine(`❱ [ERROR]: ${msg}`);
         if (stack) {
             this.writeLine(stack);
         }
@@ -492,7 +641,7 @@ export class DefaultAnsiWriter implements AnsiWriter {
 
             case 1:
                 {
-                    if (this.settings.stdout) {
+                    if (this.settings.mode !== AnsiMode.None) {
                         this.writeLine(green(`${message}`));
                     } else {
                         this.writeLine(`${message}`);
@@ -501,7 +650,7 @@ export class DefaultAnsiWriter implements AnsiWriter {
                 return this;
 
             default: {
-                if (this.settings.stdout) {
+                if (this.settings.mode !== AnsiMode.None) {
                     this.writeLine(green(`${sprintf(message, ...args)}`));
                 } else {
                     this.writeLine(`${sprintf(message, ...args)}`);
@@ -513,23 +662,45 @@ export class DefaultAnsiWriter implements AnsiWriter {
     }
 
     /**
-     * Writes an informational message to the output.
+     * Writes an error message to the output.
+     * @param e The error.
      * @param message The message to write.
      * @param args The message arguments.
      * @returns the writer.
      */
-    info(message: string, ...args: unknown[]): this {
+    info(e: Error, message?: string, ...args: unknown[]): this;
+    /**
+     * Writes an error message to the output.
+     * @param message The message to write.
+     * @param args The message arguments.
+     * @returns the writer.
+     */
+    info(message: string, ...args: unknown[]): this;
+    info(): this {
         if (this.#level < AnsiLogLevel.Information) {
             return this;
         }
-        const fmt = `[INF]: ${args.length > 0 ? sprintf(message, ...args) : message}`;
 
-        if (this.settings.stdout) {
-            this.writeLine(blue(fmt));
+        const { msg, stack } = handleArguments(arguments);
+        if (this.settings.mode !== AnsiMode.None) {
+            if (this.settings.mode >= AnsiMode.EightBit) {
+                this.write(rgb24("❱ [INFO]:  ", 0x00afff));
+            } else {
+                this.write(cyan("❱ [INFO]:  "));
+            }
+
+            this.writeLine(msg);
+            if (stack) {
+                this.writeLine(stack);
+            }
             return this;
         }
 
-        this.writeLine(fmt);
+        this.writeLine(`❱ [INFO]:  ${msg}`);
+        if (stack) {
+            this.writeLine(stack);
+        }
+
         return this;
     }
 
@@ -574,13 +745,13 @@ export class DefaultAnsiWriter implements AnsiWriter {
                 return this;
 
             case 1:
-                write(message);
+                this.#write(message);
                 break;
 
             default:
                 {
                     const formatted = sprintf(message, ...args);
-                    write(formatted);
+                    this.#write(formatted);
                 }
 
                 break;
@@ -598,17 +769,17 @@ export class DefaultAnsiWriter implements AnsiWriter {
     writeLine(message?: string, ...args: unknown[]): this {
         switch (arguments.length) {
             case 0:
-                write("\n");
+                this.#write("\n");
                 break;
 
             case 1:
-                write(`${message}\n`);
+                this.#write(`${message}\n`);
                 break;
 
             default:
                 {
                     const formatted = sprintf(`${message}\n`, ...args);
-                    write(formatted);
+                    this.#write(formatted);
                 }
 
                 break;
@@ -623,12 +794,19 @@ export class DefaultAnsiWriter implements AnsiWriter {
      * @returns the writer.
      */
     startGroup(name: string): this {
-        if (this.settings.stdout) {
-            this.writeLine(magenta(`> ${name}`));
-        } else {
-            this.writeLine(`> ${name}`);
+        if (this.settings.mode !== AnsiMode.None) {
+            if (this.settings.mode === AnsiMode.TwentyFourBit) {
+                this.write(groupSymbol);
+                this.writeLine(magenta(` ${name}`));
+                return this;
+            }
+
+            this.write(blue(`❯❯❯❯❯`));
+            this.writeLine(magenta(` ${name}`));
+            return this;
         }
 
+        this.writeLine(`❯❯❯❯❯ ${name}`);
         return this;
     }
 

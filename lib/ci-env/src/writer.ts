@@ -1,7 +1,9 @@
-import { AnsiLogLevel, cyan, gray, green, red, yellow } from "@bearz/ansi";
+import { AnsiLogLevel, type AnsiWriter, red } from "@bearz/ansi";
 import { DefaultAnsiWriter } from "@bearz/ansi/writer";
-import { CI, CI_DRIVER } from "./driver.ts";
+import { CI_DRIVER } from "./driver.ts";
 import { sprintf } from "@bearz/fmt/printf";
+import type { SecretMasker } from "@bearz/secrets";
+import { getSecretMasker } from "./vars.ts";
 
 function handleStack(stack?: string) {
     stack = stack ?? "";
@@ -66,26 +68,92 @@ export function handleArguments(
     }
 }
 
-export class PipelineWriter extends DefaultAnsiWriter {
+/**
+ * The contract for the ci pipeline writer
+ * which extends the ansi writer to handle logging
+ * commands for Github Actions and Azure DevOps.
+ */
+export interface PipelineWriter extends AnsiWriter {
+    /**
+     * The secret masker used to mask secrets in the output.
+     */
+    readonly secretMasker: SecretMasker;
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output.
+     * @param value The value to update.
+     */
+    mask(value: string): this;
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output as new line.
+     * @param value The value to update.
+     */
+    maskLine(value: string): this;
+}
+
+/**
+ * The default pipeline writer implementation.
+ */
+export class DefaultPipelineWriter extends DefaultAnsiWriter {
+    #secretMasker: SecretMasker;
+
+    /**
+     * Creates a new instance of the default pipeline writer.
+     * @param level The log level to use.
+     * @param write The write function to use.
+     * @param secretMasker The secret masker to use.
+     */
+    constructor(
+        level?: AnsiLogLevel,
+        write?: (message?: string) => void,
+        secretMasker?: SecretMasker,
+    ) {
+        super(level, write);
+        this.#secretMasker = secretMasker ?? getSecretMasker();
+    }
+
+    /**
+     * The secret masker used to mask secrets in the output.
+     */
+    get secretMasker(): SecretMasker {
+        return this.#secretMasker;
+    }
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output.
+     * @param value The value to update.
+     */
+    mask(value: string): this {
+        return this.write(this.#secretMasker.mask(value) ?? "");
+    }
+
+    /**
+     * Masks any secrets and writes the string with masked
+     * values to the output as a new line.
+     * @param value The value to update.
+     */
+    maskLine(value: string): this {
+        return this.writeLine(this.#secretMasker.mask(value) ?? "");
+    }
+
     /**
      * Write a command to the output.
      * @param command The name of the command.
      * @param args The arguments passed to the command.
      * @returns The writer instance.
      */
-    override command(command: string, args: string[]): this {
+    override command(command: string, args?: string[]): this {
+        args = args ?? [];
         switch (CI_DRIVER) {
             case "azdo":
                 this.writeLine(`##vso[command]${command} ${args.join(" ")}`);
                 return this;
             default: {
-                const fmt = `[CMD]: ${command} ${args.join(" ")}`;
-                if (this.settings.stdout) {
-                    this.writeLine(cyan(fmt));
-                    return this;
-                }
-                this.writeLine(fmt);
-                return this;
+                return super.command(command, args);
             }
         }
     }
@@ -102,13 +170,7 @@ export class PipelineWriter extends DefaultAnsiWriter {
                 this.writeLine(`##vso[task.setprogress value=${value};]${name}`);
                 return this;
             default:
-                if (CI) {
-                    this.writeLine(`${name}: ${green(value + "%")}`);
-                    return this;
-                }
-
-                this.write(`\r${name}: ${green(value + "%")}`);
-                return this;
+                return super.progress(name, value);
         }
     }
 
@@ -181,25 +243,30 @@ export class PipelineWriter extends DefaultAnsiWriter {
                     this.writeLine(stack);
                 }
                 return this;
-            default:
-                {
-                    const fmt = `[DBG]: ${msg}`;
-                    if (this.settings.stdout) {
-                        this.writeLine(gray(fmt));
-                        if (stack) {
-                            this.writeLine(red(stack));
-                        }
-                        return this;
+            default: {
+                const args = Array.from(arguments);
+                const first = args.shift();
+                if (args[0] instanceof Error) {
+                    const e = first;
+                    if (args.length === 0) {
+                        return super.error(e);
                     }
-                    this.writeLine(fmt);
-                    if (stack) {
-                        this.writeLine(stack);
-                    }
+
+                    const m = args.shift() as string;
+                    return super.error(e, m, ...args);
                 }
-                return this;
+
+                return super.error(first as string, ...args);
+            }
         }
     }
 
+    /**
+     * Write an error message to the output.
+     * @param e The error to write.
+     * @param message The message to write.
+     * @param args The arguments to format the message.
+     */
     override error(e: Error, message?: string | undefined, ...args: unknown[]): this;
     /**
      * Write an error message to the output.
@@ -230,28 +297,30 @@ export class PipelineWriter extends DefaultAnsiWriter {
                 }
                 return this;
 
-            default:
-                {
-                    const fmt = `[ERR]: ${msg}`;
-
-                    if (this.settings.stdout) {
-                        this.writeLine(red(fmt));
-                        if (stack) {
-                            this.writeLine(red(stack));
-                        }
-                        return this;
+            default: {
+                const args = Array.from(arguments);
+                const first = args.shift();
+                if (args[0] instanceof Error) {
+                    const e = first;
+                    if (args.length === 0) {
+                        return super.error(e);
                     }
 
-                    this.writeLine(fmt);
-                    if (stack) {
-                        this.writeLine(stack);
-                    }
+                    const m = args.shift() as string;
+                    return super.error(e, m, ...args);
                 }
 
-                return this;
+                return super.error(first as string, ...args);
+            }
         }
     }
 
+    /**
+     * Write a warning message to the output.
+     * @param e The error to write.
+     * @param message The message to write.
+     * @param args The arguments to format the message.
+     */
     override warn(e: Error, message?: string | undefined, ...args: unknown[]): this;
     /**
      * Write a warning message to the output.
@@ -279,24 +348,26 @@ export class PipelineWriter extends DefaultAnsiWriter {
                     this.writeLine(stack);
                 }
                 return this;
-            default:
-                {
-                    const fmt = `[WRN]: ${msg}`;
-                    if (this.settings.stdout) {
-                        this.writeLine(yellow(fmt));
-                        if (stack) {
-                            this.writeLine(red(stack));
-                        }
-                        return this;
+            default: {
+                const args = Array.from(arguments);
+                const first = args.shift();
+                if (args[0] instanceof Error) {
+                    const e = first;
+                    if (args.length === 0) {
+                        return super.warn(e);
                     }
-                    this.writeLine(fmt);
-                    if (stack) {
-                        this.writeLine(stack);
-                    }
+
+                    const m = args.shift() as string;
+                    return super.warn(e, m, ...args);
                 }
-                return this;
+
+                return super.warn(first as string, ...args);
+            }
         }
     }
 }
 
-export const writer: PipelineWriter = new PipelineWriter();
+/**
+ * The global writer instance.
+ */
+export const writer: DefaultPipelineWriter = new DefaultPipelineWriter();

@@ -1,7 +1,52 @@
 import { dasherize } from "@bearz/strings/dasherize";
 import type { SplatObject, SplatOptions } from "./types.ts";
+import { splitArguments } from "./split_arguments.ts";
 
 export type { SplatObject, SplatOptions };
+
+/**
+ * Special keys in a splat object that use
+ * symbols to avoid conflicts with other keys
+ * and to provide a way to access the values.
+ *
+ * @example
+ * ```ts
+ *
+ * const args = {
+ *   [SplatSymbols.command]: "run",
+ *   [SplatSymbols.arguments]: ["task"],
+ *   yes: true,
+ * }
+ *
+ * splat(args); // ["run", "task", "--yes"]
+ */
+export const SplatSymbols: Record<string, symbol> = {
+    command: Symbol("@@command"),
+    /**
+     * The key for positional arguments values
+     * in a splat object.
+     */
+    args: Symbol("@@args"),
+
+    /**
+     * The key for argument names in a splat object.
+     */
+    argNames: Symbol("@@arg-names"),
+    /**
+     * The extra arguments key in a splat object.
+     * Extra arguments use the '--' value on the
+     * command line to separate the extra arguments
+     * e.g. `command -- --option value`
+     */
+    extraArgs: Symbol("--"),
+    /**
+     * The remaining arguments key in a splat object.
+     * These are the arguments appended to the end of
+     * the command line arguments, after the arguments
+     * and options, but before the extra arguments.
+     */
+    remainingArgs: Symbol("_"),
+};
 
 const match = (array: unknown[], value: string) =>
     array.some((
@@ -18,22 +63,53 @@ const match = (array: unknown[], value: string) =>
  *
  * The code https://github.com/sindresorhus/dargs which is under under MIT License.
  * The original code is Copyrighted under (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
- * @param object The object to convert
- * @param options The options to use
- * @returns An array of command line arguments
+ * @param object The object to convert.
+ * @param options The {@linkcode SplatOptions} to use for the conversion.
+ * @returns An array of command line arguments.
  * @example
  * ```ts
- * const args = splat({ foo: "bar" });
+ * let args = splat({ foo: "bar" });
  * console.log(args); // ["--foo", "bar"]
+ *
+ * args = splat({
+ *     '*': ['foo', 'bar'], // positional arguments
+ *     foo: "bar", // option
+ *     yes: true, // flag
+ *     '_': ["baz"], // remaining arguments
+ *     '--': ["--baz"], // extra arguments
+ * })
+ *
+ * console.log(args); // ["foo", "bar", "--foo", "bar", "--yes", "baz", "--", "--baz"]
+ *
+ * args = splat({
+ *     [SplatSymbols.command]: "run",
+ *     [SplatSymbols.arguments]: ["task1", "task2"],
+ *     yes: true
+ * });
+ *
+ * console.log(args); // ["run", "task", "task2" "--yes"]
+ *
+ * args = splat({
+ *     "foo": "bar",
+ *      "test": "baz",
+ *      splat: {
+ *          argumentNames: ["foo"],
+ *          assign: "=",
+ *      }
+ * })
+ *
+ * console.log(args); // ["bar", "--foo=baz"]
+ *
  * ```
  */
 export function splat(
-    object: Record<string, unknown> | SplatObject,
+    object: SplatObject,
     options?: SplatOptions,
 ): string[] {
-    const splat = [];
-    let extraArguments = [];
-    let separatedArguments = [];
+    const optionValues: string[] = [];
+    const splatted: string[] = [];
+    let remainingArgs: unknown[] = [];
+    let extraArgs: unknown[] = [];
 
     if (object.splat) {
         options = {
@@ -50,6 +126,40 @@ export function splat(
         ...options,
     };
 
+    let commands: string[] = [];
+    let argumentNames: string[] = [];
+    if (options.command) {
+        if (typeof options.command === "string") {
+            commands = splitArguments(options.command);
+        } else {
+            commands = options.command;
+        }
+    }
+
+    if (options.argumentNames) {
+        argumentNames = options.argumentNames;
+    }
+
+    if (object[SplatSymbols.argNames] && Array.isArray(object[SplatSymbols.argNames])) {
+        argumentNames = object[SplatSymbols.argNames] as string[];
+    }
+
+    if (object[SplatSymbols.command]) {
+        if (typeof object[SplatSymbols.command] === "string") {
+            commands = splitArguments(object[SplatSymbols.command] as string);
+        } else if (Array.isArray(object[SplatSymbols.command])) {
+            commands = object[SplatSymbols.command] as string[];
+        }
+    }
+
+    if (object[SplatSymbols.remainingArgs] && Array.isArray(object[SplatSymbols.remainingArgs])) {
+        remainingArgs = object[SplatSymbols.remainingArgs] as string[];
+    }
+
+    if (object[SplatSymbols.extraArgs] && Array.isArray(object[SplatSymbols.extraArgs])) {
+        extraArgs = object[SplatSymbols.extraArgs] as string[];
+    }
+
     const makeArguments = (key: string, value?: unknown) => {
         const prefix = options?.shortFlag && key.length === 1 ? "-" : options?.prefix;
         const theKey = options?.preserveCase ? key : dasherize(key);
@@ -57,20 +167,20 @@ export function splat(
         key = prefix + theKey;
 
         if (options?.assign) {
-            splat.push(key + (value ? `${options.assign}${value}` : ""));
+            optionValues.push(key + (value ? `${options.assign}${value}` : ""));
         } else {
-            splat.push(key);
+            optionValues.push(key);
             if (value) {
-                splat.push(value);
+                optionValues.push(String(value));
             }
         }
     };
 
     const makeAliasArg = (key: string, value?: unknown) => {
-        splat.push(`-${key}`);
+        optionValues.push(`-${key}`);
 
         if (value) {
-            splat.push(value);
+            optionValues.push(String(value));
         }
     };
 
@@ -90,21 +200,43 @@ export function splat(
         }
     }
 
-    let argz: unknown[] = [];
-    if (object.arguments && Array.isArray(object.arguments)) {
-        argz = object.arguments;
-    } else if (options.arguments?.length) {
-        argz.length = options.arguments.length;
+    let positionalArgs: unknown[] = [];
+    if (object[SplatSymbols.args] && Array.isArray(object[SplatSymbols.args])) {
+        positionalArgs = object[SplatSymbols.args] as unknown[];
+    } else if (argumentNames.length > 0) {
+        positionalArgs.length = argumentNames.length;
     }
 
     for (let [key, value] of Object.entries(object)) {
         let pushArguments = makeArguments;
 
-        if (options.arguments?.length && options.arguments.includes(key)) {
+        if (typeof key === "symbol") {
+            continue;
+        }
+
+        if (key === "*") {
+            if (Array.isArray(value)) {
+                positionalArgs.push(...value);
+            }
+            if (typeof value === "string") {
+                positionalArgs.push(value);
+            }
+
+            continue;
+        }
+
+        if (argumentNames.length && argumentNames.includes(key)) {
             // ensure the order of the arguments
-            const index = options.arguments.indexOf(key);
+            let index = argumentNames.indexOf(key);
             if (value) {
-                argz[index] = value;
+                if (Array.isArray(value)) {
+                    for (const val of value) {
+                        positionalArgs[index++] = String(val);
+                    }
+                    continue;
+                }
+
+                positionalArgs[index] = String(value);
             }
 
             continue;
@@ -130,13 +262,13 @@ export function splat(
                 );
             }
 
-            separatedArguments = value;
+            extraArgs = value;
             continue;
         }
 
         if (key === "_") {
             if (typeof value === "string") {
-                extraArguments = [value];
+                remainingArgs = [value];
                 continue;
             }
 
@@ -146,7 +278,7 @@ export function splat(
                 );
             }
 
-            extraArguments = value;
+            remainingArgs = value;
             continue;
         }
 
@@ -174,6 +306,10 @@ export function splat(
             pushArguments(key, String(value));
         }
 
+        if (typeof value === "bigint" && !Number.isNaN(value)) {
+            pushArguments(key, String(value));
+        }
+
         if (Array.isArray(value)) {
             for (const arrayValue of value) {
                 pushArguments(key, arrayValue);
@@ -181,46 +317,45 @@ export function splat(
         }
     }
 
-    for (const argument of extraArguments) {
-        splat.unshift(String(argument));
+    if (commands.length) {
+        splatted.push(...commands);
     }
 
-    if (separatedArguments.length > 0) {
-        splat.push("--");
-    }
-
-    for (const argument of separatedArguments) {
-        splat.push(String(argument));
-    }
-
-    if (argz.length) {
-        const unwrapped: string[] = [];
-        // ensure the order of the arguments
-        for (const arg of argz) {
-            if (arg) {
-                if (Array.isArray(arg)) {
-                    unwrapped.push(...arg.map((a) => String(a)));
-                } else {
-                    unwrapped.push(String(arg));
-                }
+    const normalizedArgs: string[] = [];
+    // ensure the order of the arguments
+    for (const arg of positionalArgs) {
+        if (arg) {
+            if (Array.isArray(arg)) {
+                normalizedArgs.push(...arg.map((a) => String(a)));
+            } else {
+                normalizedArgs.push(String(arg));
             }
         }
-
-        if (options.appendArguments) {
-            splat.push(...unwrapped);
-        } else {
-            splat.unshift(...unwrapped);
-        }
     }
 
-    // add the command to the beginning of the parameters
-    if (options?.command?.length) {
-        if (typeof options.command === "string") {
-            options.command = options.command.split(" ").filter((c) => c.trim().length > 0);
-        }
-
-        splat.unshift(...options.command);
+    if (!options.appendArguments && normalizedArgs.length) {
+        splatted.push(...normalizedArgs);
     }
 
-    return splat;
+    if (optionValues.length) {
+        splatted.push(...optionValues);
+    }
+
+    if (options.appendArguments && normalizedArgs.length) {
+        splatted.push(...normalizedArgs);
+    }
+
+    for (const argument of remainingArgs) {
+        splatted.push(String(argument));
+    }
+
+    if (extraArgs.length > 0) {
+        splatted.push("--");
+    }
+
+    for (const argument of extraArgs) {
+        splatted.push(String(argument));
+    }
+
+    return splatted;
 }
