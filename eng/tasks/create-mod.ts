@@ -1,6 +1,6 @@
 import { Command } from "@cliffy/command";
 import { dirname, fromFileUrl, join } from "@std/path";
-import { Twig } from "@bearz/twig";
+import { Twig } from "./twig.ts";
 import { ensureDir, exists } from "@bearz/fs";
 
 const app = new Command();

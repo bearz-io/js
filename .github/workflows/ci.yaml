@@ -40,5 +40,5 @@ jobs:
         run: deno task test
 
       - name: Publish Dry Run
-        run: deno publish --dry-run --allow-dirty
+        run: deno publish --dry-run --allow-dirty -c ./deno-publish.json
         if: matrix.os == 'ubuntu-latest'

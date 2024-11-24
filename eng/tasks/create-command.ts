@@ -1,6 +1,6 @@
 import { Command } from "jsr:@cliffy/command@1.0.0-rc.7";
 import { fromFileUrl, join } from "jsr:@std/path";
-import { Twig } from "@bearz/twig";
+import { Twig } from "./twig.ts";
 import { dirname, isAbsolute, resolve } from "@std/path";
 import { underscore } from "@bearz/strings/underscore";
 

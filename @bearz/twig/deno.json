@@ -1,6 +1,6 @@
 {
     "name": "@bearz/twig",
-    "version": "0.0.0",
+    "version": "0.0.0-alpha.0",
     "exports": {
         ".": "./mod.ts"
     }

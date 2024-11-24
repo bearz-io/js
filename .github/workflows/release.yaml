@@ -64,7 +64,7 @@ jobs:
           files: .artifacts/code-coverage.lcov
 
       - name: Publish Dry Run
-        run: deno publish --dry-run --allow-dirty
+        run: deno publish --dry-run --allow-dirty -c ./deno-publish.json
         if: matrix.os == 'ubuntu-latest'
 
   publish:
@@ -84,7 +84,7 @@ jobs:
           deno-version: v2.x
 
       - name: Publish
-        run: deno publish
+        run: deno publish -c ./deno-publish.json
 
       - name: Archive Release
         uses: thedoctor0/zip-release@0.7.5
