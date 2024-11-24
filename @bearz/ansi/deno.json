@@ -1,0 +1,13 @@
+{
+    "name": "@bearz/ansi",
+    "description": "ansi module",
+    "version": "0.0.2",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./detector": "./src/detector.ts",
+        "./styles": "./src/styles.ts",
+        "./enums": "./src/enums.ts",
+        "./settings": "./src/settings.ts",
+        "./writer": "./src/writer.ts"
+    }
+}

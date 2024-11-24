@@ -1,0 +1,72 @@
+{
+    "fmt": {
+        "exclude": [
+            "**/*.md",
+            ".github/**"
+        ],
+        "lineWidth": 100,
+        "indentWidth": 4,
+        "useTabs": false
+    },
+    "exclude": [
+        "_npm",
+        "npm",
+        ".github"
+    ],
+    "publish": {
+        "exclude": [
+            "@bearz/twig"
+        ]
+    },
+    "tasks": {
+        "new": "deno run -A ./eng/tasks/create-mod.ts",
+        "test": "deno test -A --unstable-ffi",
+        "test:node": "deno test -A --unstable-ffi --env-file='runtime.env' --parallel",
+        "doc:mod": "deno run -A ./eng/tasks/doc-mod.ts",
+        "coverage": "deno test --coverage=.artifacts/code-coverage -A --unstable-ffi @bearz/** @rex/**",
+        "lcov": "deno coverage .artifacts/code-coverage --lcov > .artifacts/code-coverage.lcov",
+        "prep": "deno fmt && deno lint",
+        "update:publish-config": "deno run -A ./eng/tasks/update-publish.ts",
+        "publish:test": "deno publish --dry-run --allow-dirty -c ./deno-publish.json"
+    },
+    "workspace": [
+        "@bearz/assert",
+        "@bearz/ansi",
+        "@bearz/chars",
+        "@bearz/ci-env",
+        "@bearz/debug",
+        "@bearz/dotenv",
+        "@bearz/env",
+        "@bearz/exec",
+        "@bearz/fmt",
+        "@bearz/fs",
+        "@bearz/functional",
+        "@bearz/process",
+        "@bearz/process-elevated",
+        "@bearz/runtime-info",
+        "@bearz/secrets",
+        "@bearz/shells",
+        "@bearz/slices",
+        "@bearz/strings",
+        "@bearz/win32-registry",
+        "@rex/cli",
+        "@rex/deployments",
+        "@rex/jobs",
+        "@rex/pipelines",
+        "@rex/primitives",
+        "@rex/rexfile",
+        "@rex/tasks"
+    ],
+    "imports": {
+        "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
+        "@std/encoding": "jsr:@std/encoding@^1.0.5",
+        "@std/path": "jsr:@std/path@^1.0.6",
+        "@types/bun": "npm:@types/bun@^1.1.13",
+        "@types/chai": "npm:@types/chai@^5.0.0",
+        "@types/node": "npm:@types/node@^20.17.0",
+        "@types/twig": "npm:@types/twig@^1.12.16",
+        "assertion-error": "npm:assertion-error@^2.0.1",
+        "chai": "npm:chai@^5.1.1",
+        "twig": "npm:twig@^1.17.1"
+    }
+}

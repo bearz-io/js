@@ -1,0 +1,35 @@
+import { pathFinder, Command, type CommandArgs, type CommandOptions } from "@bearz/exec";
+
+pathFinder.set("{{ name | lower }}", {
+    name: "{{ name | lower }}",
+    envVariable: "{{ name | screaming }}_EXE",
+    windows: [],
+    linux: [],
+});
+
+/**
+ * Represents an {{ name }} command.
+ */
+export class {{ name | pascalize }}Command extends Command {
+    /**
+     * Creates a new instance of the {{ name | pascalize }}Command class.
+     * @param args - The command arguments.
+     * @param options - The command options.
+     */
+    constructor(args?: CommandArgs, options?: CommandOptions) {
+        super("{{ name | lower }}", args, options);
+    }
+}
+
+/**
+ * Creates a `{{ name | pascalize }}Command` for invoking
+ * the `{{ name | lower }}` command line interface.
+ *
+ * @param args - The command arguments.
+ * @param options - The command options.
+ * @returns A new instance of the {{ name | pascalize }}Command class.
+ * @see {{ "{" }}{{ name | pascalize }}{{ "Command}" }}
+ */
+export function {{ name | camelize }}(args?: CommandArgs, options?: CommandOptions): {{ name | pascalize }}Command {
+    return new {{ name | pascalize }}Command(args, options);
+}

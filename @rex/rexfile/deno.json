@@ -1,0 +1,8 @@
+{
+    "name": "@rex/rexfile",
+    "description": "A module for implementing rexfiles",
+    "version": "0.0.0-alpha.2",
+    "exports": {
+        ".": "./mod.ts"
+    }
+}
