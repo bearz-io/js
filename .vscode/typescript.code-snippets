@@ -1,0 +1,72 @@
+{
+    "@import-skip": {
+        "scope": "typescript",
+        "description": "Import skip from @bearz/testing",
+        "prefix": "@import-skip",
+        "body": [
+            "import { skip } from '@bearz/testing';"
+        ],
+    },
+    "@import-assert": {
+        "scope": "typescript",
+        "description": "Import skip from @bearz/assert",
+        "prefix": "@import-assert",
+        "body": [
+            "import { ok, equal } from '@bearz/assert';"
+        ],
+    },
+    "@import-result": {
+        "scope": "typescript",
+        "description": "Import skip from @bearz/functional",
+        "prefix": "@import-functional",
+        "body": [
+            "import { ok, type Result, fail } from '@bearz/functional';"
+        ],
+    },
+    "testfile": {
+        "scope": "typescript",
+        "description": "Create a test file",
+        "prefix": "@testfile",
+        "body": [
+            "import {} from '@bearz/testing';",
+            "import { ok, equal } from '@bearz/assert';",
+            "",
+            "// DO NOT EDIT THIS LINE",
+            "const test = Deno.test;",
+            "",
+            "test(\"${1:mod::test}\", () => {",
+            "    ok(${2:true});",
+            "});",
+        ],
+    },
+    "test": {
+        "scope": "typescript",
+        "description": "Create a test",
+        "prefix": "@test",
+        "body": [
+            "test(\"${1:mod::test}\", () => {",
+            "    ok(${2:true});",
+            "});",
+        ],
+    },
+    "skip-test": {
+        "scope": "typescript",
+        "description": "Create a test",
+        "prefix": "@skip-test",
+        "body": [
+            "test(\"${1:mod::test}\", skip(${2:true}), () => {",
+            "    ok(${3:true});",
+            "});",
+        ],
+    },
+    "test-equal": {
+        "scope": "typescript",
+        "description": "Create a test with equal",
+        "prefix": "@test-equal",
+        "body": [
+            "test(\"${1:mod::test}\", () => {",
+            "    equal(${2:1}, ${3:1});",
+            "});",
+        ],
+    },
+}
