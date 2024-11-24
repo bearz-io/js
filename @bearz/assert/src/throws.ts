@@ -12,7 +12,7 @@ import { AssertionError } from "assertion-error";
  *
  * @example Usage
  * ```ts ignore
- * import { throws } from "@std/assert";
+ * import { throws } from "@bearz/assert";
  *
  * assertThrows(() => { throw new TypeError("hello world!"); }); // Doesn't throw
  * assertThrows(() => console.log("hello world!")); // Throws

@@ -41,12 +41,12 @@ const EOL = WINDOWS ? "\r\n" : "\n";
  *
  * ```ts
  * import { sprintf } from "@bearz/fmt/printf";
- * import { assertEquals } from "@std/assert";
+ * import { equal } from "@bearz/assert";
  *
- * assertEquals(sprintf("%d", 9), "9");
- * assertEquals(sprintf("%o", 9), "11");
- * assertEquals(sprintf("%f", 4), "4.000000");
- * assertEquals(sprintf("%.3f", 0.9999), "1.000");
+ * equal(sprintf("%d", 9), "9");
+ * equal(sprintf("%o", 9), "11");
+ * equal(sprintf("%f", 4), "4.000000");
+ * equal(sprintf("%.3f", 0.9999), "1.000");
  * ```
  *
  * This implementation is inspired by POSIX and Golang but does not port
@@ -959,15 +959,15 @@ class Printf {
  * @example Usage
  * ```ts
  * import { sprintf } from "@bearz/fmt/printf";
- * import { assertEquals } from "@std/assert";
+ * import { equal } from "@bearz/assert";
  *
- * assertEquals(sprintf("%d", 9), "9");
+ * equal(sprintf("%d", 9), "9");
  *
- * assertEquals(sprintf("%o", 9), "11");
+ * equal(sprintf("%o", 9), "11");
  *
- * assertEquals(sprintf("%f", 4), "4.000000");
+ * equal(sprintf("%f", 4), "4.000000");
  *
- * assertEquals(sprintf("%.3f", 0.9999), "1.000");
+ * equal(sprintf("%.3f", 0.9999), "1.000");
  * ```
  *
  * @param format The format string to use

@@ -1,4 +1,4 @@
-import { equal } from "@std/assert";
+import { equal } from "@bearz/assert";
 import { endsWith, endsWithFold } from "./ends_with.ts";
 
 const test = Deno.test;
@@ -27,7 +27,7 @@ test("slices::endsWith", () => {
         { input: "hello world", test: "WORLD ", result: false },
         { input: "hello WOrLD", test: "world", result: false },
         { input: "hello WÖrLD", test: "wörld", result: false },
-        { input: "hello wörLD", test: "wörld", result: true },
+        { input: "hello wörld", test: "wörld", result: true },
     ];
 
     for (const { input, test, result } of tests) {

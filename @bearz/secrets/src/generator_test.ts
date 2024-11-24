@@ -1,5 +1,5 @@
 import { DefaultSecretGenerator } from "./generator.ts";
-import { assertFalse as no, assertNotEquals as notEquals } from "@std/assert";
+import { nope, notEqual } from "@bearz/assert";
 
 Deno.test("SecretGenerator", () => {
     const generator = new DefaultSecretGenerator();
@@ -12,8 +12,8 @@ Deno.test("SecretGenerator", () => {
 
     const secret = generator.generate(10);
     console.log(secret);
-    notEquals(secret, "abcdefghi");
-    no(secret.includes("j"));
-    no(secret.includes("k"));
-    no(secret.includes("l"));
+    notEqual(secret, "abcdefghi");
+    nope(secret.includes("j"));
+    nope(secret.includes("k"));
+    nope(secret.includes("l"));
 });

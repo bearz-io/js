@@ -1,5 +1,5 @@
 import { fail, ok } from "./result.ts";
-import { assert as yes, assertEquals as equals, assertThrows as throws } from "@std/assert";
+import { equal, ok as yes, throws } from "@bearz/assert";
 
 Deno.test("Result: ok", () => {
     const result = ok(42);
@@ -53,7 +53,7 @@ Deno.test("Result: orElse", () => {
 
 Deno.test("Result: expect", () => {
     const result = ok(42);
-    equals(result.expect("Result is Error"), 42);
+    equal(result.expect("Result is Error"), 42);
 
     const other = fail("Error");
 
@@ -126,7 +126,7 @@ Deno.test("Result: inspect", () => {
 
 Deno.test("Result: unwrap", () => {
     const result = ok(42);
-    equals(result.unwrap(), 42);
+    equal(result.unwrap(), 42);
 
     const other = fail("Error");
     throws(() => other.unwrap(), Error, "Error");
@@ -134,23 +134,23 @@ Deno.test("Result: unwrap", () => {
 
 Deno.test("Result: unwrapOr", () => {
     const result = ok(42);
-    equals(result.unwrapOr(0), 42);
+    equal(result.unwrapOr(0), 42);
 
     const other = fail<number, string>("Error");
-    equals(other.unwrapOr(0), 0);
+    equal(other.unwrapOr(0), 0);
 });
 
 Deno.test("Result: unwrapOrElse", () => {
     const result = ok(42);
-    equals(result.unwrapOrElse(() => 0), 42);
+    equal(result.unwrapOrElse(() => 0), 42);
 
     const other = fail<number, string>("Error");
-    equals(other.unwrapOrElse(() => 0), 0);
+    equal(other.unwrapOrElse(() => 0), 0);
 });
 
 Deno.test("Result: unwrapError", () => {
     const result = fail("Error");
-    equals(result.unwrapError(), "Error");
+    equal(result.unwrapError(), "Error");
 
     const other = ok(42);
     throws(() => other.unwrapError(), Error, "Result is Ok");
@@ -158,7 +158,7 @@ Deno.test("Result: unwrapError", () => {
 
 Deno.test("Result: expectError", () => {
     const result = fail("Error");
-    equals(result.expectError("Result is Ok"), "Error");
+    equal(result.expectError("Result is Ok"), "Error");
 
     const other = ok(42);
     throws(() => other.expectError("Result is Ok"), Error, "Result is Ok");

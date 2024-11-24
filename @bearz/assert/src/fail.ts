@@ -1,19 +1,19 @@
 import { AssertionError } from "assertion-error";
 
 /**
- * Use this to stub out methods that will throw when invoked.
+ * Use this to assert failed test.
  *
  * @example Usage
  * ```ts no-eval
- * import { unimplemented } from "@std/assert";
+ * import { unreachable } from "@bearz/assert";
  *
- * unimplemented(); // Throws
+ * unreachable(); // Throws
  * ```
  *
  * @param msg Optional message to include in the error.
  * @returns Never returns, always throws.
  */
-export function unimplemented(msg?: string) {
+export function fail(msg?: string): never {
     const msgSuffix = msg ? `: ${msg}` : ".";
-    throw new AssertionError(`Unimplemented${msgSuffix}`);
+    throw new AssertionError(`Failed assertion${msgSuffix}`);
 }

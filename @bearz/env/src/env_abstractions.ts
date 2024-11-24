@@ -17,9 +17,9 @@ const PATH_NAME = WINDOWS && RT ? "Path" : "PATH";
  * @example Usage
  * ```ts
  * import { decodeBase64 } from "@std/encoding/base64";
- * import { assertEquals } from "@std/assert";
+ * import { equal } from "@bearz/assert";
  *
- * assertEquals(
+ * equal(
  *   decodeBase64("Zm9vYmFy"),
  *   new TextEncoder().encode("foobar")
  * );

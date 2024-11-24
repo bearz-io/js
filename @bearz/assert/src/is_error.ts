@@ -9,13 +9,13 @@ import { stripAnsiCode } from "./internal.ts";
  *
  * @example Usage
  * ```ts no-eval
- * import { assertIsError } from "@std/assert";
+ * import { isError } from "@bearz/assert";
  *
- * assertIsError(null); // Throws
- * assertIsError(new RangeError("Out of range")); // Doesn't throw
- * assertIsError(new RangeError("Out of range"), SyntaxError); // Throws
- * assertIsError(new RangeError("Out of range"), SyntaxError, "Out of range"); // Doesn't throw
- * assertIsError(new RangeError("Out of range"), SyntaxError, "Within range"); // Throws
+ * isError(null); // Throws
+ * isError(new RangeError("Out of range")); // Doesn't throw
+ * isError(new RangeError("Out of range"), SyntaxError); // Throws
+ * isError(new RangeError("Out of range"), SyntaxError, "Out of range"); // Doesn't throw
+ * isError(new RangeError("Out of range"), SyntaxError, "Within range"); // Throws
  * ```
  *
  * @typeParam E The type of the error to assert.

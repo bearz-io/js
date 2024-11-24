@@ -20,7 +20,7 @@ Documentation is available on [jsr.io](https://jsr.io/@bearz/secrets/doc)
 
 ```typescript
 import { DefaultSecretGenerator, secretMasker } from "@bearz/secrets";
-import { assertEquals as equal } from "@std/assert"
+import { equal } from "@bearz/assert"
 
 // secret generator / password generator
 const generator = new DefaultSecretGenerator();

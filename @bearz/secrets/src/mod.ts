@@ -19,7 +19,7 @@
  *
  * ```typescript
  * import { DefaultSecretGenerator, secretMasker } from "@bearz/secrets";
- * import { assertEquals as equal } from "@std/assert"
+ * import { equal } from "@bearz/assert"
  *
  * // secret generator / password generator
  * const generator = new DefaultSecretGenerator();

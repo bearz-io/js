@@ -1,6 +1,6 @@
 {
     "fmt": {
-        "exclude": ["**/*.md"],
+        "exclude": ["**/*.md", ".github/**"],
         "lineWidth": 100,
         "indentWidth": 4,
         "useTabs": false
@@ -8,7 +8,8 @@
 
     "exclude": [
         "_npm",
-        "npm"
+        "npm",
+        ".github"
     ],
 
     "tasks": {
@@ -16,37 +17,35 @@
         "test": "deno test -A --unstable-ffi",
         "test:node": "deno test -A --unstable-ffi --env-file='runtime.env' ",
         "doc:mod": "deno run -A ./eng/tasks/doc-mod.ts",
-        "coverage": "deno test ./lib/** --coverage=.artifacts/code-coverage -A --unstable-ffi",
+        "coverage": "deno test @bearz/** --coverage=.artifacts/code-coverage -A --unstable-ffi",
         "lcov": "deno coverage .artifacts/code-coverage --lcov > .artifacts/code-coverage.lcov",
-        "prep": "deno fmt ./lib/** && deno lint ./lib/**",
+        "prep": "deno fmt @bearz/** && deno lint @bearz/**",
         "publish:test": "deno publish --dry-run --allow-dirty"
     },
 
     "workspace": [
-        "./lib/assert",
-        "./lib/ansi",
-        "./lib/chars",
-        "./lib/ci-env",
-        "./lib/debug",
-        "./lib/dotenv",
-        "./lib/env",
-        "./lib/exec",
-        "./lib/fmt",
-        "./lib/fs",
-        "./lib/functional",
-        "./lib/process",
-        "./lib/process-elevated",
-        "./lib/runtime-info",
-        "./lib/secrets",
-        "./lib/shells",
-        "./lib/slices",
-        "./lib/strings",
-        "./lib/win32-registry"
+        "@bearz/assert",
+        "@bearz/ansi",
+        "@bearz/chars",
+        "@bearz/ci-env",
+        "@bearz/debug",
+        "@bearz/dotenv",
+        "@bearz/env",
+        "@bearz/exec",
+        "@bearz/fmt",
+        "@bearz/fs",
+        "@bearz/functional",
+        "@bearz/process",
+        "@bearz/process-elevated",
+        "@bearz/runtime-info",
+        "@bearz/secrets",
+        "@bearz/shells",
+        "@bearz/slices",
+        "@bearz/strings",
+        "@bearz/win32-registry"
     ],
 
     "imports": {
-        "@std/assert": "jsr:@std/assert@^1.0.6",
-        "@std/dotenv": "jsr:@std/dotenv@^0.225.2",
         "@std/path": "jsr:@std/path@^1.0.6",
         "@types/bun": "npm:@types/bun@^1.1.13",
         "@types/chai": "npm:@types/chai@^5.0.0",

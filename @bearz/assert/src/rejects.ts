@@ -10,10 +10,10 @@ import { isError } from "./is_error.ts";
  *
  * @example Usage
  * ```ts ignore
- * import { assertRejects } from "@std/assert";
+ * import { rejects } from "@bearz/assert";
  *
- * await assertRejects(async () => Promise.reject(new Error())); // Doesn't throw
- * await assertRejects(async () => console.log("Hello world")); // Throws
+ * await rejects(async () => Promise.reject(new Error())); // Doesn't throw
+ * await rejects(async () => console.log("Hello world")); // Throws
  * ```
  *
  * @param fn The function to execute.
@@ -33,10 +33,10 @@ export function rejects(
  *
  * @example Usage
  * ```ts ignore
- * import { assertRejects } from "@std/assert";
+ * import { rejects } from "@bearz/assert";
  *
- * await assertRejects(async () => Promise.reject(new Error()), Error); // Doesn't throw
- * await assertRejects(async () => Promise.reject(new Error()), SyntaxError); // Throws
+ * await rejects(async () => Promise.reject(new Error()), Error); // Doesn't throw
+ * await rejects(async () => Promise.reject(new Error()), SyntaxError); // Throws
  * ```
  *
  * @typeParam E The error class to assert.
