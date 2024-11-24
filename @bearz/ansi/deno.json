@@ -1,7 +1,7 @@
 {
     "name": "@bearz/ansi",
     "description": "ansi module",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "exports": {
         ".": "./src/mod.ts",
         "./detector": "./src/detector.ts",

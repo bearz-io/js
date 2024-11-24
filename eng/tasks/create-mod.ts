@@ -1,39 +1,65 @@
-import { Command } from "jsr:@cliffy/command@1.0.0-rc.7";
-import { join } from "jsr:@std/path";
-// @ts-types="npm:@types/twig"
-import Twig from "npm:twig";
-import { engDir, projectRoot } from "./paths.ts";
+import { Command } from "@cliffy/command";
+import { dirname, fromFileUrl, join } from "@std/path";
+import { Twig } from "@bearz/twig";
+import { ensureDir, exists } from "@bearz/fs";
 
 const app = new Command();
 
 app.name("create-mod")
     .arguments("<name:string>")
     .option("--description <description:string>", "Description of the module")
-    .action(async ({ description }, name) => {
+    .option("-d --dest <dest:string>", "Destination directory")
+    .action(async ({ description, dest }, name) => {
+        const dir = dirname(fromFileUrl(import.meta.url));
+
         description ??= `${name} module`;
+        dest ??= Deno.cwd();
+        let scope = "@tasks";
+        if (name.startsWith("@") && name.includes("/")) {
+            const parts = name.split("/");
+            scope = parts[0];
+            name = parts[1];
+        }
+
         const data = {
-            "name": `@bearz/${name}`,
+            "name": `@${scope}/${name}`,
             "description": description,
             "version": "0.0.0",
             "exports": {
-                ".": "./src/mod.ts",
+                ".": "./mod.ts",
             },
         };
 
-        const dir = join(projectRoot, "lib", name);
-        await Deno.mkdir(dir);
-        await Deno.mkdir(join(dir, "src"));
-        await Deno.writeTextFile(join(dir, "deno.json"), JSON.stringify(data, null, 4));
+        const lib = join(dest, scope, name);
+        await ensureDir(lib);
 
-        const readmeTplPath = join(engDir, "tpl", "README.md.twig");
+        await Deno.writeTextFile(join(lib, "deno.json"), JSON.stringify(data, null, 4));
+
+        const readmeTplPath = join(dir, "tpl", "README.md.twig");
         const readmeTpl = await Deno.readTextFile(readmeTplPath);
 
-        const readme = Twig.twig({ data: readmeTpl }).render({ name, description });
-        await Deno.writeTextFile(join(dir, "README.md"), readme);
-        await Deno.writeTextFile(join(dir, "src", "mod.ts"), `// TODO: Write module code here`);
+        const readme = Twig.twig({ data: readmeTpl }).render({ name, scope, description });
+        await Deno.writeTextFile(join(lib, "README.md"), readme);
+        await Deno.writeTextFile(join(lib, "mod.ts"), `// TODO: Write module code here`);
 
-        const licenseTpl = join(engDir, "tpl", "LICENSE.md");
-        await Deno.copyFile(licenseTpl, join(dir, "LICENSE.md"));
+        const licenseTpl = join(dir, "tpl", "LICENSE.md");
+        await Deno.copyFile(licenseTpl, join(lib, "LICENSE.md"));
+
+        let parentDir = dirname(lib);
+        while (parentDir.length > 0 && parentDir.length > 3) {
+            console.log(parentDir);
+            const configFile = join(parentDir, "deno.json");
+            if (await exists(configFile)) {
+                const json = JSON.parse(await Deno.readTextFile(configFile));
+                json.workspace ??= [];
+                if (!json.workspace.includes(`${scope}/${name}`)) {
+                    json.workspace.push(`${scope}/${name}`);
+                }
+                await Deno.writeTextFile(configFile, JSON.stringify(json, null, 4));
+                break;
+            }
+            parentDir = dirname(parentDir);
+        }
     });
 
 app.parse(Deno.args);

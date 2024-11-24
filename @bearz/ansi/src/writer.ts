@@ -462,11 +462,20 @@ export class DefaultAnsiWriter implements AnsiWriter {
     }
 
     /**
+     * Writes an trace message to the output.
+     * @param e The error.
+     * @param message The message to write.
+     * @param args The message arguments.
+     * @returns the writer.
+     */
+    trace(e: Error, message?: string, ...args: unknown[]): this;
+    /**
      * Writes a trace message to the output.
      * @param message The message to write.
      * @param args The message arguments.
      * @returns the writer.
      */
+    trace(message: string, ...args: unknown[]): this;
     trace(): this {
         if (this.#level < AnsiLogLevel.Trace) {
             return this;

@@ -1,0 +1,8 @@
+{
+    "name": "@rex/jobs",
+    "description": "jobs module",
+    "version": "0.0.0-alpha.2",
+    "exports": {
+        ".": "./mod.ts"
+    }
+}

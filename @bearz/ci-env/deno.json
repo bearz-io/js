@@ -1,7 +1,7 @@
 {
     "name": "@bearz/ci-env",
     "description": "ci-env module",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "exports": {
         ".": "./src/mod.ts",
         "./driver": "./src/driver.ts",

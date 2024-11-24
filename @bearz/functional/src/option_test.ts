@@ -1,5 +1,5 @@
 import { from, none, OptionError, some } from "./option.ts";
-import { ok, equal, throws } from "@bearz/assert";
+import { equal, ok, throws } from "@bearz/assert";
 
 Deno.test("Option: some", () => {
     const option = some(42);

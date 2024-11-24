@@ -8,6 +8,7 @@ on:
       - "*"
     paths:
       - "@bearz/**"
+      - "@rex/**"
       - ".github/workflows/release.yaml"
 
 jobs:
