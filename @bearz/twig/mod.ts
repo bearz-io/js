@@ -5,6 +5,7 @@ import { dasherize } from "@bearz/strings/dasherize";
 import { camelize } from "@bearz/strings/camelize";
 import { capitalize } from "@bearz/strings/capitalize";
 
+
 Twig.extendFunction("underscore", (value: string) => underscore(value));
 Twig.extendFunction("dasherize", (value: string) => dasherize(value));
 Twig.extendFunction("screaming", (value: string) => underscore(value, { screaming: true }));

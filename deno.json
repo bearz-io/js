@@ -1,21 +1,23 @@
 {
     "fmt": {
-        "exclude": ["**/*.md", ".github/**"],
+        "exclude": [
+            "**/*.md",
+            ".github/**"
+        ],
         "lineWidth": 100,
         "indentWidth": 4,
         "useTabs": false
     },
-
     "exclude": [
         "_npm",
         "npm",
         ".github"
     ],
-
     "publish": {
-        "exclude": ["@bearz/twig"]
+        "exclude": [
+            "@bearz/twig"
+        ]
     },
-
     "tasks": {
         "new": "deno run -A ./eng/tasks/create-mod.ts",
         "test": "deno test -A --unstable-ffi",
@@ -27,7 +29,6 @@
         "update:publish-config": "deno run -A ./eng/tasks/update-publish.ts",
         "publish:test": "deno publish --dry-run --allow-dirty -c ./deno-publish.json"
     },
-
     "workspace": [
         "@bearz/assert",
         "@bearz/ansi",
@@ -55,9 +56,9 @@
         "@rex/pipelines",
         "@rex/primitives",
         "@rex/rexfile",
-        "@rex/tasks"
+        "@rex/tasks",
+        "@bearz/node-ssh2"
     ],
-
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
         "@std/encoding": "jsr:@std/encoding@^1.0.5",
@@ -66,7 +67,9 @@
         "@types/chai": "npm:@types/chai@^5.0.0",
         "@types/node": "npm:@types/node@^20.17.0",
         "@types/twig": "npm:@types/twig@^1.12.16",
+        "asn1": "npm:asn1@^0.2.6",
         "assertion-error": "npm:assertion-error@^2.0.1",
+        "bcrypt-pbkdf": "npm:bcrypt-pbkdf@^1.0.2",
         "chai": "npm:chai@^5.1.1",
         "twig": "npm:twig@^1.17.1"
     }
