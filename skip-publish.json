@@ -1,3 +1,4 @@
 [
-    "@bearz/twig"
+    "@bearz/twig",
+    "@bearz/node-ssh2"
 ]

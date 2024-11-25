@@ -11,6 +11,7 @@ app.name("create-mod")
     .option("-d --dest <dest:string>", "Destination directory")
     .action(async ({ description, dest }, name) => {
         const dir = dirname(fromFileUrl(import.meta.url));
+        const eng = dirname(dir);
 
         description ??= `${name} module`;
         dest ??= Deno.cwd();
@@ -35,14 +36,14 @@ app.name("create-mod")
 
         await Deno.writeTextFile(join(lib, "deno.json"), JSON.stringify(data, null, 4));
 
-        const readmeTplPath = join(dir, "tpl", "README.md.twig");
+        const readmeTplPath = join(eng, "tpl", "README.md.twig");
         const readmeTpl = await Deno.readTextFile(readmeTplPath);
 
         const readme = Twig.twig({ data: readmeTpl }).render({ name, scope, description });
         await Deno.writeTextFile(join(lib, "README.md"), readme);
         await Deno.writeTextFile(join(lib, "mod.ts"), `// TODO: Write module code here`);
 
-        const licenseTpl = join(dir, "tpl", "LICENSE.md");
+        const licenseTpl = join(eng, "tpl", "LICENSE.md");
         await Deno.copyFile(licenseTpl, join(lib, "LICENSE.md"));
 
         let parentDir = dirname(lib);

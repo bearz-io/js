@@ -1,0 +1,8 @@
+{
+    "name": "@bearz/node-ssh2",
+    "description": "@bearz/node-ssh2 module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./index.js"
+    }
+}
