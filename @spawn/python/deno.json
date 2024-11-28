@@ -1,0 +1,12 @@
+{
+    "name": "@spawn/python",
+    "description": "@spawn/python module",
+    "version": "0.0.2",
+    "exports": {
+        ".": "./mod.ts",
+        "./command": "./command.ts",
+        "./pip": "./pip/command.ts",
+        "./poetry": "./poetry/command.ts",
+        "./uv": "./uv/command.ts"
+    }
+}
