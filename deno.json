@@ -59,7 +59,8 @@
         "@rex/tasks",
         "@bearz/node-ssh2",
         "@bearz/testing",
-        "@spawn/bash"
+        "@spawn/bash",
+        "@spawn/cmd"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
