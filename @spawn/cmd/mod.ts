@@ -1,1 +1,1 @@
-// TODO: Write module code here
+export { cmd, cmdScript } from "./command.ts";

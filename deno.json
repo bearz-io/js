@@ -60,7 +60,8 @@
         "@bearz/node-ssh2",
         "@bearz/testing",
         "@spawn/bash",
-        "@spawn/cmd"
+        "@spawn/cmd",
+        "@spawn/pwsh"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
