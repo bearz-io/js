@@ -1,6 +1,5 @@
 import { dirname, fromFileUrl, join } from "@std/path";
 
-
 const root = dirname(dirname(dirname(fromFileUrl(import.meta.url))));
 
 const skip = JSON.parse(await Deno.readTextFile(`${root}/skip-publish.json`)) as string[];

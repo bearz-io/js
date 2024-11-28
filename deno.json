@@ -25,7 +25,7 @@
         "doc:mod": "deno run -A ./eng/tasks/doc-mod.ts",
         "coverage": "deno test --coverage=.artifacts/code-coverage -A --unstable-ffi @bearz/** @rex/**",
         "lcov": "deno coverage .artifacts/code-coverage --lcov > .artifacts/code-coverage.lcov",
-        "prep": "deno fmt && deno lint",
+        "prep": "deno fmt && deno lint -c ./deno-publish.json",
         "update:publish-config": "deno run -A ./eng/tasks/update-publish.ts",
         "publish:test": "deno publish --dry-run --allow-dirty -c ./deno-publish.json"
     },
@@ -57,7 +57,8 @@
         "@rex/primitives",
         "@rex/rexfile",
         "@rex/tasks",
-        "@bearz/node-ssh2"
+        "@bearz/node-ssh2",
+        "@bearz/testing"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",

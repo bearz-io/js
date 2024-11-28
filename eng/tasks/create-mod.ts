@@ -23,7 +23,7 @@ app.name("create-mod")
         }
 
         const data = {
-            "name": `@${scope}/${name}`,
+            "name": `${scope}/${name}`,
             "description": description,
             "version": "0.0.0",
             "exports": {
