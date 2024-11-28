@@ -1,0 +1,1 @@
+export { sh, shScript } from "./command.ts";
