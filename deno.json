@@ -61,7 +61,8 @@
         "@bearz/testing",
         "@spawn/bash",
         "@spawn/cmd",
-        "@spawn/pwsh"
+        "@spawn/pwsh",
+        "@spawn/powershell"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
