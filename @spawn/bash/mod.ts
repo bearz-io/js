@@ -1,0 +1,1 @@
+export { bash, bashScript } from "./command.ts";

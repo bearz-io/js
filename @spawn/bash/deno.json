@@ -1,0 +1,9 @@
+{
+    "name": "@spawn/bash",
+    "description": "@spawn/bash module",
+    "version": "0.0.2",
+    "exports": {
+        ".": "./mod.ts",
+        "./command": "./command.ts"
+    }
+}
