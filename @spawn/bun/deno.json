@@ -1,0 +1,8 @@
+{
+    "name": "@spawn/bun",
+    "description": "@spawn/bun module",
+    "version": "0.0.2",
+    "exports": {
+        ".": "./mod.ts"
+    }
+}
