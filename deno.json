@@ -64,7 +64,8 @@
         "@spawn/pwsh",
         "@spawn/powershell",
         "@spawn/sh",
-        "@spawn/sudo"
+        "@spawn/sudo",
+        "@spawn/node"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",

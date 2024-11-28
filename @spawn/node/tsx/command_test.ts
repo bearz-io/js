@@ -1,0 +1,46 @@
+import { skip } from "@bearz/testing";
+import { equal, ok } from "@bearz/assert";
+import { tsx, tsxScript } from "./command.ts";
+import { remove, writeTextFile } from "@bearz/fs";
+import { pathFinder } from "@bearz/exec/path-finder";
+
+// DO NOT EDIT THIS LINE
+const test = Deno.test;
+const noTsx = pathFinder.findExeSync("tsx") === undefined;
+
+test("@spawn/node/tsx - script", skip(noTsx), async () => {
+    const result = await tsxScript("console.log('Hello, World!');");
+    equal(await result.text(), `Hello, World!\n`);
+    equal(result.code, 0);
+});
+
+test("@spawn/node/tsx - version", skip(noTsx), async () => {
+    const result = await tsx("--version");
+    equal(result.code, 0);
+    ok(result.text().startsWith("tsx"));
+});
+
+test("@spawn/node/tsx - script using files", skip(noTsx), async () => {
+    const script = `console.log('Hello, World!');`;
+    await writeTextFile("test.ts", script);
+    await writeTextFile("test.mts", script);
+    await writeTextFile("test.cts", script);
+
+    try {
+        const result = await tsxScript("test.ts");
+        equal(await result.text(), `Hello, World!\n`);
+        equal(result.code, 0);
+
+        const result2 = await tsxScript("test.mts");
+        equal(await result2.text(), `Hello, World!\n`);
+        equal(result2.code, 0);
+
+        const result3 = await tsxScript("test.cts");
+        equal(await result3.text(), `Hello, World!\n`);
+        equal(result3.code, 0);
+    } finally {
+        await remove("test.ts");
+        await remove("test.mts");
+        await remove("test.cts");
+    }
+});

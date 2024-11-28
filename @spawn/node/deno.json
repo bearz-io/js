@@ -1,0 +1,15 @@
+{
+    "name": "@spawn/node",
+    "description": "@spawn/node module",
+    "version": "0.0.2",
+    "exports": {
+        ".": "./mod.ts",
+        "./fnm": "./fnm/mod.ts",
+        "./npm": "./npm/mod.ts",
+        "./node": "./node/mod.ts",
+        "./npx": "./npx/mod.ts",
+        "./pnpm": "./pnpm/mod.ts",
+        "./tsx": "./tsx/mod.ts",
+        "./yarn": "./yarn/mod.ts"
+    }
+}
