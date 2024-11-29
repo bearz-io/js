@@ -3,7 +3,6 @@
     "description": "@spawn/cmd module",
     "version": "0.0.2",
     "exports": {
-        ".": "./mod.ts",
-        "./command": "./command.ts"
+        ".": "./mod.ts"
     }
 }

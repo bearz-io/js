@@ -1,1 +1,1 @@
-export { bash, bashScript } from "./command.ts";
+export * from "./command.ts";

@@ -1,1 +1,1 @@
-export { cmd, cmdScript } from "./command.ts";
+export * from "./command.ts"

@@ -3,7 +3,6 @@
     "description": "@spawn/powershell module",
     "version": "0.0.2",
     "exports": {
-        ".": "./mod.ts",
-        "./command": "./command.ts"
+        ".": "./mod.ts"
     }
 }

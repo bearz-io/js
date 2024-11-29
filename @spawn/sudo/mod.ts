@@ -1,1 +1,1 @@
-export { sudo } from "./command.ts";
+export * from "./command.ts"

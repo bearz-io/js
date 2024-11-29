@@ -1,1 +1,1 @@
-export { powershell, powershellScript } from "./command.ts";
+export * from "./command.ts";

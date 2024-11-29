@@ -1,1 +1,1 @@
-export { pwsh, pwshScript } from "./command.ts";
+export * from "./command.ts"
