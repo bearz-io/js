@@ -7,7 +7,7 @@ import { runTest } from "../_test_utils.ts";
 
 // DO NOT EDIT THIS LINE
 const test = Deno.test;
-const noPnpm = pathFinder.findExeSync("pnpm") !== undefined;
+const noPnpm = undefined === pathFinder.findExeSync("pnpm");
 
 test("@spawn/node/pnpm - build", skip(noPnpm), async () => {
     await runTest(import.meta.url, "pnpm1", async (dir) => {
