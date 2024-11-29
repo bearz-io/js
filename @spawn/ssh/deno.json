@@ -1,0 +1,15 @@
+{
+    "name": "@spawn/ssh",
+    "version": "0.0.1",
+    "exports": {
+        ".": "./mod.ts",
+        "./command": "./command.ts",
+        "./add": "./add/mod.ts",
+        "./agent": "./agent/mod.ts",
+        "./keygen": "./keygen/mod.ts",
+        "./keyscan": "./keyscan/mod.ts",
+        "./scp": "./scp/mod.ts",
+        "./sftp": "./sftp/mod.ts",
+        "./sshd": "./sshd/mod.ts"
+    }
+}

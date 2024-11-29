@@ -1,0 +1,14 @@
+{
+    "name": "@spawn/docker",
+    "version": "0.0.1",
+    "exports": {
+        ".": "./mod.ts",
+        "./compose": "./compose/mod.ts",
+        "./compose/command": "./compose/command.ts",
+        "./compose/up": "./compose/up.ts",
+        "./compose/down": "./compose/down.ts",
+        "./compose/schema": "./compose/schema.ts"
+    },
+
+    "publish": { "exclude": ["**/*_test.ts"] }
+}

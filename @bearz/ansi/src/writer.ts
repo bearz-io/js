@@ -1,6 +1,17 @@
 import { env } from "@bearz/env";
 import { AnsiSettings } from "../src/settings.ts";
-import { blue, brightBlack, cyan, gray, green, magenta, red, rgb24, yellow } from "./styles.ts";
+import {
+    blue,
+    brightBlack,
+    cyan,
+    gray,
+    green,
+    magenta,
+    red,
+    reset,
+    rgb24,
+    yellow,
+} from "./styles.ts";
 import { sprintf } from "@bearz/fmt/printf";
 import { AnsiLogLevel } from "../src/enums.ts";
 import { isStdoutTerminal } from "../src/settings.ts";
@@ -415,15 +426,15 @@ export class DefaultAnsiWriter implements AnsiWriter {
             if (args && args.length > 0) {
                 for (const value of args) {
                     if (value.startsWith("-") || value.startsWith("/")) {
-                        this.write(cyan(` ${value}`));
+                        this.write(" ").write(cyan(`${value}`));
                         continue;
                     }
 
                     if (value.includes(" ") || value.includes("\n") || value.includes("\t")) {
                         if (!value.includes("'")) {
-                            this.write(magenta(` '${value}'`));
+                            this.write(" ").write(magenta(`'${value}'`));
                         } else {
-                            this.write(magenta(` "${value}"`));
+                            this.write(" ").write(magenta(`"${value}"`));
                         }
                         continue;
                     }
@@ -805,13 +816,13 @@ export class DefaultAnsiWriter implements AnsiWriter {
     startGroup(name: string): this {
         if (this.settings.mode !== AnsiMode.None) {
             if (this.settings.mode === AnsiMode.TwentyFourBit) {
-                this.write(groupSymbol);
-                this.writeLine(magenta(` ${name}`));
+                this.write(groupSymbol).write(reset(" "));
+                this.writeLine(magenta(`${name}`));
                 return this;
             }
 
-            this.write(blue(`❯❯❯❯❯`));
-            this.writeLine(magenta(` ${name}`));
+            this.write(blue(`❯❯❯❯❯`)).write(" ");
+            this.writeLine(magenta(`${name}`));
             return this;
         }
 

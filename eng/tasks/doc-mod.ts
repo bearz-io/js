@@ -1,11 +1,13 @@
 import { dirname, fromFileUrl, join } from "@std/path";
 import { walk } from "jsr:@std/fs@1.0.0";
 
+const scope = Deno.args.length > 0 ? Deno.args[0] : "@bearz";
+
 const __dirname = dirname(fromFileUrl(import.meta.url));
 
 const engDir = dirname(__dirname);
 const rootDir = dirname(engDir);
-const libDir = join(rootDir, "lib");
+const libDir = join(rootDir, scope);
 console.log(libDir);
 
 async function isFile(path: string): Promise<boolean> {

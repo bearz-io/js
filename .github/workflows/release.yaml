@@ -9,6 +9,7 @@ on:
     paths:
       - "@bearz/**"
       - "@rex/**"
+      - "@spawn/**"
       - ".github/workflows/release.yaml"
 
 jobs:
@@ -37,7 +38,7 @@ jobs:
           node-version: "20.x"
 
       - name: Lint
-        run: deno lint
+        run: deno lint -c ./deno-publish.json
 
       - name: Test
         run: deno task coverage
