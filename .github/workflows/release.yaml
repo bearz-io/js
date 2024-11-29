@@ -9,6 +9,7 @@ on:
     paths:
       - "@bearz/**"
       - "@rex/**"
+      - "@spawn/**"
       - ".github/workflows/release.yaml"
 
 jobs:

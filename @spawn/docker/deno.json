@@ -3,7 +3,6 @@
     "version": "0.0.1",
     "exports": {
         ".": "./mod.ts",
-        "./command": "./command.ts",
         "./compose": "./compose/mod.ts",
         "./compose/command": "./compose/command.ts",
         "./compose/up": "./compose/up.ts",

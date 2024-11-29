@@ -4,7 +4,7 @@
  * The `terraform` module provides a simple way to execute
  * terraform commands.
  *
- * The module relies upon the [@gnome/exec][exec] module and
+ * The module relies upon the [@bearz/exec][exec] module and
  * has the same basic usage as the `Command` and `ShellCommand` class.
  *
  * ## Basic Usage
@@ -20,7 +20,7 @@
  *
  * [MIT License](./LICENSE.md)
  *
- * [exec]: https://jsr.io/@gnome/exec/doc
+ * [exec]: https://jsr.io/@bearz/exec/doc
  *
  * @module
  */
