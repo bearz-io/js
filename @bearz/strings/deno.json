@@ -1,6 +1,6 @@
 {
     "name": "@bearz/strings",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "exports": {
         ".": "./src/mod.ts",
         "./camelize": "./src/camelize.ts",
@@ -12,6 +12,7 @@
         "./inflect": "./src/inflect.ts",
         "./is-null": "./src/is_null.ts",
         "./last-index-of": "./src/last_index_of.ts",
+        "./pascalize": "./src/pascalize.ts",
         "./split": "./src/split.ts",
         "./starts-with": "./src/starts_with.ts",
         "./string-builder": "./src/string_builder.ts",

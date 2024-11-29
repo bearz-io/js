@@ -68,7 +68,8 @@
         "@spawn/node",
         "@spawn/python",
         "@spawn/deno",
-        "@spawn/bun"
+        "@spawn/bun",
+        "@spawn/ssh"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",

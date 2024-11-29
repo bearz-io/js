@@ -13,7 +13,7 @@ pathFinder.set("uv", {
 });
 
 /**
- * Represents a command for executing poetry-related operations.
+ * Represents a command for executing uv operations.
  */
 export class UvCommand extends Command {
     /**
@@ -30,7 +30,7 @@ export class UvCommand extends Command {
  * Invokes the `uv` cli.
  * @param args The command arguments.
  * @param options The command options.
- * @returns a new instance of the PoetryCommand class.
+ * @returns a new instance of the UvCommand class.
  * @example
  * ```ts
  * import { uv } from "@spawn/python/uv";

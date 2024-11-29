@@ -2,8 +2,8 @@
 
 ## Overview
 
-The node module wraps the node cli to provide a simple way to execute
-javascript using the node runtime.
+The deno module wraps the deno cli to provide a simple way to execute
+javascript using the deno runtime.
 
 The module relies upon the [@bearz/exec][exec] module and
 has the same basic usage as the `Command` and `ShellCommand` class.

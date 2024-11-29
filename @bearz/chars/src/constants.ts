@@ -44,6 +44,9 @@ export const CHAR_AT = 64; /* @ */
 export const CHAR_AMPERSAND = 38; /* & */
 export const CHAR_TILDA = 126; /* ~ */
 export const CHAR_DOLLAR = 36; /* $ */
+export const CHAR_VERTICAL_TAB = 11; /* \v */
+export const CHAR_ASTERISK = 42; /* * */
+export const CHAR_COMMA = 44; /* , */
 
 /**
  * Equal character (`=`) code (61).

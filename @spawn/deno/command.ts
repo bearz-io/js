@@ -91,13 +91,6 @@ export class DenoShellCommand extends ShellCommand {
             [
                 "run",
                 "-A",
-                "--unstable-cron",
-                "--unstable-worker-options",
-                "--unstable-ffi",
-                "--unstable-http",
-                "--unstable-net",
-                "--unstable-fs",
-                "--unstable-kv",
             ];
 
         params.push(script);
@@ -115,7 +108,7 @@ export class DenoShellCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { deno } from "@spawn/xv/deno";
+ * import { deno } from "@spawn/deno";
  *
  * const result = await deno("--version");
  * console.log(result.code);
@@ -124,7 +117,7 @@ export class DenoShellCommand extends ShellCommand {
  *
  * @example
  * ```ts
- * import { deno } from "@spawn/xv/deno";
+ * import { deno } from "@spawn/deno";
  *
  * /// execute the Deno command and writes the version to stdout.
  * await deno(["--version"]).run();
