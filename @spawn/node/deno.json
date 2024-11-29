@@ -6,7 +6,7 @@
         ".": "./mod.ts",
         "./fnm": "./fnm/mod.ts",
         "./npm": "./npm/mod.ts",
-        "./node": "./node/mod.ts",
+        "./node": "./command.ts",
         "./npx": "./npx/mod.ts",
         "./pnpm": "./pnpm/mod.ts",
         "./tsx": "./tsx/mod.ts",
