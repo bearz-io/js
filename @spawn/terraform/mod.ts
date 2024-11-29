@@ -21,7 +21,5 @@
  * [MIT License](./LICENSE.md)
  *
  * [exec]: https://jsr.io/@bearz/exec/doc
- *
- * @module
  */
 export * from "./command.ts";

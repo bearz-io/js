@@ -4,7 +4,7 @@
  * The ubi module provides a simple way to execute
  * ubi commands.
  *
- * The module relies upon the [@spawn/exec][exec] module and
+ * The module relies upon the [@bearz/exec][exec] module and
  * has the same basic usubi as the `Command` and `ShellCommand` class.
  *
  * ```typescript
@@ -24,8 +24,6 @@
  *
  * [MIT](./LICENSE.md)
  *
- * [exec]: https://jsr.io/@spawn/exec/doc
- *
- * @module
+ * [exec]: https://jsr.io/@bearz/exec/doc
  */
 export * from "./command.ts";

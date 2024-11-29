@@ -7,6 +7,8 @@
     "jsr:@cliffy/table@1.0.0-rc.7": "1.0.0-rc.7",
     "jsr:@std/encoding@^1.0.5": "1.0.5",
     "jsr:@std/fmt@~1.0.2": "1.0.3",
+    "jsr:@std/fs@1.0.0": "1.0.0",
+    "jsr:@std/path@^1.0.2": "1.0.8",
     "jsr:@std/path@^1.0.6": "1.0.8",
     "jsr:@std/text@~1.0.7": "1.0.8",
     "npm:@types/bun@^1.1.13": "1.1.13",
@@ -52,6 +54,12 @@
     },
     "@std/fmt@1.0.3": {
       "integrity": "97765c16aa32245ff4e2204ecf7d8562496a3cb8592340a80e7e554e0bb9149f"
+    },
+    "@std/fs@1.0.0": {
+      "integrity": "d72e4a125af7168d717a2ed1dca77a728b422b0d138fd20579e3fa41a77da943",
+      "dependencies": [
+        "jsr:@std/path@^1.0.2"
+      ]
     },
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
