@@ -49,7 +49,7 @@ export class SshAgentCommand extends Command {
  *
  * @example
  * ```typescript
- * import { sshAgent } from "@gnome/ssh-cli";
+ * import { sshAgent } from "@spawn/ssh-cli";
  *
  * await sshAgent(["-s"]);
  * ```

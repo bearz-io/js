@@ -49,7 +49,7 @@ export class ScpCommand extends Command {
  *
  * @example
  * ```typescript
- * import { scp } from "@gnome/ssh-cli";
+ * import { scp } from "@spawn/ssh-cli";
  *
  * await scp(["file.txt", "user@host:/path/to/destination"]).run();
  * ```

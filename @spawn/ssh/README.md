@@ -40,4 +40,4 @@ variable.
 
 [MIT License](./LICENSE.md)
 
-[exec]: https://jsr.io/@gnome/exec/doc
+[exec]: https://jsr.io/@bearz/exec/doc

@@ -43,4 +43,4 @@ console.log(result3.code);
 
 [MIT License](./LICENSE.md)
 
-[exec]: https://jsr.io/@gnome/exec/doc
+[exec]: https://jsr.io/@bearz/exec/doc

@@ -49,7 +49,7 @@ export class SshKeygenCommand extends Command {
  *
  * @example
  * ```typescript
- * import { ssh-keygen } from "@gnome/ssh-cli";
+ * import { ssh-keygen } from "@spawn/ssh-cli";
  *
  * await ssh-keygen(["-t", "rsa", "-b", "4096", "-C", "", "-f", "id_rsa", "-N", ""]).run();
  * ```

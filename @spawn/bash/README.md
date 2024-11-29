@@ -34,4 +34,4 @@ await bash(["-e", "path/to/file.sh"]).run();
 
 [MIT License](./LICENSE.md)
 
-[exec]: https://jsr.io/@gnome/exec/doc
+[exec]: https://jsr.io/@bearz/exec/doc

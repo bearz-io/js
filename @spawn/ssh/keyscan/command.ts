@@ -49,7 +49,7 @@ export class SshKeyscanCommand extends Command {
  *
  * @example
  * ```typescript
- * import { ssh-keyscan } from "@gnome/ssh-cli";
+ * import { ssh-keyscan } from "@spawn/ssh-cli";
  *
  * await ssh-keyscan(["-H", "host"]);
  * ```

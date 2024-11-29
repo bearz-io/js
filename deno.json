@@ -70,7 +70,12 @@
         "@spawn/deno",
         "@spawn/bun",
         "@spawn/ssh",
-        "@spawn/docker"
+        "@spawn/docker",
+        "@spawn/az",
+        "@spawn/curl",
+        "@spawn/aws",
+        "@spawn/ubi",
+        "@spawn/terraform"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",

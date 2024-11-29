@@ -49,7 +49,7 @@ export class SftpCommand extends Command {
  *
  * @example
  * ```typescript
- * import { sftp } from "@gnome/sftp-cli";
+ * import { sftp } from "@spawn/sftp-cli";
  *
  * await sftp(["user@host", "ls"]);
  * ```

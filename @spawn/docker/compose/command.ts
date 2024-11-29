@@ -57,25 +57,25 @@ export function splatCompose(args: SplatObject): string[] {
         "projectName",
     ];
 
-    const dockerArgs : SplatObject = {
+    const dockerArgs: SplatObject = {
         [SplatSymbols.command]: ["compose"],
         splat: {
             prefix: "--",
-        }
-    }
-    const composeArgs : SplatObject = {
+        },
+    };
+    const composeArgs: SplatObject = {
         splat: {
             prefix: "--",
             appendArguments: true,
-        }
-    }
+        },
+    };
     for (const key of Object.keys(args)) {
-        if (key === 'splat') {
-            composeArgs.splat= {...args.splat, ...composeArgs.splat};
+        if (key === "splat") {
+            composeArgs.splat = { ...args.splat, ...composeArgs.splat };
             continue;
         }
 
-        if (typeof key === 'string' && preArgs.includes(key)) {
+        if (typeof key === "string" && preArgs.includes(key)) {
             dockerArgs[key] = args[key];
         } else {
             composeArgs[key] = args[key];

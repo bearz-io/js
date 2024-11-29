@@ -4,7 +4,7 @@
 
 The `sh` module provides a simple way to execute scripts using the `sh` shell.
 
-The module relies upon the [@gnome/exec][exec] module and
+The module relies upon the [@bearz/exec][exec] module and
 has the same basic ussops as the `Command` and `ShellCommand` class.
 
 ## Documentation
@@ -32,4 +32,4 @@ await sh(["-e", "path/to/file.sh"]).run();
 
 [MIT License](./LICENSE.md)
 
-[exec]: https://jsr.io/@gnome/exec/doc
+[exec]: https://jsr.io/@bearz/exec/doc

@@ -49,7 +49,7 @@ export class SshdCommand extends Command {
  *
  * @example
  * ```typescript
- * import { sshd } from "@gnome/ssh-cli";
+ * import { sshd } from "@spawn/ssh-cli";
  *
  * await sshd(["-D", "1234"]);
  * ```

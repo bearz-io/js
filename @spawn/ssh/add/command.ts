@@ -49,7 +49,7 @@ export class SshAddCommand extends Command {
  *
  * @example
  * ```typescript
- * import { sshAdd } from "@gnome/ssh-cli";
+ * import { sshAdd } from "@spawn/ssh-cli";
  *
  * await sshAdd(["-K", "id_rsa"]);
  * ```
