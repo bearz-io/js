@@ -108,7 +108,7 @@ export function tasksConsoleSink(message: Message): void {
             const name = msg.task.name ?? msg.task.id;
             writer.error(msg.error);
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
-                writer.write(groupSymbol).write(reset(" "))
+                writer.write(groupSymbol).write(reset(" "));
                 writer.writeLine(`${name} ${red("failed")}`);
             } else if (AnsiSettings.current.mode === AnsiMode.None) {
                 writer.error(`❯❯❯❯❯ ${name} failed`);

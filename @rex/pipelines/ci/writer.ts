@@ -1,4 +1,4 @@
-import { AnsiLogLevel, AnsiMode, gray, magenta, red, rgb24, yellow, reset } from "@bearz/ansi";
+import { AnsiLogLevel, AnsiMode, gray, magenta, red, reset, rgb24, yellow } from "@bearz/ansi";
 import { DefaultPipelineWriter } from "@bearz/ci-env";
 import { CI_DRIVER } from "./driver.ts";
 import { sprintf } from "@bearz/fmt/printf";
@@ -120,7 +120,7 @@ export class PipelineWriter extends DefaultPipelineWriter implements RexWriter {
             default:
                 if (this.settings.stdout === true) {
                     if (this.settings.mode === AnsiMode.TwentyFourBit) {
-                        this.write(groupSymbol).write(reset(" "))
+                        this.write(groupSymbol).write(reset(" "));
                         this.write(`${rgb24(name, 0xb400ff)} (Skipped)`).writeLine();
                         this.endGroup();
                         return this;

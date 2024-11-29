@@ -28,12 +28,12 @@ export const deployCommand = new Command()
     })
     .action(async ({ file, logLevel, timeout, context, env, envFile }, targets) => {
         const runner = new Runner();
-        const controller = new AbortController()
+        const controller = new AbortController();
         keypress().addEventListener("keydown", (event: KeyPressEvent) => {
             if (event.ctrlKey && event.key === "c") {
                 controller.abort();
                 keypress().dispose();
-              }
+            }
         });
         const options: RunnerOptions = {
             file: file,

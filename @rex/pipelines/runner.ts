@@ -132,7 +132,6 @@ export class Runner {
             }, timeout * 1000);
         }
 
-
         const signal = controller.signal;
 
         try {
@@ -193,8 +192,6 @@ export class Runner {
             ctx.services.set("JobPipeline", jobPipeline);
             ctx.services.set("DeploymentPipeline", deploymentPipeline);
 
-           
-
             for (const [key, value] of Object.entries(env.toObject())) {
                 if (value !== undefined) {
                     ctx.env.set(key, value);
@@ -231,7 +228,9 @@ export class Runner {
 
                     if (res.jobs.has(targets[0])) {
                         if (command !== "run") {
-                            writer.error("Tasks, jobs, and/or deployments have a target named `${targets[0]}`.  Please specify use the task, job, or deploy subcomands.");
+                            writer.error(
+                                "Tasks, jobs, and/or deployments have a target named `${targets[0]}`.  Please specify use the task, job, or deploy subcomands.",
+                            );
                             exit(1);
                         } else {
                             command = "job";
@@ -240,7 +239,9 @@ export class Runner {
 
                     if (res.deployments.has(targets[0])) {
                         if (command !== "run") {
-                            writer.error("Tasks, jobs, and/or deployments have a target named `${targets[0]}`.  Please specify use the task, job, or deploy subcomands.");
+                            writer.error(
+                                "Tasks, jobs, and/or deployments have a target named `${targets[0]}`.  Please specify use the task, job, or deploy subcomands.",
+                            );
                             exit(1);
                         } else {
                             command = "deploy";
@@ -291,8 +292,6 @@ export class Runner {
                             jobs: res.jobs,
                             environmentName: options.context ?? "local",
                         }) as JobsPipelineContext;
-
-                    
 
                         const results = await jobsPipeline.run(jobsCtx);
                         if (results.error) {

@@ -39,11 +39,7 @@ export {
     usesTask,
 } from "@rex/tasks";
 export { type Job, job, JobBuilder, type JobContext, JobMap, REX_JOBS } from "@rex/jobs";
-export  {
-    scriptTask,
-    ScriptTaskBuilder,
-    script,
-} from "@rex/tasks-scripts";
+export { script, scriptTask, ScriptTaskBuilder } from "@rex/tasks-scripts";
 export {
     type Deploy,
     deploy,

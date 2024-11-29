@@ -1,15 +1,15 @@
 import { WINDOWS } from "@bearz/runtime-info/os";
-import { cmd, job, scriptTask, task, deploy } from "@rex/rexfile";
+import { cmd, deploy, job, scriptTask, task } from "@rex/rexfile";
 
-task("test", _ => console.log("Hello, world!"));
+task("test", (_) => console.log("Hello, world!"));
 
 // a tasks to dependents on other tasks
 // the other tasks will run before this task.
-task("default", ["test"], async _ => {
+task("default", ["test"], async (_) => {
     await cmd("echo", ["Hello, world!"]).run();
 })
-// only run on non-windows
-.if(_ => !WINDOWS);
+    // only run on non-windows
+    .if((_) => !WINDOWS);
 
 scriptTask("test:bash", "bash", "echo 'Hello, world!' \n ls -la");
 
@@ -22,7 +22,7 @@ task("print:secrets", ["secrets"], (ctx) => {
     console.log(ctx.env.get("SECRET"));
     ctx.writer.maskLine("My secret is super secret");
 
-    for(const [key, value] of ctx.secrets) {
+    for (const [key, value] of ctx.secrets) {
         console.log(`${key}=${value}`);
     }
 });
@@ -32,7 +32,7 @@ task("print:env", (ctx) => {
         console.log(`${key}=${value}`);
     }
 })
-.description("Prints the environment variables");
+    .description("Prints the environment variables");
 
 // a job is a collection of tasks that are
 // executed in order of declaration
@@ -52,7 +52,7 @@ job("build").tasks((map, add) => {
 // to job.
 
 // the delegate deploy tasks has a 'before:delpoy'
-// and 'after:deploy' event. 
+// and 'after:deploy' event.
 // other deploy implementations can implement additional
 // custom events that run other sets of tasks.
 
@@ -66,12 +66,12 @@ deploy("deploy", (ctx) => {
     ctx.writer.info("Deploying to the moon");
     throw new Error("deploy failed");
 })
-.before((map) => {
-    task("before:deploy", (ctx) =>  { 
-        console.log("before deploy")
-        console.log(ctx.env.get("REX_ENVIRONMENT")); // this the --context param in the cli
-    }, map);
-})
-.after((map) => {
-    task("after:deploy", () => console.log("after deploy"), map);
-});
+    .before((map) => {
+        task("before:deploy", (ctx) => {
+            console.log("before deploy");
+            console.log(ctx.env.get("REX_ENVIRONMENT")); // this the --context param in the cli
+        }, map);
+    })
+    .after((map) => {
+        task("after:deploy", () => console.log("after deploy"), map);
+    });

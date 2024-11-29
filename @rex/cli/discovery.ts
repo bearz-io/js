@@ -1,6 +1,10 @@
-import { RexfileDiscovery, DiscoveryPipeline, type DiscoveryPipelineContext } from "@rex/pipelines/discovery";
+import {
+    DiscoveryPipeline,
+    type DiscoveryPipelineContext,
+    RexfileDiscovery,
+} from "@rex/pipelines/discovery";
 import { writer } from "@rex/pipelines/ci";
-import { ObjectMap, StringMap, Outputs, type ExecutionContext } from "@rex/primitives";
+import { type ExecutionContext, ObjectMap, Outputs, StringMap } from "@rex/primitives";
 import { DefaultLoggingMessageBus } from "@rex/pipelines/bus";
 import { TaskMap } from "@rex/tasks";
 import { JobMap } from "@rex/jobs";
@@ -9,10 +13,10 @@ import { DeploymentMap } from "@rex/deployments";
 const discoveryPipeline = new DiscoveryPipeline();
 discoveryPipeline.use(new RexfileDiscovery());
 
-let tasksCache : undefined | string[] = undefined;
-let jobsCache : undefined | string[] = undefined;   
-let deploymentsCache : undefined | string[] = undefined;
-let allCache : undefined | string[] = undefined;
+let tasksCache: undefined | string[] = undefined;
+let jobsCache: undefined | string[] = undefined;
+let deploymentsCache: undefined | string[] = undefined;
+let allCache: undefined | string[] = undefined;
 
 export async function discoverTargets(): Promise<void> {
     if (tasksCache === undefined) {
@@ -26,7 +30,7 @@ export async function discoverTargets(): Promise<void> {
             writer: writer,
             bus: new DefaultLoggingMessageBus(),
             signal: new AbortController().signal,
-            environmentName:  "local",
+            environmentName: "local",
         };
 
         const discoveryContext: DiscoveryPipelineContext = Object.assign({}, ctx, {
