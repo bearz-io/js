@@ -1,6 +1,9 @@
 import { Command } from "@cliffy/command";
 import { Runner, type RunnerOptions } from "@rex/pipelines/runner";
 import { VERSION } from "../version.ts";
+import { getTasks } from "../discovery.ts";
+import { keypress, type KeyPressEvent } from "@cliffy/keypress";
+
 
 export const taskCommand = new Command()
     .name("rex-task")
@@ -8,10 +11,14 @@ export const taskCommand = new Command()
         "Runs one or more tasks from a rexfile.",
     )
     .version(VERSION)
-    .arguments("[target:string[]]")
+    .arguments("[target:string[]:names]")
     .option("-f, --file <file:string>", "The rexfile to run")
     .option("--log-level <log-level:string>", "Enable debug mode", { default: "info" })
     .option("-t, --timeout <timeout:number>", "Set the timeout for the task in minutes.")
+    .complete("names", async () => {
+        const tasks = await getTasks();
+        return tasks;
+    })
     .option(
         "-c --context <context:string>",
         "The context (environment) name. Defaults to 'local'",
@@ -23,6 +30,13 @@ export const taskCommand = new Command()
     })
     .action(async ({ file, logLevel, timeout, env, envFile, context }, targets) => {
         const runner = new Runner();
+        const controller = new AbortController()
+        keypress().addEventListener("keydown", (event: KeyPressEvent) => {
+            if (event.ctrlKey && event.key === "c") {
+                controller.abort();
+                keypress().dispose();
+              }
+        });
 
         const options: RunnerOptions = {
             file: file,
@@ -33,6 +47,7 @@ export const taskCommand = new Command()
             env: env,
             envFile: envFile,
             context: context,
+            signal: controller.signal,
         };
         await runner.run(options);
     });

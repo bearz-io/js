@@ -27,7 +27,8 @@
         "lcov": "deno coverage .artifacts/code-coverage --lcov > .artifacts/code-coverage.lcov",
         "prep": "deno fmt && deno lint -c ./deno-publish.json",
         "update:publish-config": "deno run -A ./eng/tasks/update-publish.ts",
-        "publish:test": "deno publish --dry-run --allow-dirty -c ./deno-publish.json"
+        "publish:test": "deno publish --dry-run --allow-dirty -c ./deno-publish.json",
+        "rex": "deno run -A @rex/cli/main.ts"
     },
     "workspace": [
         "@bearz/assert",
@@ -73,10 +74,12 @@
         "@spawn/curl",
         "@spawn/aws",
         "@spawn/ubi",
-        "@spawn/terraform"
+        "@spawn/terraform",
+        "@rex/tasks-scripts"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
+        "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.7",
         "@std/encoding": "jsr:@std/encoding@^1.0.5",
         "@std/path": "jsr:@std/path@^1.0.6",
         "@types/bun": "npm:@types/bun@^1.1.13",

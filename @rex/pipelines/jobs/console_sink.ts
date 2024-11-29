@@ -8,7 +8,7 @@ import type {
     JobStarted,
     MissingJobDependencies,
 } from "./messages.ts";
-import { cyan, green, red } from "@bearz/ansi/styles";
+import { cyan, green, red, reset } from "@bearz/ansi/styles";
 import { AnsiMode, AnsiSettings } from "@bearz/ansi";
 
 export function jobsConsoleSink(message: Message): void {
@@ -29,8 +29,8 @@ export function jobsConsoleSink(message: Message): void {
             const msg = message as JobStarted;
             const name = msg.job.name ?? msg.job.id;
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
-                writer.write(jobSymbol);
-                writer.writeLine(` ${name} `);
+                writer.write(jobSymbol).write(reset(" "));
+                writer.writeLine(`${name} `);
             } else if (AnsiSettings.current.stdout) {
                 writer.write(cyan(`❯❯❯❯❯ ${name}`));
             } else {
@@ -51,7 +51,7 @@ export function jobsConsoleSink(message: Message): void {
             const name = msg.job.name ?? msg.job.id;
             writer.error(msg.error);
             if (AnsiSettings.current.mode === AnsiMode.TwentyFourBit) {
-                writer.write(jobSymbol);
+                writer.write(jobSymbol).write(reset(" "));
                 writer.writeLine(`${name} ${red("failed")}`);
             } else if (AnsiSettings.current.mode === AnsiMode.None) {
                 writer.error(`❯❯❯❯❯ ${name} failed`);

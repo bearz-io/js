@@ -6,10 +6,10 @@ import {
     type TaskContext,
     type TaskMap,
     toError,
-} from "./mod.ts";
+} from "@rex/tasks";
 import { Outputs } from "@rex/primitives";
 import { fail, ok, type Result } from "@bearz/functional";
-import { script as runScript } from "@bearz/shells";
+import { script as runScript } from "./script.ts";
 
 // TODO: Write module code here
 export class ScriptTaskBuilder extends TaskBuilder {

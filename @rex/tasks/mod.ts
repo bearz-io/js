@@ -17,4 +17,3 @@
 export * from "./primitives.ts";
 export * from "./globals.ts";
 export * from "./tasks.ts";
-export * from "./script_tasks.ts";

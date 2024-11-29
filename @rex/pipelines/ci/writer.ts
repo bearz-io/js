@@ -1,4 +1,4 @@
-import { AnsiLogLevel, AnsiMode, gray, magenta, red, rgb24, yellow } from "@bearz/ansi";
+import { AnsiLogLevel, AnsiMode, gray, magenta, red, rgb24, yellow, reset } from "@bearz/ansi";
 import { DefaultPipelineWriter } from "@bearz/ci-env";
 import { CI_DRIVER } from "./driver.ts";
 import { sprintf } from "@bearz/fmt/printf";
@@ -67,13 +67,13 @@ export function handleArguments(
     }
 }
 export const groupSymbol =
-    "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;90;0;255m❯\x1b[39m\x1b[38;2;121;0;255m❯\x1b[39m\x1b[38;2;151;0;255m❯\x1b[39m\x1b[38;2;182;0;255m❯\x1b[39m\x1b[38;2;212;0;255m\x16\x1b[39m";
+    "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;90;0;255m❯\x1b[39m\x1b[38;2;121;0;255m❯\x1b[39m\x1b[38;2;151;0;255m❯\x1b[39m\x1b[38;2;182;0;255m❯\x1b[39m";
 
 export const jobSymbol =
-    "\x1b[38;2;255;0;0m❯\x1b[38;2;208;0;35m❯\x1b[38;2;160;0;70m❯\x1b[38;2;113;0;105m❯\x1b[38;2;65;0;140m❯\x1b[39m";
+    "\x1b[38;2;255;0;0m❯\x1b[39m\x1b[38;2;208;0;35m❯\x1b[39m\x1b[38;2;160;0;70m❯\x1b[39m\x1b[38;2;113;0;105m❯\x1b[39m\x1b[38;2;65;0;140m❯\x1b[39m";
 
 export const deploySymbol =
-    "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;54;51;204m❯\x1b[39m\x1b[38;2;48;102;153m❯\x1b[39m\x1b[38;2;42;153;102m❯\x1b[39m\x1b[38;2;36;204;51m❯\x1b[39m\x1b[38;2;30;255;0m\x16\x1b[39m";
+    "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;54;51;204m❯\x1b[39m\x1b[38;2;48;102;153m❯\x1b[39m\x1b[38;2;42;153;102m❯\x1b[39m\x1b[38;2;36;204;51m❯\x1b[39m";
 
 export class PipelineWriter extends DefaultPipelineWriter implements RexWriter {
     setLogLevel(level: LogLevel): this {
@@ -120,8 +120,8 @@ export class PipelineWriter extends DefaultPipelineWriter implements RexWriter {
             default:
                 if (this.settings.stdout === true) {
                     if (this.settings.mode === AnsiMode.TwentyFourBit) {
-                        this.write(groupSymbol);
-                        this.write(` ${rgb24(name, 0xb400ff)} (Skipped)`).writeLine();
+                        this.write(groupSymbol).write(reset(" "))
+                        this.write(`${rgb24(name, 0xb400ff)} (Skipped)`).writeLine();
                         this.endGroup();
                         return this;
                     }

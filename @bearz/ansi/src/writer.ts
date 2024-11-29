@@ -18,7 +18,7 @@ import { isStdoutTerminal } from "../src/settings.ts";
 import { AnsiMode } from "./mod.ts";
 
 const groupSymbol =
-    "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;90;0;255m❯\x1b[39m\x1b[38;2;121;0;255m❯\x1b[39m\x1b[38;2;151;0;255m❯\x1b[39m\x1b[38;2;182;0;255m❯\x1b[39m\x1b[38;2;212;0;255m\x16\x1b[39m";
+    "\x1b[38;2;60;0;255m❯\x1b[39m\x1b[38;2;90;0;255m❯\x1b[39m\x1b[38;2;121;0;255m❯\x1b[39m\x1b[38;2;151;0;255m❯\x1b[39m\x1b[38;2;182;0;255m❯\x1b[39m";
 
 // deno-lint-ignore no-explicit-any
 const g = globalThis as any;

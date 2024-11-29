@@ -29,8 +29,6 @@ export {
     REX_TASKS,
     REX_TASKS_REGISTRY,
     type RunDelegate,
-    scriptTask,
-    ScriptTaskBuilder,
     type Task,
     task,
     TaskBuilder,
@@ -41,6 +39,11 @@ export {
     usesTask,
 } from "@rex/tasks";
 export { type Job, job, JobBuilder, type JobContext, JobMap, REX_JOBS } from "@rex/jobs";
+export  {
+    scriptTask,
+    ScriptTaskBuilder,
+    script,
+} from "@rex/tasks-scripts";
 export {
     type Deploy,
     deploy,

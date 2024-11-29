@@ -109,25 +109,71 @@
  * @module
  */
 import { Command } from "@cliffy/command";
+import { CompletionsCommand } from "@cliffy/command/completions";
 import { taskCommand } from "./cmds/task.ts";
 import { jobCommand } from "./cmds/job.ts";
 import { deployCommand } from "./cmds/deploy.ts";
 import { listCommand } from "./cmds/list.ts";
 import { VERSION } from "./version.ts";
+import { Runner, type RunnerOptions } from "@rex/pipelines/runner";
+import { getAll } from "./discovery.ts";
+import { keypress, type KeyPressEvent } from "@cliffy/keypress";
 
 const app = new Command()
     .name("rex")
     .description(
-        "Rex is a developer's sidekick. It helps you automate tasks and manage your project.",
+        `Rex is a developer's sidekick. It helps you automate tasks and manage your project.
+
+Rex can run tasks, jobs, and deployments from a rexfile.ts. Tasks are a unit of work and can
+depend on other tasks. Jobs are a collection of tasks that run in order. Deployments are a
+special type of job that has has before and after tasks and the primary task is the deployment.
+        `,
     )
     .version(VERSION)
-    .action(() => {
-        app.showHelp();
+    .arguments("[target:string[]:targets]")
+    .complete("targets", async () => {
+        return await getAll();
+    })
+    .option("-f, --file <file:string>", "The rexfile to run")
+    .option("--log-level <log-level:string>", "Enable debug mode", { default: "info" })
+    .option("-t, --timeout <timeout:number>", "Set the timeout in minutes.")
+    .option(
+        "-c --context <context:string>",
+        "The context (environment) name. Defaults to 'local'",
+        { default: "local" },
+    )
+    .option("-e --env <env:string>", "Sets an environment variable", { collect: true })
+    .option("--env-file <env-file:string>", "Sets an environment variable from a file", {
+        collect: true,
+    })
+    .action(async ({ file, logLevel, timeout, env, envFile, context }, targets) => {
+        const runner = new Runner();
+        const controller = new AbortController()
+        keypress().addEventListener("keydown", (event: KeyPressEvent) => {
+            if (event.ctrlKey && event.key === "c") {
+                controller.abort();
+                keypress().dispose();
+              }
+        });
+
+        const options: RunnerOptions = {
+            file: file,
+            targets: targets ?? ["default"],
+            command: 'run',
+            timeout: timeout,
+            logLevel: logLevel,
+            env: env,
+            envFile: envFile,
+            context: context,
+            signal: controller.signal,
+        };
+        await runner.run(options);
     })
     .command("task", taskCommand)
     .command("job", jobCommand)
     .command("list", listCommand)
-    .command("deploy", deployCommand);
+    .command("deploy", deployCommand)
+    .command("completion", new CompletionsCommand);
 
 if (import.meta.main) {
     await app.parse(Deno.args);

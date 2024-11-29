@@ -44,6 +44,7 @@ export interface RunnerOptions {
     context?: string;
     env?: string[];
     envFile?: string[];
+    signal?: AbortSignal;
 }
 
 export class Runner {
@@ -114,11 +115,23 @@ export class Runner {
         if (timeout < 1) {
             timeout = 60 * 3;
         }
+
         const controller = new AbortController();
 
-        const handle = setTimeout(() => {
-            controller.abort();
-        }, timeout * 1000);
+        if (options.signal) {
+            options.signal.addEventListener("abort", () => {
+                controller.abort();
+            }, { once: true });
+        }
+
+        let handle = -1;
+
+        if (timeout > 0) {
+            handle = setTimeout(() => {
+                controller.abort();
+            }, timeout * 1000);
+        }
+
 
         const signal = controller.signal;
 
@@ -180,6 +193,8 @@ export class Runner {
             ctx.services.set("JobPipeline", jobPipeline);
             ctx.services.set("DeploymentPipeline", deploymentPipeline);
 
+           
+
             for (const [key, value] of Object.entries(env.toObject())) {
                 if (value !== undefined) {
                     ctx.env.set(key, value);
@@ -206,6 +221,32 @@ export class Runner {
             if (res.tasks.size === 0 && res.jobs.size === 0 && res.deployments.size === 0) {
                 writer.error("No tasks, jobs, or deployments found.");
                 exit(1);
+            }
+
+            if (!command || command === "run") {
+                if (targets.length > 0) {
+                    if (res.tasks.has(targets[0])) {
+                        command = "task";
+                    }
+
+                    if (res.jobs.has(targets[0])) {
+                        if (command !== "run") {
+                            writer.error("Tasks, jobs, and/or deployments have a target named `${targets[0]}`.  Please specify use the task, job, or deploy subcomands.");
+                            exit(1);
+                        } else {
+                            command = "job";
+                        }
+                    }
+
+                    if (res.deployments.has(targets[0])) {
+                        if (command !== "run") {
+                            writer.error("Tasks, jobs, and/or deployments have a target named `${targets[0]}`.  Please specify use the task, job, or deploy subcomands.");
+                            exit(1);
+                        } else {
+                            command = "deploy";
+                        }
+                    }
+                }
             }
 
             switch (command) {
@@ -250,6 +291,8 @@ export class Runner {
                             jobs: res.jobs,
                             environmentName: options.context ?? "local",
                         }) as JobsPipelineContext;
+
+                    
 
                         const results = await jobsPipeline.run(jobsCtx);
                         if (results.error) {
@@ -355,7 +398,9 @@ export class Runner {
             writer.error(e);
             exit(1);
         } finally {
-            clearTimeout(handle);
+            if (handle !== -1) {
+                clearTimeout(handle);
+            }
         }
     }
 }
