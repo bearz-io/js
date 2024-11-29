@@ -1,7 +1,7 @@
 import { deno, denoScript } from "./command.ts";
 import { remove, writeTextFile } from "@bearz/fs";
 import { pathFinder } from "@bearz/exec/path-finder";
-import { ok, equal } from "@bearz/assert";
+import { equal, ok } from "@bearz/assert";
 
 const test = Deno.test;
 const hasExe = await pathFinder.findExe("deno") !== undefined;

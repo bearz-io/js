@@ -1,6 +1,17 @@
 import { env } from "@bearz/env";
 import { AnsiSettings } from "../src/settings.ts";
-import { blue, brightBlack, cyan, gray, green, magenta, red, rgb24, yellow, reset } from "./styles.ts";
+import {
+    blue,
+    brightBlack,
+    cyan,
+    gray,
+    green,
+    magenta,
+    red,
+    reset,
+    rgb24,
+    yellow,
+} from "./styles.ts";
 import { sprintf } from "@bearz/fmt/printf";
 import { AnsiLogLevel } from "../src/enums.ts";
 import { isStdoutTerminal } from "../src/settings.ts";
@@ -421,9 +432,9 @@ export class DefaultAnsiWriter implements AnsiWriter {
 
                     if (value.includes(" ") || value.includes("\n") || value.includes("\t")) {
                         if (!value.includes("'")) {
-                            this.write(' ').write(magenta(`'${value}'`));
+                            this.write(" ").write(magenta(`'${value}'`));
                         } else {
-                            this.write(' ').write(magenta(`"${value}"`));
+                            this.write(" ").write(magenta(`"${value}"`));
                         }
                         continue;
                     }
@@ -805,12 +816,12 @@ export class DefaultAnsiWriter implements AnsiWriter {
     startGroup(name: string): this {
         if (this.settings.mode !== AnsiMode.None) {
             if (this.settings.mode === AnsiMode.TwentyFourBit) {
-                this.write(groupSymbol).write(reset(' '));
+                this.write(groupSymbol).write(reset(" "));
                 this.writeLine(magenta(`${name}`));
                 return this;
             }
 
-            this.write(blue(`❯❯❯❯❯`)).write(' ');
+            this.write(blue(`❯❯❯❯❯`)).write(" ");
             this.writeLine(magenta(`${name}`));
             return this;
         }

@@ -1,4 +1,10 @@
-import { pathFinder, Command, type CommandArgs, type CommandOptions, type SplatObject } from "@bearz/exec";
+import {
+    Command,
+    type CommandArgs,
+    type CommandOptions,
+    pathFinder,
+    type SplatObject,
+} from "@bearz/exec";
 
 pathFinder.set("ssh", {
     name: "ssh",
@@ -66,11 +72,11 @@ export class SshCommand extends Command {
  * ```
  */
 export function ssh(args?: SshArgs | string | string[], options?: CommandOptions): SshCommand {
-    if (typeof args === 'object' && !Array.isArray(args)) {
-        let protocol  = "-2"
+    if (typeof args === "object" && !Array.isArray(args)) {
+        let protocol = "-2";
         if (args.protocol === 1) {
             protocol = "-1";
-        } 
+        }
         args.splat = {
             argumentNames: ["dest", "command", "arguments"],
             appendArguments: true,
@@ -99,9 +105,9 @@ export function ssh(args?: SshArgs | string | string[], options?: CommandOptions
                 "localForward": "-g",
                 "forcePseudoTerminal": "-t",
                 "disablePseudoTerminal": "-T",
-                "tag": "-P"
-            }
-        }
+                "tag": "-P",
+            },
+        };
     }
 
     return new SshCommand(args, options);
@@ -218,7 +224,7 @@ export interface SshArgs extends SplatObject {
 
     /**
      * An array of options to override the sshd configuration. e.g. -o "StrictHostKeyChecking=no"
-     * 
+     *
      * Commons options are as follows:
      * * AddKeysToAgent
      * * AddressFamily
@@ -317,4 +323,3 @@ export interface SshArgs extends SplatObject {
 
     redirectBackground?: boolean;
 }
-

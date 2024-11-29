@@ -7,17 +7,21 @@ const test = Deno.test;
 const noSsh = undefined === await pathFinder.findExe("ssh");
 
 test("@spawn/ssh - args", () => {
-    let args = ssh({ dest: "user@host", command: "ls", arguments: "-a"}).toArgs();
+    let args = ssh({ dest: "user@host", command: "ls", arguments: "-a" }).toArgs();
 
     let expected = ["ssh", "user@host", "ls", "-a"];
     equal(args, expected);
 
-    args = ssh({ dest: "user@host", options: ["StrictHostKeyChecking=no"], forcePseudoTerminal: true}).toArgs();
+    args = ssh({
+        dest: "user@host",
+        options: ["StrictHostKeyChecking=no"],
+        forcePseudoTerminal: true,
+    }).toArgs();
     expected = ["ssh", "-o", "StrictHostKeyChecking=no", "-t", "user@host"];
 
     try {
         equal(args, expected);
-    } catch(e) {
+    } catch (e) {
         console.log("Expected: ", expected);
         console.log("Actual: ", args);
         throw e;

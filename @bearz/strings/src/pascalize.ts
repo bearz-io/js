@@ -1,4 +1,4 @@
-import { pascalize as og  } from "@bearz/slices/pascalize";
+import { pascalize as og } from "@bearz/slices/pascalize";
 
 /**
  * Converts the string to pascal case. This is primarily for converting

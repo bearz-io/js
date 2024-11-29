@@ -16,10 +16,12 @@ test("@spawn/ssh/keygen - test rsa creation", skip(noSshKeygen), async () => {
     try {
         equal(result.code, 0);
     } finally {
-        if (await exists("./id_rsa"))
+        if (await exists("./id_rsa")) {
             await remove("./id_rsa");
+        }
 
-        if (await exists("./id_rsa.pub"))
+        if (await exists("./id_rsa.pub")) {
             await remove("./id_rsa.pub");
+        }
     }
 });

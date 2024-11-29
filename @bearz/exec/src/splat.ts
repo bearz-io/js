@@ -177,8 +177,9 @@ export function splat(
     };
 
     const makeAliasArg = (key: string, value?: unknown) => {
-        if (!key.startsWith('-') && !key.startsWith('/'))
-            key = '-' + key;
+        if (!key.startsWith("-") && !key.startsWith("/")) {
+            key = "-" + key;
+        }
 
         if (options?.assign) {
             optionValues.push(`${key}${options.assign}${value}`);

@@ -1,4 +1,11 @@
-import { pathFinder, Command, type CommandArgs, type CommandOptions, ShellCommand, type ShellCommandOptions } from "@bearz/exec";
+import {
+    Command,
+    type CommandArgs,
+    type CommandOptions,
+    pathFinder,
+    ShellCommand,
+    type ShellCommandOptions,
+} from "@bearz/exec";
 import { isAbsolute, resolve } from "@std/path";
 import { makeTempFileSync, writeTextFileSync } from "@bearz/fs";
 
