@@ -268,6 +268,7 @@ export class JobsExcution extends JobsPipelineMiddleware {
                 job,
                 status: "success",
                 writer: ctx.writer,
+                args: ctx.args,
                 state: {
                     id: job.id,
                     name: job.name ?? job.id,

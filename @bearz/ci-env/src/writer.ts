@@ -249,14 +249,14 @@ export class DefaultPipelineWriter extends DefaultAnsiWriter {
                 if (args[0] instanceof Error) {
                     const e = first;
                     if (args.length === 0) {
-                        return super.error(e);
+                        return super.debug(e);
                     }
 
                     const m = args.shift() as string;
-                    return super.error(e, m, ...args);
+                    return super.debug(e, m, ...args);
                 }
 
-                return super.error(first as string, ...args);
+                return super.debug(first as string, ...args);
             }
         }
     }

@@ -40,6 +40,8 @@ export interface TaskContext extends ExecutionContext {
     state: TaskState;
 
     environmentName: "production" | "staging" | "development" | "test" | "local" | string;
+
+    args?: string[];
 }
 
 export interface Task extends Record<string, unknown> {

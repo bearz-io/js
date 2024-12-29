@@ -58,7 +58,6 @@
         "@rex/primitives",
         "@rex/rexfile",
         "@rex/tasks",
-        "@bearz/node-ssh2",
         "@bearz/testing",
         "@spawn/bash",
         "@spawn/cmd",

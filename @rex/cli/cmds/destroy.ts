@@ -1,20 +1,20 @@
 import { Command } from "@cliffy/command";
+import { keypress, type KeyPressEvent } from "@cliffy/keypress";
 import { Runner, type RunnerOptions } from "@rex/pipelines/runner";
 import { VERSION } from "../version.ts";
-import { getJobs } from "../discovery.ts";
-import { keypress, type KeyPressEvent } from "@cliffy/keypress";
+import { getDeployments } from "../discovery.ts";
 import { logLevels, parseLogLevel } from "./types.ts";
 
-export const jobCommand = new Command()
-    .name("rex-job")
+export const destroyCommand = new Command()
+    .name("rex-destroy")
     .description(
-        "Run one or more jobs from a rexfile. Jobs are a group of tasks executed in order.",
+        "Destroys a single deployment from a rexfile.",
     )
-    .version(VERSION)
     .type("loglevel", logLevels)
-    .arguments("[target:string[]:jobs] [...args]")
-    .complete("jobs", async () => {
-        return await getJobs();
+    .version(VERSION)
+    .arguments("[target:string[]:rollback] [...args]")
+    .complete("deployments", async () => {
+        return await getDeployments();
     })
     .option("-f, --file <file:file>", "The rexfile to run")
     .option("-v --log-level <log-level:loglevel>", "Enable debug mode", { default: "info" })
@@ -29,27 +29,27 @@ export const jobCommand = new Command()
         collect: true,
     })
     .stopEarly()
-    .action(async ({ file, logLevel, timeout, env, envFile, context }, targets, ...args) => {
+    .action(async ({ file, logLevel, timeout, context, env, envFile }, targets, ...args) => {
         const runner = new Runner();
         const controller = new AbortController();
-        keypress().addEventListener("keydown", (event: KeyPressEvent) => {
+        const kp = keypress();
+        kp.addEventListener("keydown", (event: KeyPressEvent) => {
             if (event.ctrlKey && event.key === "c") {
                 controller.abort();
-                keypress().dispose();
+                kp.dispose();
             }
         });
-
         const options: RunnerOptions = {
             file: file,
             targets: targets ?? ["default"],
-            command: "job",
+            command: "destroy",
             timeout: timeout,
             logLevel: parseLogLevel(logLevel),
+            context: context,
             env: env,
             envFile: envFile,
-            context: context,
             signal: controller.signal,
-            args: args,
+            args,
         };
         await runner.run(options);
     });

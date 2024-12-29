@@ -56,7 +56,6 @@
  * ## License
  *
  * [MIT License](./LICENSE.md)
- * @module
  */
 import { type Key, type KeyInfo, Registry, Rights, Types } from "./registry.ts";
 

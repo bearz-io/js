@@ -10,6 +10,7 @@ export interface JobPipelineContext extends JobContext {
     status: PipelineStatus;
     registry: TaskRegistry;
     environmentName: "development" | "staging" | "production" | "test" | "local" | string;
+    args?: string[];
 }
 
 export abstract class JobPipelineMiddleware {
@@ -56,6 +57,7 @@ export interface JobsPipelineContext extends ExecutionContext {
     bus: LoggingMessageBus;
     targets: string[];
     environmentName: "development" | "staging" | "production" | "test" | "local" | string;
+    args?: string[];
 }
 
 export interface JobsSummary extends Record<string, unknown> {

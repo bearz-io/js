@@ -40,11 +40,12 @@ export interface RunnerOptions {
     command?: string;
     targets?: string[];
     timeout?: number;
-    logLevel?: string;
+    logLevel?: LogLevel;
     context?: string;
     env?: string[];
     envFile?: string[];
     signal?: AbortSignal;
+    args?: string[];
 }
 
 export class Runner {
@@ -54,31 +55,9 @@ export class Runner {
     async run(options: RunnerOptions) {
         let { file, cwd, command, targets, timeout, logLevel } = options;
 
-        if (!logLevel) {
-            writer.setLogLevel(LogLevel.Info);
-        } else {
-            switch (logLevel) {
-                case "debug":
-                    writer.setLogLevel(LogLevel.Debug);
-                    break;
-                case "info":
-                    writer.setLogLevel(LogLevel.Info);
-                    break;
-                case "warn":
-                    writer.setLogLevel(LogLevel.Warn);
-                    break;
-                case "error":
-                    writer.setLogLevel(LogLevel.Error);
-                    break;
-                case "trace":
-                    writer.setLogLevel(LogLevel.Trace);
-                    break;
-                default:
-                    writer.setLogLevel(LogLevel.Info);
-                    break;
-            }
-        }
+        writer.setLogLevel(logLevel ?? LogLevel.Info);
 
+        writer.debug(`log level: ${writer.level}`);
         writer.trace(`log level: ${writer.level}`);
         writer.trace(`file: ${file}`);
         writer.trace(`command: ${command}`);
@@ -159,6 +138,7 @@ export class Runner {
                 bus: bus,
                 signal: signal,
                 environmentName: options.context ?? "local",
+                args: options.args ?? [],
             };
 
             ctx.env.set("REX_ENVIRONMENT", options.context ?? "local");
@@ -262,6 +242,7 @@ export class Runner {
                             status: "success",
                             bus: bus,
                             environmentName: options.context ?? "local",
+                            args: options.args ?? [],
                         }) as TasksPipelineContext;
 
                         const results = await tasksPipeline.run(
@@ -291,6 +272,7 @@ export class Runner {
                             bus: bus,
                             jobs: res.jobs,
                             environmentName: options.context ?? "local",
+                            args: options.args ?? [],
                         }) as JobsPipelineContext;
 
                         const results = await jobsPipeline.run(jobsCtx);
@@ -307,19 +289,34 @@ export class Runner {
                     }
                     break;
                 case "list":
-                    writer.writeLine("TASKS:");
+                    if (res.tasks.size) {
+                        writer.writeLine("TASKS:");
+                    }
+
                     for (const [key, _] of res.tasks.entries()) {
                         writer.writeLine(`  ${key}  ${_.description ?? ""}`);
                     }
-                    writer.writeLine("JOBS:");
+
+                    if (res.jobs.size) {
+                        writer.writeLine("");
+                        writer.writeLine("JOBS:");
+                    }
+
                     for (const [key, _] of res.jobs.entries()) {
                         writer.writeLine(`  ${key}  ${_.description ?? ""}`);
                     }
-                    writer.writeLine("DEPLOYMENTS:");
+
+                    if (res.deployments.size) {
+                        writer.writeLine("");
+                        writer.writeLine("DEPLOYMENTS:");
+                    }
+
                     for (const [key, _] of res.deployments.entries()) {
                         writer.writeLine(`  ${key}  ${_.description ?? ""}`);
                     }
                     break;
+                case "rollback":
+                case "destroy":
                 case "deploy":
                     {
                         if (targets.length > 1) {
@@ -343,6 +340,7 @@ export class Runner {
                             tasksRegistry: REX_TASKS_REGISTRY,
                             bus,
                             writer,
+                            directive: command as "deploy" | "rollback" | "destroy",
                             status: "success",
                             variables: new ObjectMap(),
                             services: ctx.services,
@@ -355,6 +353,7 @@ export class Runner {
                             signal: ctx.signal,
                             events: {},
                             result: new DeploymentResult(deployment.id),
+                            args: options.args ?? [],
                             state: {
                                 status: "success",
                                 error: undefined,

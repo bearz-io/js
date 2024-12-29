@@ -7,31 +7,48 @@ import type {
 } from "@rex/deployments";
 
 export class DeploymentStarted extends BaseMessage {
-    constructor(public readonly state: DeploymentState) {
+    constructor(
+        public readonly state: DeploymentState,
+        public readonly directive: "deploy" | "rollback" | "destroy",
+    ) {
         super("deployment:started");
     }
 }
 
 export class DeploymentCompleted extends BaseMessage {
-    constructor(public readonly state: DeploymentState, public readonly result: DeploymentResult) {
+    constructor(
+        public readonly state: DeploymentState,
+        public readonly result: DeploymentResult,
+        public readonly directive: "deploy" | "rollback" | "destroy",
+    ) {
         super("deployment:completed");
     }
 }
 
 export class DeploymentSkipped extends BaseMessage {
-    constructor(public readonly state: DeploymentState) {
+    constructor(
+        public readonly state: DeploymentState,
+        public readonly directive: "deploy" | "rollback" | "destroy",
+    ) {
         super("deployment:skipped");
     }
 }
 
 export class DeploymentFailed extends BaseMessage {
-    constructor(public readonly state: DeploymentState, public readonly error: Error) {
+    constructor(
+        public readonly state: DeploymentState,
+        public readonly error: Error,
+        public readonly directive: "deploy" | "rollback" | "destroy",
+    ) {
         super("deployment:failed");
     }
 }
 
 export class DeploymentCancelled extends BaseMessage {
-    constructor(public readonly state: DeploymentState) {
+    constructor(
+        public readonly state: DeploymentState,
+        public readonly directive: "deploy" | "rollback" | "destroy",
+    ) {
         super("deployment:cancelled");
     }
 }

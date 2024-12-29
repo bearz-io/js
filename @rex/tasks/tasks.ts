@@ -17,6 +17,20 @@ export function toError(e: unknown): Error {
     return e instanceof Error ? e : new Error(`Unkown error: ${e}`);
 }
 
+export interface DelegateTaskDef extends Record<string, unknown> {
+    id: string;
+    run: RunDelegate;
+    needs?: string[];
+    cwd?: string | ((ctx: TaskContext) => string | Promise<string>);
+    description?: string;
+    env?: StringMap | ((ctx: TaskContext) => StringMap | Promise<StringMap>);
+    force?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
+    if?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
+    timeout?: number | ((ctx: TaskContext) => number | Promise<number>);
+    with?: Inputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
+    name?: string;
+}
+
 export class TaskBuilder {
     #task: Task;
 
@@ -24,6 +38,11 @@ export class TaskBuilder {
         this.#task = task;
         map ??= REX_TASKS;
         map.set(task.id, task);
+    }
+
+    set(def: Omit<DelegateTaskDef, "id" | "run">): this {
+        this.#task = { ...this.#task, ...def };
+        return this;
     }
 
     cwd(cwd: string | ((ctx: TaskContext) => string | Promise<string>)): this {
@@ -123,7 +142,24 @@ export function usesTask(id: string, uses: string, tasks?: TaskMap): TaskBuilder
 
 export function task(id: string, needs: string[], rn: RunDelegate, tasks?: TaskMap): TaskBuilder;
 export function task(id: string, fn: RunDelegate, tasks?: TaskMap): TaskBuilder;
+export function task(def: DelegateTaskDef, tasks?: TaskMap): TaskBuilder;
 export function task(): TaskBuilder {
+    if (arguments.length < 1) {
+        throw new Error("Invalid arguments");
+    }
+
+    if (typeof arguments[0] === "object") {
+        const def = arguments[0] as DelegateTaskDef;
+        def.uses = "delegate-task";
+        if (!def.name) {
+            def.name = def.id;
+        }
+        if (!def.needs) {
+            def.needs = [];
+        }
+
+        return new TaskBuilder(def as DelegateTask, arguments[1]);
+    }
     const id = arguments[0];
     let fn = arguments[1];
     let tasks: TaskMap | undefined = undefined;
@@ -189,3 +225,18 @@ taskRegistry.set("delegate-task", {
         }
     },
 });
+
+export type DefineTask = (id: string, rn: RunDelegate) => TaskBuilder;
+
+/**
+ * A function that adds a task to a deployment.
+ *
+ * @param task The task to add.
+ * @param add A function that adds a task to the deployment.
+ * @param get A function that gets a task from the deployment.
+ */
+export type AddTaskDelegate = (
+    task: DefineTask,
+    add: (id: string) => void,
+    get: (id: string) => Task | undefined,
+) => void;

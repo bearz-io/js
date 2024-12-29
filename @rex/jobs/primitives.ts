@@ -12,6 +12,8 @@ export interface JobContext extends ExecutionContext {
     state: JobState;
 
     environmentName: "development" | "staging" | "production" | "test" | "local" | string;
+
+    args?: string[];
 }
 
 export interface JobState extends Record<string, unknown> {

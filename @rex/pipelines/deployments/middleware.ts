@@ -18,6 +18,7 @@ export class ApplyDeploymentContext extends DeploymentPipelineMiddleware {
     override async run(ctx: DeploymentPipelineContext, next: Next): Promise<void> {
         const meta = ctx.state;
         const task = ctx.deployment;
+        const directive = ctx.directive;
 
         try {
             meta.env.merge(ctx.env);
@@ -66,11 +67,11 @@ export class ApplyDeploymentContext extends DeploymentPipelineMiddleware {
             if (!(e instanceof Error)) {
                 const e2 = new Error(`Unknown error: ${e}`);
                 ctx.result.fail(e2);
-                ctx.bus.send(new DeploymentFailed(meta, e2));
+                ctx.bus.send(new DeploymentFailed(meta, e2, directive));
                 return;
             }
             ctx.result.fail(e);
-            ctx.bus.send(new DeploymentFailed(meta, e));
+            ctx.bus.send(new DeploymentFailed(meta, e, directive));
 
             return;
         }
@@ -80,25 +81,26 @@ export class ApplyDeploymentContext extends DeploymentPipelineMiddleware {
 export class RunDeployment extends DeploymentPipelineMiddleware {
     override async run(ctx: DeploymentPipelineContext, next: Next): Promise<void> {
         const { state } = ctx;
+        const directive = ctx.directive;
 
         if (ctx.signal.aborted) {
             ctx.result.cancel();
             ctx.result.stop();
-            ctx.bus.send(new DeploymentCancelled(ctx.state));
+            ctx.bus.send(new DeploymentCancelled(ctx.state, directive));
             return;
         }
 
         if (ctx.status === "failure" || ctx.status === "cancelled" && !state.force) {
             ctx.result.skip();
             ctx.result.stop();
-            ctx.bus.send(new DeploymentSkipped(ctx.state));
+            ctx.bus.send(new DeploymentSkipped(ctx.state, directive));
             return;
         }
 
         if (state.if === false) {
             ctx.result.skip();
             ctx.result.stop();
-            ctx.bus.send(new DeploymentSkipped(ctx.state));
+            ctx.bus.send(new DeploymentSkipped(ctx.state, directive));
             return;
         }
 
@@ -118,7 +120,7 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
         const listener = () => {
             ctx.result.cancel();
             ctx.result.stop();
-            ctx.bus.send(new DeploymentCancelled(ctx.state));
+            ctx.bus.send(new DeploymentCancelled(ctx.state, directive));
         };
 
         signal.addEventListener("abort", listener, { once: true });
@@ -163,6 +165,7 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
                         signal: ctx.signal,
                         writer: ctx.writer,
                         error: undefined,
+                        args: ctx.args,
                     };
 
                     const pipeline = ctx.services.get(
@@ -229,30 +232,30 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
             if (ctx.signal.aborted) {
                 ctx.result.cancel();
                 ctx.result.stop();
-                ctx.bus.send(new DeploymentCancelled(ctx.state));
+                ctx.bus.send(new DeploymentCancelled(ctx.state, directive));
                 return;
             }
 
-            ctx.bus.send(new DeploymentStarted(ctx.state));
+            ctx.bus.send(new DeploymentStarted(ctx.state, directive));
             const result = await descriptor.run(ctx);
             ctx.result.stop();
             if (result.isError) {
                 ctx.result.stop();
                 ctx.result.fail(result.unwrapError());
-                ctx.bus.send(new DeploymentFailed(ctx.state, result.unwrapError()));
+                ctx.bus.send(new DeploymentFailed(ctx.state, result.unwrapError(), directive));
                 return;
             }
 
             if (ctx.signal.aborted) {
                 ctx.result.cancel();
                 ctx.result.stop();
-                ctx.bus.send(new DeploymentCancelled(ctx.state));
+                ctx.bus.send(new DeploymentCancelled(ctx.state, directive));
                 return;
             }
 
             ctx.result.success();
             ctx.result.outputs = result.unwrap();
-            ctx.bus.send(new DeploymentCompleted(ctx.state, ctx.result));
+            ctx.bus.send(new DeploymentCompleted(ctx.state, ctx.result, directive));
         } finally {
             clearTimeout(handle);
             signal.removeEventListener("abort", listener);

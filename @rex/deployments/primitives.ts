@@ -28,7 +28,9 @@ export interface DeploymentState extends TaskState {
 export interface DeploymentContext extends ExecutionContext {
     state: DeploymentState;
     events: Record<string | symbol, DeploymentEventHandler>;
+    directive: "deploy" | "rollback" | "destroy";
     environmentName: "development" | "staging" | "production" | "test" | "local" | string;
+    args?: string[];
 }
 
 export interface Deployment extends Record<string, unknown> {
@@ -57,6 +59,10 @@ export interface Deployment extends Record<string, unknown> {
     hooks: {
         "before:deploy": Task[];
         "after:deploy": Task[];
+        "before:rollback": Task[];
+        "after:rollback": Task[];
+        "before:destroy": Task[];
+        "after:destroy": Task[];
         [key: string]: Task[];
     };
 }
@@ -122,6 +128,8 @@ export interface DelgateDeploymentState extends DeploymentState {
 
 export interface DelegateDeployment extends Deployment {
     run: Deploy;
+    rollback?: Deploy;
+    destroy?: Deploy;
 }
 
 export interface DeploymentEventResult extends Record<string | symbol, unknown> {

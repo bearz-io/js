@@ -1,7 +1,15 @@
 import { StringMap } from "@rex/primitives/collections";
 import { REX_JOBS } from "./globals.ts";
 import type { Job, JobContext, JobMap } from "./primitives.ts";
-import { REX_TASKS, type Task, TaskMap } from "@rex/tasks";
+import {
+    type AddTaskDelegate,
+    REX_TASKS,
+    type RunDelegate,
+    type Task,
+    task as defineTask,
+    type TaskBuilder,
+    TaskMap,
+} from "@rex/tasks";
 
 export class JobBuilder {
     #job: Job;
@@ -71,11 +79,7 @@ export class JobBuilder {
      * @returns
      */
     tasks(
-        fn: (
-            map: TaskMap,
-            add: (id: string) => void,
-            get: (id: string) => Task | undefined,
-        ) => void,
+        fn: AddTaskDelegate,
     ): this {
         const map = new TaskMap();
         const get = (id: string) => REX_TASKS.get(id);
@@ -86,7 +90,21 @@ export class JobBuilder {
             }
             map.set(id, task);
         };
-        fn(map, add, get);
+
+        function task(id: string, rn: RunDelegate): TaskBuilder;
+        function task(id: string, needs: string[], rn: RunDelegate): TaskBuilder;
+        function task(): TaskBuilder {
+            switch (arguments.length) {
+                case 2:
+                    return defineTask(arguments[0], arguments[1], map);
+                case 3:
+                    return defineTask(arguments[0], arguments[1], arguments[2], map);
+                default:
+                    throw new Error("Invalid number of arguments.");
+            }
+        }
+
+        fn(task, add, get);
         this.#job.tasks.push(...map.values());
         return this;
     }

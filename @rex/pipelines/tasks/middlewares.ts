@@ -289,6 +289,7 @@ export class SequentialTaskExecution extends TasksPipelineMiddleware {
                 status: "success",
                 writer: ctx.writer,
                 environmentName: ctx.environmentName,
+                args: ctx.args,
                 state: {
                     id: task.id,
                     uses: task.uses,

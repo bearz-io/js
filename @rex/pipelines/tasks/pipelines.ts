@@ -63,6 +63,7 @@ export interface TasksPipelineContext extends ExecutionContext {
     bus: LoggingMessageBus;
     targets: string[];
     environmentName: "development" | "staging" | "production" | "test" | "local" | string;
+    args?: string[];
 }
 
 export interface TasksSummary extends Record<string, unknown> {

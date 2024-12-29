@@ -1,3 +1,14 @@
+/**
+ * ## Overview
+ *
+ * Extends twig with additional functions and filters. Exports twig
+ * as `{ Twig }` rather than a default export.
+ *
+ * ## LICENSE
+ *
+ * [MIT License](./LICENSE.md) and additional MIT License for the
+ * inflection code, see [License](./LICENSE.md) for details.
+ */
 // @ts-types="npm:@types/twig@^1.12.16"
 import Twig from "twig";
 import { underscore } from "@bearz/strings";

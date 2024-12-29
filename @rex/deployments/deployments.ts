@@ -1,6 +1,15 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives/collections";
 import { REX_DEPLOYMENT_REGISTRY, REX_DEPLOYMENTS } from "./globals.ts";
-import { output, REX_TASKS, type Task, TaskMap, toError } from "@rex/tasks";
+import {
+    type AddTaskDelegate,
+    output,
+    REX_TASKS,
+    type RunDelegate,
+    task as defineTask,
+    type TaskBuilder,
+    TaskMap,
+    toError,
+} from "@rex/tasks";
 import type {
     DelegateDeployment,
     Deploy,
@@ -10,10 +19,32 @@ import type {
 } from "./primitives.ts";
 import { fail, ok, type Result } from "@bearz/functional";
 
-export class DeploymentBuilder {
-    #deployment: Deployment;
+export interface DelegateDeploymentDef {
+    id: string;
+    description?: string;
+    run: Deploy;
+    rollback?: Deploy;
+    destroy?: Deploy;
+    before?: AddTaskDelegate;
+    after?: AddTaskDelegate;
+    beforeRollback?: AddTaskDelegate;
+    afterRollback?: AddTaskDelegate;
+    beforeDestroy?: AddTaskDelegate;
+    afterDestroy?: AddTaskDelegate;
+    needs?: string[];
+    cwd?: string | ((ctx: DeploymentContext) => string | Promise<string>);
+    env?: StringMap | ((ctx: DeploymentContext) => StringMap | Promise<StringMap>);
+    force?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
+    if?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
+    timeout?: number | ((ctx: DeploymentContext) => number | Promise<number>);
+    with?: Inputs | ((ctx: DeploymentContext) => Inputs | Promise<Inputs>);
+    name?: string;
+}
 
-    constructor(deployment: Deployment, map?: DeploymentMap) {
+export class DeploymentBuilder {
+    #deployment: DelegateDeployment;
+
+    constructor(deployment: DelegateDeployment, map?: DeploymentMap) {
         this.#deployment = deployment;
         map ??= REX_DEPLOYMENTS;
         map.set(deployment.id, deployment);
@@ -30,35 +61,58 @@ export class DeploymentBuilder {
     }
 
     before(
-        fn: (
-            map: TaskMap,
-            add: (id: string) => void,
-            get: (id: string) => Task | undefined,
-        ) => void,
+        fn: AddTaskDelegate,
     ): this {
         return this.tasks("before:deploy", fn);
     }
 
     after(
-        fn: (
-            map: TaskMap,
-            add: (id: string) => void,
-            get: (id: string) => Task | undefined,
-        ) => void,
+        fn: AddTaskDelegate,
     ): this {
         return this.tasks("after:deploy", fn);
     }
 
+    beforeRollback(
+        fn: AddTaskDelegate,
+    ): this {
+        return this.tasks("before:rollback", fn);
+    }
+
+    afterRollback(
+        fn: AddTaskDelegate,
+    ): this {
+        return this.tasks("after:rollback", fn);
+    }
+
+    beforeDestroy(
+        fn: AddTaskDelegate,
+    ): this {
+        return this.tasks("before:destroy", fn);
+    }
+
+    afterDestroy(
+        fn: AddTaskDelegate,
+    ): this {
+        return this.tasks("after:destroy", fn);
+    }
+
+    rollback(fn: Deploy): this {
+        this.#deployment.rollback = fn;
+        return this;
+    }
+
+    destroy(fn: Deploy): this {
+        this.#deployment.destroy = fn;
+        return this;
+    }
+
     tasks(
         event: string,
-        fn: (
-            map: TaskMap,
-            add: (id: string) => void,
-            get: (id: string) => Task | undefined,
-        ) => void,
+        fn: AddTaskDelegate,
     ): this {
         const map = new TaskMap();
         const get = (id: string) => REX_TASKS.get(id);
+
         const add = (id: string) => {
             const task = get(id);
             if (!task) {
@@ -67,7 +121,20 @@ export class DeploymentBuilder {
             map.set(id, task);
         };
 
-        fn(map, add, get);
+        function task(id: string, rn: RunDelegate): TaskBuilder;
+        function task(id: string, needs: string[], rn: RunDelegate): TaskBuilder;
+        function task(): TaskBuilder {
+            switch (arguments.length) {
+                case 2:
+                    return defineTask(arguments[0], arguments[1], map);
+                case 3:
+                    return defineTask(arguments[0], arguments[1], arguments[2], map);
+                default:
+                    throw new Error("Invalid number of arguments.");
+            }
+        }
+
+        fn(task, add, get);
 
         this.#deployment.hooks[event] = map.values().toArray();
 
@@ -153,7 +220,88 @@ export function deploy(
     map?: DeploymentMap,
 ): DeploymentBuilder;
 export function deploy(id: string, fn: Deploy, map?: DeploymentMap): DeploymentBuilder;
+export function deploy(def: DelegateDeploymentDef): DeploymentBuilder;
 export function deploy(): DeploymentBuilder {
+    if (arguments.length === 1 && typeof arguments[0] === "object") {
+        const def = arguments[0] as DelegateDeploymentDef;
+        const task: DelegateDeployment = {
+            id: def.id,
+            uses: "delegate-deployment",
+            name: def.name ?? def.id,
+            needs: def.needs ?? [],
+            run: def.run,
+            rollback: def.rollback,
+            destroy: def.destroy,
+            hooks: {
+                "before:deploy": [],
+                "after:deploy": [],
+                "before:rollback": [],
+                "after:rollback": [],
+                "before:destroy": [],
+                "after:destroy": [],
+            },
+        };
+
+        const builder = new DeploymentBuilder(task);
+        if (def.before) {
+            builder.before(def.before);
+        }
+
+        if (def.after) {
+            builder.after(def.after);
+        }
+
+        if (def.beforeRollback) {
+            builder.beforeRollback(def.beforeRollback);
+        }
+
+        if (def.afterRollback) {
+            builder.afterRollback(def.afterRollback);
+        }
+
+        if (def.beforeDestroy) {
+            builder.beforeDestroy(def.beforeDestroy);
+        }
+
+        if (def.afterDestroy) {
+            builder.afterDestroy(def.afterDestroy);
+        }
+
+        if (def.cwd) {
+            builder.cwd(def.cwd);
+        }
+
+        if (def.env) {
+            builder.env(def.env);
+        }
+
+        if (def.force) {
+            builder.force(def.force);
+        }
+
+        if (def.if) {
+            builder.if(def.if);
+        }
+
+        if (def.timeout) {
+            builder.timeout(def.timeout);
+        }
+
+        if (def.with) {
+            builder.with(def.with);
+        }
+
+        if (def.name) {
+            builder.name(def.name);
+        }
+
+        if (def.needs) {
+            builder.needs(...def.needs);
+        }
+
+        return builder;
+    }
+
     const id = arguments[0];
     let fn = arguments[1];
     let tasks: DeploymentMap | undefined = undefined;
@@ -179,6 +327,10 @@ export function deploy(): DeploymentBuilder {
         hooks: {
             "before:deploy": [],
             "after:deploy": [],
+            "before:rollback": [],
+            "after:rollback": [],
+            "before:destroy": [],
+            "after:destroy": [],
         },
     };
 
@@ -191,46 +343,141 @@ taskRegistry.set("delegate-deployment", {
     description: "A deployment task using inline code",
     inputs: [],
     outputs: [],
-    events: ["before:deploy", "after:deploy"],
+    events: [
+        "before:deploy",
+        "after:deploy",
+        "before:rollback",
+        "after:rollback",
+        "before:destroy",
+        "after:destroy",
+    ],
     run: async (ctx: DeploymentContext): Promise<Result<Outputs>> => {
         const task = ctx.deployment as DelegateDeployment;
+        const directive = ctx.directive;
+
+        if (task.rollback === undefined) {
+            task.rollback = () => {
+                console.warn(`Task ${task.id} has no rollback function`);
+            };
+        }
+
+        if (task.destroy === undefined) {
+            task.destroy = () => {
+                console.warn(`Task ${task.id} has no destroy function`);
+            };
+        }
+
         if (task.run === undefined) {
             return fail(new Error(`Task ${task.id} has no run function`));
         }
 
-        try {
-            if (ctx.events["before:deploy"]) {
-                const handler = ctx.events["before:deploy"];
-                const r = await handler(ctx);
-                if (r.error || r.status === "failure" || r.status === "cancelled") {
-                    return fail(r.error ?? new Error("Deployment failed from before:deploy tasks"));
+        switch (directive) {
+            case "destroy":
+                try {
+                    if (ctx.events["before:destroy"]) {
+                        const handler = ctx.events["before:destroy"];
+                        const r = await handler(ctx);
+                        if (r.error || r.status === "failure" || r.status === "cancelled") {
+                            return fail(
+                                r.error ?? new Error("Destroy failed from before:destroy tasks"),
+                            );
+                        }
+                    }
+
+                    let res = task.destroy(ctx);
+                    if (res instanceof Promise) {
+                        res = await res;
+                    }
+
+                    if (ctx.events["after:destroy"]) {
+                        const handler = ctx.events["after:destroy"];
+                        const r = await handler(ctx);
+                        if (r.error || r.status === "failure" || r.status === "cancelled") {
+                            return fail(
+                                r.error ?? new Error("Destroy failed from after:destroy tasks"),
+                            );
+                        }
+                    }
+
+                    if (res instanceof Outputs) {
+                        return ok(res);
+                    }
+
+                    return ok(output({}));
+                } catch (e) {
+                    return fail(toError(e));
                 }
-            }
 
-            const res = task.run(ctx);
-            if (ctx.events["after:deploy"]) {
-                const handler = ctx.events["after:deploy"];
-                const r = await handler(ctx);
-                if (r.error || r.status === "failure" || r.status === "cancelled") {
-                    return fail(r.error ?? new Error("Deployment failed from after:deploy tasks"));
+            case "rollback":
+                try {
+                    if (ctx.events["before:rollback"]) {
+                        const handler = ctx.events["before:rollback"];
+                        const r = await handler(ctx);
+                        if (r.error || r.status === "failure" || r.status === "cancelled") {
+                            return fail(
+                                r.error ?? new Error("Rollback failed from before:rollback tasks"),
+                            );
+                        }
+                    }
+
+                    let res = task.rollback(ctx);
+                    if (res instanceof Promise) {
+                        res = await res;
+                    }
+
+                    if (ctx.events["after:rollback"]) {
+                        const handler = ctx.events["after:rollback"];
+                        const r = await handler(ctx);
+                        if (r.error || r.status === "failure" || r.status === "cancelled") {
+                            return fail(
+                                r.error ?? new Error("Deployment failed from after:rollback tasks"),
+                            );
+                        }
+                    }
+
+                    if (res instanceof Outputs) {
+                        return ok(res);
+                    }
+
+                    return ok(output({}));
+                } catch (e) {
+                    return fail(toError(e));
                 }
-            }
-            if (res instanceof Promise) {
-                const out = await res;
-                if (out instanceof Outputs) {
-                    return ok(out);
+            case "deploy":
+            default:
+                try {
+                    if (ctx.events["before:deploy"]) {
+                        const handler = ctx.events["before:deploy"];
+                        const r = await handler(ctx);
+                        if (r.error || r.status === "failure" || r.status === "cancelled") {
+                            return fail(
+                                r.error ?? new Error("Deployment failed from before:deploy tasks"),
+                            );
+                        }
+                    }
+
+                    let res = task.run(ctx);
+                    if (res instanceof Promise) {
+                        res = await res;
+                    }
+                    if (ctx.events["after:deploy"]) {
+                        const handler = ctx.events["after:deploy"];
+                        const r = await handler(ctx);
+                        if (r.error || r.status === "failure" || r.status === "cancelled") {
+                            return fail(
+                                r.error ?? new Error("Deployment failed from after:deploy tasks"),
+                            );
+                        }
+                    }
+
+                    if (res instanceof Outputs) {
+                        return ok(res);
+                    }
+
+                    return ok(output({}));
+                } catch (e) {
+                    return fail(toError(e));
                 }
-
-                return ok(output({}));
-            }
-
-            if (res instanceof Outputs) {
-                return ok(res);
-            }
-
-            return ok(output({}));
-        } catch (e) {
-            return fail(toError(e));
         }
     },
 });
