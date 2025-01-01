@@ -1,0 +1,10 @@
+
+{
+    "name": "@rex/vaults",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts",
+        "./types": "./types.ts",
+        "./registry": "./registry.ts"
+    }
+}

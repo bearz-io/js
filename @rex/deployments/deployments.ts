@@ -134,7 +134,7 @@ export class DeploymentBuilder {
             }
         }
 
-        fn(task, add, get);
+        fn(task, add, get, map);
 
         this.#deployment.hooks[event] = map.values().toArray();
 

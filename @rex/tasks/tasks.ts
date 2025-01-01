@@ -239,4 +239,5 @@ export type AddTaskDelegate = (
     task: DefineTask,
     add: (id: string) => void,
     get: (id: string) => Task | undefined,
+    map: TaskMap,
 ) => void;
