@@ -1,7 +1,14 @@
 import type { SecretDef, SecretsVaultConfigLoader, VaultDef } from "./types.ts";
-import { REX_TASKS_REGISTRY, type TaskContext, type Task, TaskBuilder, type TaskMap } from "@rex/tasks";
-import { type Result, ok, fail } from "@bearz/functional";
-import { Outputs } from "@rex/primitives";
+import {
+    REX_TASKS_REGISTRY,
+    type Task,
+    TaskBuilder,
+    type TaskContext,
+    type TaskDef,
+    type TaskMap,
+} from "@rex/tasks";
+import { fail, ok, type Result } from "@bearz/functional";
+import { type Inputs, Outputs } from "@rex/primitives";
 import { getRegistry } from "./registry.ts";
 import { getVaults } from "./registry.ts";
 import { DefaultSecretGenerator } from "@bearz/secrets/generator";
@@ -11,11 +18,14 @@ export interface LoadSecretsInputs extends Record<string, unknown> {
 }
 
 export interface LoadSecretsTask extends Task {
-    inputs: LoadSecretsInputs;
+    inputs?: LoadSecretsInputs;
+}
+
+export interface LoadSecretsTaskDef extends TaskDef {
+    with: LoadSecretsInputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
 }
 
 export class LoadSecretsTaskBuilder extends TaskBuilder {
-
     constructor(task: LoadSecretsTask, map?: TaskMap) {
         super(task, map);
 
@@ -25,25 +35,48 @@ export class LoadSecretsTaskBuilder extends TaskBuilder {
     }
 }
 
-export function secrets(task: LoadSecretsTask, map?: TaskMap): LoadSecretsTaskBuilder;
-export function secrets(id: string, inputs: LoadSecretsInputs, map?: TaskMap): LoadSecretsTaskBuilder 
-export function secrets(id: string, needs: string[], inputs: LoadSecretsInputs, map?: TaskMap): LoadSecretsTaskBuilder 
+export function secrets(def: LoadSecretsTaskDef, map?: TaskMap): LoadSecretsTaskBuilder;
+export function secrets(
+    id: string,
+    inputs: LoadSecretsInputs,
+    map?: TaskMap,
+): LoadSecretsTaskBuilder;
+export function secrets(
+    id: string,
+    needs: string[],
+    inputs: LoadSecretsInputs,
+    map?: TaskMap,
+): LoadSecretsTaskBuilder;
 export function secrets(): LoadSecretsTaskBuilder {
     if (arguments.length < 1) {
         throw new Error("Invalid arguments");
     }
-    
+
     if (typeof arguments[0] === "object") {
-        const def = arguments[0] as LoadSecretsTask;
-        def.uses = "@rex/load-secrets";
-        if (!def.name) {
-            def.name = def.id;
-        }
-        if (!def.needs) {
-            def.needs = [];
+        const def = arguments[0] as LoadSecretsTaskDef;
+
+        const task: LoadSecretsTask = {
+            id: def.id,
+            uses: "@rex/load-secrets",
+            needs: def.needs ?? [],
+            name: def.name ?? def.id,
+            cwd: def.cwd,
+            description: def.description,
+            env: def.env,
+            timeout: def.timeout,
+            force: def.force,
+            if: def.if,
+        };
+
+        if (def.with) {
+            if (typeof def.with === "function") {
+                task.with = def.with;
+            } else {
+                task.inputs = def.with;
+            }
         }
 
-        return new LoadSecretsTaskBuilder(def, arguments[1]);
+        return new LoadSecretsTaskBuilder(task, arguments[1]);
     }
     const id = arguments[0] as string;
     const second = arguments[1];
@@ -86,7 +119,7 @@ export function secrets(): LoadSecretsTaskBuilder {
         name: id,
         needs: [],
         inputs: inputs,
-    }); 
+    });
 }
 
 export interface LoadVaultInputs extends Record<string, unknown> {
@@ -97,7 +130,11 @@ export interface LoadVaultInputs extends Record<string, unknown> {
 }
 
 export interface LoadVaultTask extends Task {
-    inputs: LoadVaultInputs;
+    inputs?: LoadVaultInputs;
+}
+
+export interface LoadVaultTaskDef extends TaskDef {
+    with: LoadVaultInputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
 }
 
 export class LoadVaultTaskBuilder extends TaskBuilder {
@@ -110,25 +147,48 @@ export class LoadVaultTaskBuilder extends TaskBuilder {
     }
 }
 
-export function secretVault(task: LoadVaultTask, map?: TaskMap): LoadVaultTaskBuilder;
-export function secretVault(id: string, inputs: LoadVaultInputs, map?: TaskMap): LoadVaultTaskBuilder 
-export function secretVault(id: string, needs: string[], inputs: LoadVaultInputs, map?: TaskMap): LoadVaultTaskBuilder 
+export function secretVault(task: LoadVaultTaskDef, map?: TaskMap): LoadVaultTaskBuilder;
+export function secretVault(
+    id: string,
+    inputs: LoadVaultInputs,
+    map?: TaskMap,
+): LoadVaultTaskBuilder;
+export function secretVault(
+    id: string,
+    needs: string[],
+    inputs: LoadVaultInputs,
+    map?: TaskMap,
+): LoadVaultTaskBuilder;
 export function secretVault(): LoadVaultTaskBuilder {
     if (arguments.length < 1) {
         throw new Error("Invalid arguments");
     }
-    
+
     if (typeof arguments[0] === "object") {
-        const def = arguments[0] as LoadVaultTask;
-        def.uses = "@rex/load-vault";
-        if (!def.name) {
-            def.name = def.id;
-        }
-        if (!def.needs) {
-            def.needs = [];
+        const def = arguments[0] as LoadVaultTaskDef;
+
+        const task: LoadVaultTask = {
+            id: def.id,
+            uses: "@rex/load-vault",
+            needs: def.needs ?? [],
+            name: def.name ?? def.id,
+            cwd: def.cwd,
+            description: def.description,
+            env: def.env,
+            timeout: def.timeout,
+            force: def.force,
+            if: def.if,
+        };
+
+        if (def.with) {
+            if (typeof def.with === "function") {
+                task.with = def.with;
+            } else {
+                task.inputs = def.with;
+            }
         }
 
-        return new LoadVaultTaskBuilder(def, arguments[1]);
+        return new LoadVaultTaskBuilder(task, arguments[1]);
     }
     const id = arguments[0] as string;
     const second = arguments[1];
@@ -171,7 +231,7 @@ export function secretVault(): LoadVaultTaskBuilder {
         name: id,
         needs: [],
         inputs: inputs,
-    }); 
+    });
 }
 
 REX_TASKS_REGISTRY.set("@rex/load-vault", {
@@ -198,7 +258,7 @@ REX_TASKS_REGISTRY.set("@rex/load-vault", {
     }],
     outputs: [],
     run: async (ctx: TaskContext): Promise<Result<Outputs>> => {
-        const inputs = ctx.state.inputs
+        const inputs = ctx.state.inputs;
 
         const name = inputs.get("name") as string ?? "default";
         const uri = inputs.get("uri") as string;
@@ -225,10 +285,10 @@ tasks:
         */
 
         const registry = getRegistry();
-        
+
         // use should be the import e.g @rex/vaults-sops-cli
         // import should be jsr:@rex/vaults-sops-cli/loader
-        let loader : SecretsVaultConfigLoader | undefined = undefined;
+        let loader: SecretsVaultConfigLoader | undefined = undefined;
         if (use) {
             const directive = `jsr:${use}/loader`;
             if (!registry.has(use)) {
@@ -244,7 +304,7 @@ tasks:
             if (scheme.includes("--")) {
                 const parts = scheme.split("--");
                 org = parts[0];
-                moduleName = parts[1]
+                moduleName = parts[1];
             }
 
             use = `@${org}/${moduleName}`;
@@ -261,12 +321,12 @@ tasks:
             throw new Error(`Secrets vault loader ${use} not found`);
         }
 
-        const vaultDef : VaultDef = {
+        const vaultDef: VaultDef = {
             name: name,
             uri: uri,
             use: use,
             with: inputs.get("with") as Record<string, unknown>,
-        }
+        };
 
         const vault = loader.load(vaultDef);
         const vaults = getVaults();
@@ -279,8 +339,6 @@ tasks:
     },
 });
 
-
-
 REX_TASKS_REGISTRY.set("@rex/load-secrets", {
     id: "secret-vault",
     inputs: [{
@@ -291,7 +349,7 @@ REX_TASKS_REGISTRY.set("@rex/load-secrets", {
     }],
     outputs: [],
     run: async (ctx: TaskContext): Promise<Result<Outputs>> => {
-        const inputs = ctx.state.inputs
+        const inputs = ctx.state.inputs;
 
         const secrets = inputs.get("secrets") as SecretDef[] | undefined;
         if (!secrets) {
@@ -302,15 +360,15 @@ REX_TASKS_REGISTRY.set("@rex/load-secrets", {
         for (const secretDef of secrets) {
             const vaultName = secretDef.vault ?? "default";
             const key = secretDef.key ?? secretDef.name;
-            let value : string | undefined = undefined;
+            let value: string | undefined = undefined;
             const vault = vaults.get(vaultName);
             if (!vault) {
-               return fail(new Error(`Vault ${vaultName} not found`));
+                return fail(new Error(`Vault ${vaultName} not found`));
             }
 
             try {
                 value = await vault.getSecretValue(key);
-            } catch(ex) {
+            } catch (ex) {
                 if (ex instanceof Error) {
                     return fail(ex);
                 } else {
@@ -335,7 +393,7 @@ REX_TASKS_REGISTRY.set("@rex/load-secrets", {
                 if (secretDef.digits === undefined || secretDef.digits) {
                     sg.add("0123456789");
                 }
-                
+
                 if (secretDef.special) {
                     sg.add(secretDef.special);
                 }
@@ -347,12 +405,12 @@ REX_TASKS_REGISTRY.set("@rex/load-secrets", {
                 try {
                     value = sg.generate(secretDef.size);
                     await vault.setSecret(key, value);
-                } catch(ex) {
+                } catch (ex) {
                     if (ex instanceof Error) {
                         return fail(ex);
                     } else {
                         return fail(new Error(`Unknown error ${ex}`));
-                    }   
+                    }
                 }
             }
 
@@ -378,8 +436,6 @@ tasks:
             pgpFingerprints: "..."
             azureKvUri: "..."
         */
-
-        
 
         return ok(new Outputs());
     },

@@ -55,6 +55,8 @@ export class ApplyDeploymentContext extends DeploymentPipelineMiddleware {
                 meta.env.merge(e);
             }
 
+            console.log("with", task.with);
+
             if (typeof task.with === "function") {
                 meta.inputs = await task.with(ctx);
             } else if (typeof task.with !== "undefined") {
@@ -130,7 +132,7 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
 
         const descriptor = ctx.deploymentsRegistry.get(ctx.deployment.uses);
         if (!descriptor) {
-            throw new Error(`Task kind '${ctx.deployment.uses}' not found.`);
+            throw new Error(`Deployment kind '${ctx.deployment.uses}' not found.`);
         }
 
         for (const key of Object.keys(ctx.deployment.hooks)) {

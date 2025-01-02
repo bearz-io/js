@@ -1,8 +1,8 @@
-import type { SecretVault, SecretRecord } from "@rex/vaults/types";
+import type { SecretRecord, SecretVault } from "@rex/vaults/types";
 import { cmd } from "@bearz/exec";
 import { underscore } from "@bearz/strings/underscore";
 import { parse, stringify } from "@bearz/dotenv";
-import { readTextFile, writeTextFile, makeTempFile } from "@bearz/fs";
+import { makeTempFile, readTextFile, writeTextFile } from "@bearz/fs";
 import { dirname } from "@std/path";
 
 export interface SopsVaultParams {
@@ -14,7 +14,7 @@ export interface SopsVaultParams {
         recipients?: string;
         keyFile?: string;
         key?: string;
-    }
+    };
     config?: string;
     vaultUri?: string;
     gcpKmsUri?: string;
@@ -43,7 +43,7 @@ export class SopsVault implements SecretVault {
     }
 
     async getSecret(key: string): Promise<SecretRecord | undefined> {
-        key = underscore(key, { screaming: true});
+        key = underscore(key, { screaming: true });
         await this.load();
         const secret = this.#data[key];
         if (secret) {
@@ -63,7 +63,7 @@ export class SopsVault implements SecretVault {
     }
 
     async setSecret(key: string, value: string): Promise<void> {
-        key = underscore(key, { screaming: true});
+        key = underscore(key, { screaming: true });
         await this.load();
         let model = this.#data[key];
         if (!model) {
@@ -78,16 +78,18 @@ export class SopsVault implements SecretVault {
             model.value = value;
         }
 
-        if (this.#params.autoSave)
+        if (this.#params.autoSave) {
             await this.save();
+        }
     }
 
     async deleteSecret(key: string): Promise<void> {
-        key = underscore(key, { screaming: true});
+        key = underscore(key, { screaming: true });
         await this.load();
         delete this.#data[key];
-        if (this.#params.autoSave)
+        if (this.#params.autoSave) {
             await this.save();
+        }
     }
 
     async listSecrets(): Promise<SecretRecord[]> {
@@ -106,35 +108,34 @@ export class SopsVault implements SecretVault {
         }
 
         return this.#slim.then(async () => {
-
-            const vars : Record<string, string> = {};
-            switch(this.#params.driver) {
+            const vars: Record<string, string> = {};
+            switch (this.#params.driver) {
                 case "age":
                     if (this.#params.age) {
                         if (this.#params.age.keyFile) {
                             vars["SOPS_AGE_KEY_FILE"] = this.#params.age.keyFile;
                         } else if (this.#params.age.key) {
-                             vars["SOPS_AGE_KEY"] = this.#params.age.key;
+                            vars["SOPS_AGE_KEY"] = this.#params.age.key;
                         }
                     }
 
-                break;
+                    break;
             }
 
-            const args : string[] = ["decrypt"]
+            const args: string[] = ["decrypt"];
             if (this.#params.config && this.#params.config.length > 0) {
                 args.push("--config", this.#params.config);
             }
 
             args.push(this.#params.path);
-            const dir = dirname(this.#params.path)
+            const dir = dirname(this.#params.path);
 
             const o = await cmd("sops", args, {
                 env: vars,
                 cwd: dir,
             }).output();
             const envContent = o.text();
-            const data = parse(envContent)
+            const data = parse(envContent);
             this.#data = {};
             for (const key in data) {
                 const value = data[key];
@@ -143,7 +144,7 @@ export class SopsVault implements SecretVault {
                     value: value,
                     tags: {},
                     version: "1",
-                }
+                };
             }
         });
     }
@@ -152,7 +153,7 @@ export class SopsVault implements SecretVault {
         return this.#slim.then(async () => {
             const backup = await readTextFile(this.#params.path);
             try {
-                const envData : Record<string, string> = {};
+                const envData: Record<string, string> = {};
                 for (const key in this.#data) {
                     const secret = this.#data[key];
                     if (!secret) {
@@ -165,9 +166,9 @@ export class SopsVault implements SecretVault {
                 const data = stringify(envData);
                 writeTextFile(this.#params.path, data);
 
-                const args : string[] = ["-e"];
-                const vars : Record<string, string> = {};
-                switch(this.#params.driver) {
+                const args: string[] = ["-e"];
+                const vars: Record<string, string> = {};
+                switch (this.#params.driver) {
                     case "age":
                         if (this.#params.age) {
                             if (this.#params.age.recipients) {
@@ -175,18 +176,18 @@ export class SopsVault implements SecretVault {
                             }
 
                             if (this.#params.age.keyFile) {
-                               vars["SOPS_AGE_KEY_FILE"] = this.#params.age.keyFile;
+                                vars["SOPS_AGE_KEY_FILE"] = this.#params.age.keyFile;
                             } else if (this.#params.age.key) {
                                 vars["SOPS_AGE_KEY"] = this.#params.age.key;
                             }
                         }
-                    break;
+                        break;
                     case "aws":
                         if (this.#params.kmsArns) {
                             args.push("--kms", this.#params.kmsArns);
                         }
                         break;
-                    
+
                     case "gcp":
                         if (this.#params.gcpKmsUri) {
                             args.push("--gcp-kms", this.#params.gcpKmsUri);
@@ -206,9 +207,9 @@ export class SopsVault implements SecretVault {
                         break;
                 }
 
-                args.push("-i")
+                args.push("-i");
                 args.push(this.#params.path);
-                const dir = dirname(this.#params.path)
+                const dir = dirname(this.#params.path);
 
                 const o = await cmd("sops", args, {
                     env: vars,
@@ -219,7 +220,10 @@ export class SopsVault implements SecretVault {
                 const tmp = await makeTempFile({ prefix: "sops", suffix: ".env" });
                 writeTextFile(tmp, backup);
                 writeTextFile(this.#params.path, backup);
-                throw new Error(`Failed to save the vault. The previous content has been restored to ${tmp}.`, { cause: e });
+                throw new Error(
+                    `Failed to save the vault. The previous content has been restored to ${tmp}.`,
+                    { cause: e },
+                );
             }
         });
     }

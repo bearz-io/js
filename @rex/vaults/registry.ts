@@ -24,18 +24,21 @@ export function getVaults(): Map<string, SecretVault> {
     return g[REX_VAULTS] as Map<string, SecretVault>;
 }
 
-export async function applyContext(config: SecretsPartialConfig, ctx: ExecutionContext) : Promise<void> {
+export async function applyContext(
+    config: SecretsPartialConfig,
+    ctx: ExecutionContext,
+): Promise<void> {
     const registry = getRegistry();
     const vaults = getVaults();
-    
+
     for (const vaultDef of config.vaults) {
         const url = new URL(vaultDef.uri);
-        for(const loader of registry.values()) {
-           if (loader.canHandle(url)) {
+        for (const loader of registry.values()) {
+            if (loader.canHandle(url)) {
                 const vault = loader.load(vaultDef);
                 vaults.set(vaultDef.name, vault);
                 break;
-           }
+            }
         }
     }
 
@@ -46,7 +49,7 @@ export async function applyContext(config: SecretsPartialConfig, ctx: ExecutionC
         }
 
         const name = secretDef.key ?? secretDef.name;
-        let value : string | undefined = undefined;
+        let value: string | undefined = undefined;
         try {
             value = await vault.getSecretValue(name);
         } catch {
@@ -55,9 +58,11 @@ export async function applyContext(config: SecretsPartialConfig, ctx: ExecutionC
 
         if (value === undefined || value === null) {
             if (!secretDef.gen) {
-                throw new Error(`Secret ${name} not found in vault ${secretDef.vault ?? "default"}`);
+                throw new Error(
+                    `Secret ${name} not found in vault ${secretDef.vault ?? "default"}`,
+                );
             }
-           
+
             const sg = new DefaultSecretGenerator();
             let { digits, upper, lower, special, size } = secretDef;
             size ??= 16;

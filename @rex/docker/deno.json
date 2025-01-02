@@ -1,0 +1,14 @@
+{
+    "name": "@rex/docker",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts",
+        "./command": "./command.ts",
+        "./compose": "./compose/command.ts",
+        "./compose/up": "./compose/up.ts",
+        "./compose/down": "./compose/down.ts",
+        "./schema": "./compose/schema.ts",
+        "./tasks": "./tasks.ts",
+        "./deployments": "./deployments.ts"
+    }
+}

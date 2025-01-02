@@ -89,13 +89,12 @@ export interface SecretVault {
     listSecretNames(): Promise<string[]>;
 }
 
-
 export interface SecretDef extends Record<string | symbol, unknown> {
     name: string;
-    use?: string
+    use?: string;
     key?: string;
     vault?: string;
-    gen?: boolean
+    gen?: boolean;
     special?: string;
     digits?: boolean;
     lower?: boolean;
@@ -104,18 +103,18 @@ export interface SecretDef extends Record<string | symbol, unknown> {
 }
 
 export interface VaultDef extends Record<string | symbol, unknown> {
-    name: string
-    uri: string
-    use: string
-    with?: Record<string, unknown>
+    name: string;
+    uri: string;
+    use: string;
+    with?: Record<string, unknown>;
 }
 
 export interface SecretsPartialConfig extends Record<string | symbol, unknown> {
-    secrets: SecretDef[]
-    vaults: VaultDef[]
+    secrets: SecretDef[];
+    vaults: VaultDef[];
 }
 
 export interface SecretsVaultConfigLoader {
-    canHandle(uri: URL): boolean
-    load(config: VaultDef) : SecretVault
+    canHandle(uri: URL): boolean;
+    load(config: VaultDef): SecretVault;
 }

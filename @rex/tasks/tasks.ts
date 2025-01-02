@@ -1,6 +1,13 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
 import { REX_TASKS, REX_TASKS_REGISTRY } from "./globals.ts";
-import type { DelegateTask, RunDelegate, Task, TaskContext, TaskMap } from "./primitives.ts";
+import type {
+    DelegateTask,
+    RunDelegate,
+    Task,
+    TaskContext,
+    TaskDef,
+    TaskMap,
+} from "./primitives.ts";
 import { fail, ok, type Result } from "@bearz/functional";
 
 export function output(data: Record<string, unknown> | Outputs): Outputs {
@@ -17,18 +24,8 @@ export function toError(e: unknown): Error {
     return e instanceof Error ? e : new Error(`Unkown error: ${e}`);
 }
 
-export interface DelegateTaskDef extends Record<string, unknown> {
-    id: string;
+export interface DelegateTaskDef extends TaskDef {
     run: RunDelegate;
-    needs?: string[];
-    cwd?: string | ((ctx: TaskContext) => string | Promise<string>);
-    description?: string;
-    env?: StringMap | ((ctx: TaskContext) => StringMap | Promise<StringMap>);
-    force?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
-    if?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
-    timeout?: number | ((ctx: TaskContext) => number | Promise<number>);
-    with?: Inputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
-    name?: string;
 }
 
 export class TaskBuilder {

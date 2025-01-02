@@ -4,7 +4,6 @@ import type { SopsVaultParams } from "./vault.ts";
 import { SopsVault } from "./vault.ts";
 import { isAbsolute, resolve } from "@std/path";
 
-
 export class SopsCliLoader implements SecretsVaultConfigLoader {
     canHandle(url: URL): boolean {
         return url.protocol === "sops-cli:";
@@ -17,10 +16,10 @@ export class SopsCliLoader implements SecretsVaultConfigLoader {
             sopsFile = url.host + sopsFile;
         }
 
-        let recipients = url.searchParams.get("age-recipients") ?? ""
-        let sopsKeyFile = url.searchParams.get("age-key-file") ?? ""
-        let configFile = url.searchParams.get("sops-config") ?? ""
-        const driver = url.searchParams.get("driver") ?? "age"
+        let recipients = url.searchParams.get("age-recipients") ?? "";
+        let sopsKeyFile = url.searchParams.get("age-key-file") ?? "";
+        let configFile = url.searchParams.get("sops-config") ?? "";
+        const driver = url.searchParams.get("driver") ?? "age";
 
         if (recipients.length === 0) {
             if (config.with && config.with["age-recipients"]) {
@@ -62,12 +61,12 @@ export class SopsCliLoader implements SecretsVaultConfigLoader {
             throw new Error("Sops file not specified");
         }
 
-        const params : SopsVaultParams = {
+        const params: SopsVaultParams = {
             autoSave: true,
             name: config.name,
             path: sopsFile,
             driver: driver as "age",
-        }
+        };
 
         if (sopsKeyFile.length > 0) {
             params.driver = "age";

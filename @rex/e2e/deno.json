@@ -1,0 +1,7 @@
+{
+    "name": "@rex/e2e",
+    "version": "0.0.0-beta.2",
+    "exports": {
+        ".": "./mod.ts"
+    }
+}

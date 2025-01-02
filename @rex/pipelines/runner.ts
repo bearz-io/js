@@ -1,5 +1,5 @@
 import { cwd as getCwd, exit } from "@bearz/process";
-import { join } from "@std/path";
+import { join, dirname } from "@std/path";
 import { writer } from "./ci/writer.ts";
 import {
     type ExecutionContext,
@@ -63,6 +63,13 @@ export class Runner {
         writer.trace(`command: ${command}`);
 
         cwd ??= getCwd();
+
+        if (file) {
+            const dir = dirname(file);
+            if (dir) {
+                cwd = dir;
+            }
+        }
 
         if (options.envFile) {
             for (const file of options.envFile) {

@@ -68,6 +68,26 @@ export interface Task extends Record<string, unknown> {
     needs: string[];
 }
 
+export interface TaskDef extends Record<string, unknown> {
+    id: string;
+
+    name?: string;
+
+    description?: string;
+
+    needs?: string[];
+
+    env?: StringMap | ((ctx: TaskContext) => StringMap | Promise<StringMap>);
+
+    cwd?: string | ((ctx: TaskContext) => string | Promise<string>);
+
+    timeout?: number | ((ctx: TaskContext) => number | Promise<number>);
+
+    if?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
+
+    force?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
+}
+
 export type RunDelegate = (ctx: TaskContext) => Promise<Outputs> | Promise<void> | Outputs | void;
 
 export interface DelgateTaskState extends TaskState {

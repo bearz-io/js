@@ -75,7 +75,13 @@
         "@spawn/aws",
         "@spawn/ubi",
         "@spawn/terraform",
-        "@rex/tasks-scripts"
+        "@rex/tasks-scripts",
+        "@rex/vaults",
+        "@rex/twig",
+        "@rex/vaults-sops-cli",
+        "@rex/dns",
+        "@rex/docker",
+        "@rex/e2e"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
@@ -90,6 +96,8 @@
         "assertion-error": "npm:assertion-error@^2.0.1",
         "bcrypt-pbkdf": "npm:bcrypt-pbkdf@^1.0.2",
         "chai": "npm:chai@^5.1.1",
-        "twig": "npm:twig@^1.17.1"
+        "twig": "npm:twig@^1.17.1",
+        "twing": "npm:twing@6.1.0",
+        "yaml": "npm:yaml@^2.7.0"
     }
 }

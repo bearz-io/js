@@ -15,36 +15,21 @@ import type {
     Deploy,
     Deployment,
     DeploymentContext,
+    DeploymentDef,
     DeploymentMap,
 } from "./primitives.ts";
 import { fail, ok, type Result } from "@bearz/functional";
 
-export interface DelegateDeploymentDef {
-    id: string;
-    description?: string;
+export interface DelegateDeploymentDef extends DeploymentDef {
     run: Deploy;
     rollback?: Deploy;
     destroy?: Deploy;
-    before?: AddTaskDelegate;
-    after?: AddTaskDelegate;
-    beforeRollback?: AddTaskDelegate;
-    afterRollback?: AddTaskDelegate;
-    beforeDestroy?: AddTaskDelegate;
-    afterDestroy?: AddTaskDelegate;
-    needs?: string[];
-    cwd?: string | ((ctx: DeploymentContext) => string | Promise<string>);
-    env?: StringMap | ((ctx: DeploymentContext) => StringMap | Promise<StringMap>);
-    force?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
-    if?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
-    timeout?: number | ((ctx: DeploymentContext) => number | Promise<number>);
-    with?: Inputs | ((ctx: DeploymentContext) => Inputs | Promise<Inputs>);
-    name?: string;
 }
 
 export class DeploymentBuilder {
-    #deployment: DelegateDeployment;
+    #deployment: Deployment;
 
-    constructor(deployment: DelegateDeployment, map?: DeploymentMap) {
+    constructor(deployment: Deployment, map?: DeploymentMap) {
         this.#deployment = deployment;
         map ??= REX_DEPLOYMENTS;
         map.set(deployment.id, deployment);
@@ -183,6 +168,7 @@ export class DeploymentBuilder {
             | Inputs
             | ((ctx: DeploymentContext) => Inputs | Promise<Inputs>),
     ): this {
+        console.log("setting inputs", inputs);
         if (inputs instanceof Inputs) {
             this.#deployment.with = inputs;
             return this;
@@ -192,6 +178,8 @@ export class DeploymentBuilder {
             this.#deployment.with = inputs;
             return this;
         }
+
+        
 
         this.#deployment.with = new Inputs();
         this.#deployment.with.merge(inputs);
@@ -285,10 +273,6 @@ export function deploy(): DeploymentBuilder {
 
         if (def.timeout) {
             builder.timeout(def.timeout);
-        }
-
-        if (def.with) {
-            builder.with(def.with);
         }
 
         if (def.name) {
