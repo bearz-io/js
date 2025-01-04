@@ -1,2 +1,2 @@
 export * from "./vault.ts";
-export * from "./loader.ts";
+export * from "./factory.ts";

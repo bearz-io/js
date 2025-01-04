@@ -1,4 +1,4 @@
-import type { DnsDriver, DnsDriverConfig, DnsDriverLoader, DnsRecord } from "./types.ts";
+import type { DnsDriver, DnsDriverParams, DnsDriverFactory, DnsRecord } from "./types.ts";
 import { readTextFile, writeTextFile } from "@bearz/fs";
 import { EOL, WINDOWS } from "@bearz/runtime-info";
 import { processElevated } from "@bearz/process-elevated";
@@ -6,7 +6,7 @@ import { processElevated } from "@bearz/process-elevated";
 export class HostFileDriver implements DnsDriver {
     #name: string;
 
-    constructor(config: DnsDriverConfig) {
+    constructor(config: DnsDriverParams) {
         this.#name = config.name;
     }
 
@@ -117,12 +117,12 @@ export class HostFileDriver implements DnsDriver {
     }
 }
 
-export class HostFileDriverLoader implements DnsDriverLoader {
+export class HostFileDriverLoader implements DnsDriverFactory {
     canHandle(driver: string): boolean {
         return driver === "hostfile";
     }
 
-    load(config: DnsDriverConfig): DnsDriver {
+    load(config: DnsDriverParams): DnsDriver {
         if (config.use !== "hostfile") {
             throw new Error(`Invalid use ${config.use} for hostfile driver`);
         }

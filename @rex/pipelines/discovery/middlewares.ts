@@ -42,6 +42,7 @@ export class RexfileDiscovery extends DiscoveryPipelineMiddleware {
                 writer.trace(`No tasks file specified.  Using ${file}`);
             }
             if (!isAbsolute(file)) {
+                console.log("file", file);
                 file = await realPath(file);
             }
 

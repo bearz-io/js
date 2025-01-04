@@ -1,63 +1,74 @@
-import type { SecretDef, SecretsVaultConfigLoader, VaultDef } from "./types.ts";
+import type { SecretParam, SecretVaultParams, SecretParams } from "./types.ts";
 import {
-    REX_TASKS_REGISTRY,
+getGlobalTasks,
+    getTaskRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
     type TaskDef,
     type TaskMap,
+    toError,
 } from "@rex/tasks";
 import { fail, ok, type Result } from "@bearz/functional";
 import { type Inputs, Outputs } from "@rex/primitives";
-import { getRegistry } from "./registry.ts";
+import { getVaultsRegistry } from "./registry.ts";
 import { getVaults } from "./registry.ts";
 import { DefaultSecretGenerator } from "@bearz/secrets/generator";
 
-export interface LoadSecretsInputs extends Record<string, unknown> {
-    secrets: SecretDef[];
-}
-
 export interface LoadSecretsTask extends Task {
-    inputs?: LoadSecretsInputs;
+    params?: SecretParams
 }
 
 export interface LoadSecretsTaskDef extends TaskDef {
-    with: LoadSecretsInputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
+    id?: string;
+    with: SecretParams | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
 }
 
 export class LoadSecretsTaskBuilder extends TaskBuilder {
     constructor(task: LoadSecretsTask, map?: TaskMap) {
         super(task, map);
 
-        if (task.inputs) {
-            this.with(task.inputs);
+        if (task.params) {
+            this.with({ secrets: task.params });
         }
     }
 }
 
-export function secrets(def: LoadSecretsTaskDef, map?: TaskMap): LoadSecretsTaskBuilder;
-export function secrets(
-    id: string,
-    inputs: LoadSecretsInputs,
+export function registerSecrets(def: LoadSecretsTaskDef, map?: TaskMap): LoadSecretsTaskBuilder;
+export function registerSecrets(
+    params: SecretParams,
     map?: TaskMap,
 ): LoadSecretsTaskBuilder;
-export function secrets(
-    id: string,
+export function registerSecrets(
+    params: SecretParams,
     needs: string[],
-    inputs: LoadSecretsInputs,
     map?: TaskMap,
 ): LoadSecretsTaskBuilder;
-export function secrets(): LoadSecretsTaskBuilder {
+export function registerSecrets(
+    id: string,
+    params: SecretParams,
+    map?: TaskMap,
+): LoadSecretsTaskBuilder;
+export function registerSecrets(
+    id: string,
+    params: SecretParams,
+    needs: string[],
+    map?: TaskMap,
+): LoadSecretsTaskBuilder;
+
+export function registerSecrets(): LoadSecretsTaskBuilder {
     if (arguments.length < 1) {
         throw new Error("Invalid arguments");
     }
-
-    if (typeof arguments[0] === "object") {
+    const uses = "@rex/register-secrets";
+    const first = arguments[0];
+    const second = arguments[1];
+    const isArray = Array.isArray(first);
+    if (typeof arguments[0] === "object" && !isArray) {
         const def = arguments[0] as LoadSecretsTaskDef;
-
         const task: LoadSecretsTask = {
-            id: def.id,
-            uses: "@rex/load-secrets",
+            id: def.id ?? "secrets",
+            uses,
             needs: def.needs ?? [],
             name: def.name ?? def.id,
             cwd: def.cwd,
@@ -72,170 +83,206 @@ export function secrets(): LoadSecretsTaskBuilder {
             if (typeof def.with === "function") {
                 task.with = def.with;
             } else {
-                task.inputs = def.with;
+                task.params = def.with;
             }
         }
 
         return new LoadSecretsTaskBuilder(task, arguments[1]);
     }
-    const id = arguments[0] as string;
-    const second = arguments[1];
-    if (Array.isArray(second)) {
-        const needs = second as string[];
-        const inputs = arguments[2] as LoadSecretsInputs;
-        if (arguments.length === 4) {
+
+    if (isArray) {
+        if (Array.isArray(second)) {
             return new LoadSecretsTaskBuilder({
-                id: id,
-                uses: "@rex/load-secrets",
-                name: id,
-                needs: needs,
-                inputs: inputs,
-            }, arguments[3]);
+                id: "secrets",
+                uses,
+                name: "secrets",
+                needs: second as string[],
+                params: first as SecretParams,
+            }, arguments[2]);
         }
 
         return new LoadSecretsTaskBuilder({
-            id: id,
-            uses: "@rex/load-secrets",
-            name: id,
-            needs: needs,
-            inputs: inputs,
-        });
+            id: "secrets",
+            uses,
+            name: "secrets",
+            needs: [],
+            params: first as SecretParams,
+        }, arguments[1]);
     }
 
-    const inputs = second as LoadSecretsInputs;
-    if (arguments.length === 3) {
+    const id = first as string;
+    const third = arguments[2];
+    if (third && Array.isArray(third)) {
         return new LoadSecretsTaskBuilder({
-            id: id,
-            uses: "@rex/load-secrets",
+            id,
+            uses,
             name: id,
-            needs: [],
-            inputs: inputs,
-        }, arguments[2]);
+            needs: third as string[],
+            inputs: second as SecretParams,
+        }, arguments[3]);
     }
 
     return new LoadSecretsTaskBuilder({
-        id: id,
-        uses: "@rex/load-secrets",
+        id,
+        uses,
         name: id,
         needs: [],
-        inputs: inputs,
-    });
+        inputs: second as SecretParams,
+    }, arguments[2]);
 }
 
-export interface LoadVaultInputs extends Record<string, unknown> {
-    name: string;
-    uri: string;
-    use?: string;
-    with?: Record<string, unknown>;
+
+
+export interface RegisterSecretVaultTask extends Task {
+    params?: SecretVaultParams
 }
 
-export interface LoadVaultTask extends Task {
-    inputs?: LoadVaultInputs;
+export interface RegisterSecretVaultTaskDef extends TaskDef {
+    id?: string;
+    with: SecretVaultParams | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
 }
 
-export interface LoadVaultTaskDef extends TaskDef {
-    with: LoadVaultInputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
-}
-
-export class LoadVaultTaskBuilder extends TaskBuilder {
-    constructor(task: LoadVaultTask, map?: TaskMap) {
+export class RegisterSecretVaultTaskBuilder extends TaskBuilder {
+    constructor(task: RegisterSecretVaultTask, map?: TaskMap) {
         super(task, map);
 
-        if (task.inputs) {
-            this.with(task.inputs);
+        if (task.params) {
+            this.with(task.params);
         }
     }
 }
 
-export function secretVault(task: LoadVaultTaskDef, map?: TaskMap): LoadVaultTaskBuilder;
-export function secretVault(
-    id: string,
-    inputs: LoadVaultInputs,
+export function registerSecretVault(task: RegisterSecretVaultTaskDef, map?: TaskMap): RegisterSecretVaultTaskBuilder;
+export function registerSecretVault(
+    inputs: SecretVaultParams,
     map?: TaskMap,
-): LoadVaultTaskBuilder;
-export function secretVault(
-    id: string,
+): RegisterSecretVaultTaskBuilder;
+export function registerSecretVault(
+    inputs: SecretVaultParams,
     needs: string[],
-    inputs: LoadVaultInputs,
     map?: TaskMap,
-): LoadVaultTaskBuilder;
-export function secretVault(): LoadVaultTaskBuilder {
+): RegisterSecretVaultTaskBuilder;
+export function registerSecretVault(
+    id: string,
+    inputs: SecretVaultParams,
+    needs: string[],
+    map?: TaskMap,
+): RegisterSecretVaultTaskBuilder;
+export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
     if (arguments.length < 1) {
         throw new Error("Invalid arguments");
     }
 
-    if (typeof arguments[0] === "object") {
-        const def = arguments[0] as LoadVaultTaskDef;
-
-        const task: LoadVaultTask = {
-            id: def.id,
-            uses: "@rex/load-vault",
-            needs: def.needs ?? [],
-            name: def.name ?? def.id,
-            cwd: def.cwd,
-            description: def.description,
-            env: def.env,
-            timeout: def.timeout,
-            force: def.force,
-            if: def.if,
-        };
-
-        if (def.with) {
-            if (typeof def.with === "function") {
-                task.with = def.with;
-            } else {
-                task.inputs = def.with;
-            }
-        }
-
-        return new LoadVaultTaskBuilder(task, arguments[1]);
-    }
-    const id = arguments[0] as string;
+    const uses = "@rex/register-secret-vault";
+    const first = arguments[0];
     const second = arguments[1];
-    if (Array.isArray(second)) {
-        const needs = second as string[];
-        const inputs = arguments[2] as LoadVaultInputs;
-        if (arguments.length === 4) {
-            return new LoadVaultTaskBuilder({
-                id: id,
-                uses: "@rex/load-vault",
+
+    if (typeof first === 'object') {
+        if (first.with !== undefined && (typeof first.with === 'function' || first.with.name)) {
+            const def = arguments[0] as RegisterSecretVaultTaskDef;
+            const w = def.with;
+            const isFunction = typeof w === "function";
+            const map = arguments[1] as TaskMap ?? getGlobalTasks();
+            const replace = !isFunction && w.replace;
+            let id = "";
+            if (def.id) {
+                id = def.id;
+                if (!replace && map.has(id)) {
+                    throw new Error(`Task ${id} already exists`);
+                }
+            } else {
+                id = "secret-vault";
+                if (!isFunction) {
+                    id = `secret-vault-${w.name}`;
+                }
+                const exists = map.has(id);
+                if (exists && !replace) {
+                    throw new Error(`Task ${id} already exists`);
+                }
+            }
+    
+            const task: RegisterSecretVaultTask = {
+                id,
+                uses, 
+                needs: def.needs ?? [],
+                name: def.name ?? id,
+                cwd: def.cwd,
+                description: def.description,
+                env: def.env,
+                timeout: def.timeout,
+                force: def.force,
+                if: def.if,
+            };
+    
+            if (isFunction)
+                task.with = w;
+            else
+                task.params = w;
+    
+            return new RegisterSecretVaultTaskBuilder(task, map);
+        } else {
+            const params = first as SecretVaultParams;
+            let id = `secret-vault-${params.name}`;
+            const map = arguments[1] as TaskMap ?? getGlobalTasks();
+            if (map.has(id) && !params.replace) {
+                throw new Error(`Task ${id} already exists`);
+            }
+        
+            const old = id;
+            let i = 0
+            while(map.has(id)) {
+                id = `${old}-${i++}`;
+            }
+            let needs: string[] = [];
+            if (Array.isArray(second)) {
+                needs = second as string[];
+                return new RegisterSecretVaultTaskBuilder({
+                    id,
+                    uses,
+                    name: id,
+                    needs,
+                    params,
+                }, map);
+            }
+        
+            return new RegisterSecretVaultTaskBuilder({
+                id,
+                uses,
                 name: id,
-                needs: needs,
-                inputs: inputs,
-            }, arguments[3]);
+                needs: [],
+                params,
+            }, map);
         }
+    }
+    
 
-        return new LoadVaultTaskBuilder({
-            id: id,
-            uses: "@rex/load-vault",
+    const id = first as string;
+    const params = second as SecretVaultParams;
+    const third = arguments[2];
+    if (Array.isArray(third)) {
+        const needs = third as string[];
+        return new RegisterSecretVaultTaskBuilder({
+            id,
+            uses,
             name: id,
-            needs: needs,
-            inputs: inputs,
-        });
+            needs,
+            params,
+        }, arguments[3]);
     }
 
-    const inputs = second as LoadVaultInputs;
-    if (arguments.length === 3) {
-        return new LoadVaultTaskBuilder({
-            id: id,
-            uses: "@rex/load-vault",
-            name: id,
-            needs: [],
-            inputs: inputs,
-        }, arguments[2]);
-    }
-
-    return new LoadVaultTaskBuilder({
-        id: id,
-        uses: "@rex/load-vault",
+    return new RegisterSecretVaultTaskBuilder({
+        id,
+        uses, 
         name: id,
         needs: [],
-        inputs: inputs,
-    });
+        params,
+    }, arguments[2]);
 }
 
-REX_TASKS_REGISTRY.set("@rex/load-vault", {
-    id: "secret-vault",
+const taskRegistry = getTaskRegistry();
+
+taskRegistry.set("@rex/register-secret-vault", {
+    id: "@rex/register-secret-vault",
     inputs: [{
         name: "name",
         type: "string",
@@ -258,89 +305,37 @@ REX_TASKS_REGISTRY.set("@rex/load-vault", {
     }],
     outputs: [],
     run: async (ctx: TaskContext): Promise<Result<Outputs>> => {
-        const inputs = ctx.state.inputs;
+        try {
+            const inputs = ctx.state.inputs;
 
-        const name = inputs.get("name") as string ?? "default";
-        const uri = inputs.get("uri") as string;
-        let use = inputs.get("use") as string;
-
-        /*
-tasks:
-   - use: @rex/load-vault
-     with:
-        name: "sops"
-        uri: "sops://"
-        use: "@rex/vaults-sops-cli"
-        with:
-            age:
-                recipients: "..."
-                keyFile: "..."
-                key: "..."
-            config: "..."
-            vaultUri: "..."
-            gcpKmsUri: "..."
-            kmsArns: "..."
-            pgpFingerprints: "..."
-            azureKvUri: "..."
-        */
-
-        const registry = getRegistry();
-
-        // use should be the import e.g @rex/vaults-sops-cli
-        // import should be jsr:@rex/vaults-sops-cli/loader
-        let loader: SecretsVaultConfigLoader | undefined = undefined;
-        if (use) {
-            const directive = `jsr:${use}/loader`;
-            if (!registry.has(use)) {
-                const mod = await import(directive) as { loader: SecretsVaultConfigLoader };
-                registry.set(use, mod.loader);
-            }
-            loader = registry.get(use);
-        } else {
-            const url = new URL(uri);
-            const scheme = url.protocol.replace(":", "");
-            let org = "rex";
-            let moduleName = "vaults-" + scheme;
-            if (scheme.includes("--")) {
-                const parts = scheme.split("--");
-                org = parts[0];
-                moduleName = parts[1];
+            const params : SecretVaultParams = {
+                name: inputs.get("name") as string ?? "default",
+                uri: inputs.get("uri") as string | undefined,
+                use: inputs.get("use") as string | undefined,
+                with: inputs.get("with") as Record<string, unknown> | undefined,
+                replace: inputs.get("update") as boolean ?? false, 
             }
 
-            use = `@${org}/${moduleName}`;
-            const importDirective = `jsr:${use}/loader`;
-            if (!registry.has(importDirective)) {
-                const mod = await import(importDirective) as { loader: SecretsVaultConfigLoader };
-                registry.set(use, mod.loader);
+            const registry = getVaultsRegistry();
+            if (registry.has(params.name) && !params.replace) {
+                return fail(new Error(`Secret vault ${params.name} already exists`));
             }
 
-            loader = registry.get(use);
+            await registry.buildAndRegister(params);
+            const o = new Outputs();
+            o.set("name", params.name);
+            o.set("use", params.use ?? "");
+            o.set("uri", params.uri ?? "");
+
+            return ok(o);
+        } catch (e) {
+            return fail(toError(e));
         }
-
-        if (!loader) {
-            throw new Error(`Secrets vault loader ${use} not found`);
-        }
-
-        const vaultDef: VaultDef = {
-            name: name,
-            uri: uri,
-            use: use,
-            with: inputs.get("with") as Record<string, unknown>,
-        };
-
-        const vault = loader.load(vaultDef);
-        const vaults = getVaults();
-        if (vaults.has(name)) {
-            throw new Error(`Vault ${name} already exists`);
-        }
-
-        vaults.set(name, vault);
-        return ok(new Outputs());
     },
 });
 
-REX_TASKS_REGISTRY.set("@rex/load-secrets", {
-    id: "secret-vault",
+taskRegistry.set("@rex/register-secrets", {
+    id: "@rex/register-secrets",
     inputs: [{
         name: "secrets",
         type: "array",
@@ -349,62 +344,26 @@ REX_TASKS_REGISTRY.set("@rex/load-secrets", {
     }],
     outputs: [],
     run: async (ctx: TaskContext): Promise<Result<Outputs>> => {
-        const inputs = ctx.state.inputs;
+        try {
+            const inputs = ctx.state.inputs;
 
-        const secrets = inputs.get("secrets") as SecretDef[] | undefined;
-        if (!secrets) {
-            throw new Error("No secrets provided");
-        }
-
-        const vaults = getVaults();
-        for (const secretDef of secrets) {
-            const vaultName = secretDef.vault ?? "default";
-            const key = secretDef.key ?? secretDef.name;
-            let value: string | undefined = undefined;
-            const vault = vaults.get(vaultName);
-            if (!vault) {
-                return fail(new Error(`Vault ${vaultName} not found`));
+            const secrets = inputs.get("secrets") as SecretParam[] | undefined;
+            if (!secrets) {
+                throw new Error("No secrets provided");
             }
-
-            try {
-                value = await vault.getSecretValue(key);
-            } catch (ex) {
-                if (ex instanceof Error) {
-                    return fail(ex);
-                } else {
-                    return fail(new Error(`Unknown error ${ex}`));
+    
+            const vaults = getVaults();
+            for (const secretDef of secrets) {
+                const vaultName = secretDef.vault ?? "default";
+                const key = secretDef.key ?? secretDef.name;
+                let value: string | undefined = undefined;
+                const vault = vaults.get(vaultName);
+                if (!vault) {
+                    return fail(new Error(`Vault ${vaultName} not found`));
                 }
-            }
-
-            if (value === undefined || value === null) {
-                if (!secretDef.gen) {
-                    return fail(new Error(`Secret ${key} not found in vault ${vaultName}`));
-                }
-
-                const sg = new DefaultSecretGenerator();
-                if (secretDef.lower === undefined || secretDef.lower) {
-                    sg.add("abcdefghijklmnopqrstuvwxyz");
-                }
-
-                if (secretDef.upper === undefined || secretDef.upper) {
-                    sg.add("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-                }
-
-                if (secretDef.digits === undefined || secretDef.digits) {
-                    sg.add("0123456789");
-                }
-
-                if (secretDef.special) {
-                    sg.add(secretDef.special);
-                }
-
-                if (secretDef.size === undefined) {
-                    secretDef.size = 16;
-                }
-
+    
                 try {
-                    value = sg.generate(secretDef.size);
-                    await vault.setSecret(key, value);
+                    value = await vault.getSecretValue(key);
                 } catch (ex) {
                     if (ex instanceof Error) {
                         return fail(ex);
@@ -412,31 +371,52 @@ REX_TASKS_REGISTRY.set("@rex/load-secrets", {
                         return fail(new Error(`Unknown error ${ex}`));
                     }
                 }
+    
+                if (value === undefined || value === null) {
+                    if (!secretDef.gen) {
+                        return fail(new Error(`Secret ${key} not found in vault ${vaultName}`));
+                    }
+    
+                    const sg = new DefaultSecretGenerator();
+                    if (secretDef.lower === undefined || secretDef.lower) {
+                        sg.add("abcdefghijklmnopqrstuvwxyz");
+                    }
+    
+                    if (secretDef.upper === undefined || secretDef.upper) {
+                        sg.add("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+                    }
+    
+                    if (secretDef.digits === undefined || secretDef.digits) {
+                        sg.add("0123456789");
+                    }
+    
+                    if (secretDef.special) {
+                        sg.add(secretDef.special);
+                    }
+    
+                    if (secretDef.size === undefined) {
+                        secretDef.size = 16;
+                    }
+    
+                    try {
+                        value = sg.generate(secretDef.size);
+                        await vault.setSecret(key, value);
+                    } catch (ex) {
+                        if (ex instanceof Error) {
+                            return fail(ex);
+                        } else {
+                            return fail(new Error(`Unknown error ${ex}`));
+                        }
+                    }
+                }
+    
+                ctx.secrets.set(secretDef.name, value);
             }
-
-            ctx.secrets.set(secretDef.name, value);
+    
+            return ok(new Outputs());
+        } catch(e) {
+            return fail(toError(e));
         }
-
-        /*
-tasks:
-   - use: @rex/load-vault
-     with:
-        name: "sops"
-        uri: "sops://"
-        use: "jsr:@rex/vaults-sops-cli"
-        with:
-            age:
-                recipients: "..."
-                keyFile: "..."
-                key: "..."
-            config: "..."
-            vaultUri: "..."
-            gcpKmsUri: "..."
-            kmsArns: "..."
-            pgpFingerprints: "..."
-            azureKvUri: "..."
-        */
-
-        return ok(new Outputs());
+      
     },
 });

@@ -69,8 +69,6 @@ export interface Task extends Record<string, unknown> {
 }
 
 export interface TaskDef extends Record<string, unknown> {
-    id: string;
-
     name?: string;
 
     description?: string;

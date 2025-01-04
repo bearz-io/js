@@ -1,5 +1,5 @@
-import { cwd as getCwd, exit } from "@bearz/process";
-import { join, dirname } from "@std/path";
+import { cwd as getCwd, exit, chdir } from "@bearz/process";
+import { join, dirname, isAbsolute, resolve } from "@std/path";
 import { writer } from "./ci/writer.ts";
 import {
     type ExecutionContext,
@@ -65,9 +65,14 @@ export class Runner {
         cwd ??= getCwd();
 
         if (file) {
+            if (!isAbsolute(file)) {
+                file = resolve(file);
+            }
+
             const dir = dirname(file);
             if (dir) {
                 cwd = dir;
+                chdir(cwd);
             }
         }
 

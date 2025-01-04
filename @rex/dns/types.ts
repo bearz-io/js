@@ -7,11 +7,12 @@ export interface DnsRecord {
     origin?: string;
 }
 
-export interface DnsDriverConfig extends Record<string | symbol, unknown> {
+export interface DnsDriverParams extends Record<string | symbol, unknown> {
     name: string;
-
-    use: string;
+    use?: string;
+    uri?: string;
     with?: Record<string, unknown>;
+    replace?: boolean;
 }
 
 export interface DnsDriver {
@@ -26,7 +27,7 @@ export interface DnsDriver {
     getRecord(zone: string, name: string): Promise<DnsRecord | undefined>;
 }
 
-export interface DnsDriverLoader {
-    canHandle(driver: string): boolean;
-    load(config: DnsDriverConfig): DnsDriver;
+export interface DnsDriverFactory {
+    canBuild(driver: DnsDriverParams): boolean;
+    build(params: DnsDriverParams): DnsDriver;
 }

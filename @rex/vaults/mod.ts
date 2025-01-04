@@ -1,1 +1,1 @@
-export { secrets, secretVault } from "./tasks.ts";
+export { registerSecrets, registerSecretVault } from "./tasks.ts";

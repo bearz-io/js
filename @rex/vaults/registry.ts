@@ -1,96 +1,81 @@
 import type { ExecutionContext } from "@rex/primitives";
-import type { SecretsPartialConfig, SecretsVaultConfigLoader, SecretVault } from "./types.ts";
+import type { SecretsPartialConfig, SecretsVaultFactory, SecretVault, SecretVaultParams } from "./types.ts";
 import { DefaultSecretGenerator } from "@bearz/secrets/generator";
 
-const registry = new Map<string, SecretsVaultConfigLoader>();
-const vaults = new Map<string, SecretVault>();
+
 const g = globalThis as Record<string | symbol, unknown>;
 export const REX_VAULTS_REGISTRY = Symbol.for("@@REX_VAULTS_REGISTRY");
 export const REX_VAULTS = Symbol.for("@@REX_VAULTS");
 
-if (!g[REX_VAULTS_REGISTRY]) {
-    g[REX_VAULTS_REGISTRY] = registry;
-}
-
 if (!g[REX_VAULTS]) {
-    g[REX_VAULTS] = vaults;
-}
-
-export function getRegistry(): Map<string, SecretsVaultConfigLoader> {
-    return g[REX_VAULTS_REGISTRY] as Map<string, SecretsVaultConfigLoader>;
+    g[REX_VAULTS] = new Map<string, SecretVault>();
 }
 
 export function getVaults(): Map<string, SecretVault> {
     return g[REX_VAULTS] as Map<string, SecretVault>;
 }
 
-export async function applyContext(
-    config: SecretsPartialConfig,
-    ctx: ExecutionContext,
-): Promise<void> {
-    const registry = getRegistry();
-    const vaults = getVaults();
+export class SecretVaultRegistry extends Map<string, SecretsVaultFactory> {
 
-    for (const vaultDef of config.vaults) {
-        const url = new URL(vaultDef.uri);
-        for (const loader of registry.values()) {
-            if (loader.canHandle(url)) {
-                const vault = loader.load(vaultDef);
-                vaults.set(vaultDef.name, vault);
-                break;
+
+    async build(params: SecretVaultParams): Promise<SecretVault> {
+        let { use } = params;
+        const { uri } = params;
+
+        if (!use && !uri) {
+            use = "json";
+        } else if (!use && uri) {
+            const url = new URL(uri);
+            const scheme = url.protocol.replace(":", "");
+            let org = "rex";
+            let moduleName = "vaults-" + scheme;
+            if (scheme.includes("--")) {
+                const parts = scheme.split("--");
+                org = parts[0];
+                moduleName = parts[1];
             }
+
+            use = `@${org}/${moduleName}`;
         }
+        
+        const importDirective = `jsr:${use}/factory`;
+        if (!registry.has(importDirective)) {
+            const mod = await import(importDirective) as { factory: SecretsVaultFactory };
+            registry.set(use!, mod.factory);
+        }
+
+        const factory = registry.get(use!);   
+        if (!factory) {
+            throw new Error(`Secrets vault loader ${use} not found`);
+        }
+       
+        return factory.build(params);
     }
 
-    for (const secretDef of config.secrets) {
-        const vault = vaults.get(secretDef.vault ?? "default");
-        if (!vault) {
-            throw new Error(`Vault ${secretDef.vault} not found`);
+    async buildAndRegister(params: SecretVaultParams): Promise<SecretVault> {
+        const vault = await this.build(params);
+        vaults.set(params.name, vault);
+        return vault;
+    }
+
+    async getOrCreate(params: SecretVaultParams): Promise<SecretVault> {
+        const vault = vaults.get(params.name);
+        if (vault) {
+            return vault;
         }
 
-        const name = secretDef.key ?? secretDef.name;
-        let value: string | undefined = undefined;
-        try {
-            value = await vault.getSecretValue(name);
-        } catch {
-            // ignore
-        }
-
-        if (value === undefined || value === null) {
-            if (!secretDef.gen) {
-                throw new Error(
-                    `Secret ${name} not found in vault ${secretDef.vault ?? "default"}`,
-                );
-            }
-
-            const sg = new DefaultSecretGenerator();
-            let { digits, upper, lower, special, size } = secretDef;
-            size ??= 16;
-            upper ??= true;
-            lower ??= true;
-            digits ??= true;
-            special ??= "!@#+=^&*()_-[]{}";
-
-            if (digits) {
-                sg.add("0123456789");
-            }
-
-            if (upper) {
-                sg.add("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-            }
-
-            if (lower) {
-                sg.add("abcdefghijklmnopqrstuvwxyz");
-            }
-
-            if (special) {
-                sg.add(special);
-            }
-
-            value = sg.generate(size);
-            await vault.setSecret(name, value);
-        }
-
-        ctx.secrets.set(secretDef.name, value);
+        return await this.buildAndRegister(params);
     }
 }
+
+const registry = new Map<string, SecretsVaultFactory>();
+const vaults = new Map<string, SecretVault>();
+
+if (!g[REX_VAULTS_REGISTRY]) {
+    g[REX_VAULTS_REGISTRY] =  new SecretVaultRegistry();
+}
+
+export function getVaultsRegistry(): SecretVaultRegistry {
+    return g[REX_VAULTS_REGISTRY] as SecretVaultRegistry
+}
+

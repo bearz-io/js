@@ -89,7 +89,8 @@ export interface SecretVault {
     listSecretNames(): Promise<string[]>;
 }
 
-export interface SecretDef extends Record<string | symbol, unknown> {
+
+export interface SecretParam extends Record<string | symbol, unknown> {
     name: string;
     use?: string;
     key?: string;
@@ -102,19 +103,21 @@ export interface SecretDef extends Record<string | symbol, unknown> {
     size?: number;
 }
 
-export interface VaultDef extends Record<string | symbol, unknown> {
+export type SecretParams = SecretParam[];
+
+export interface SecretVaultParams extends Record<string | symbol, unknown> {
     name: string;
-    uri: string;
-    use: string;
+    uri?: string;
+    use?: string;
     with?: Record<string, unknown>;
 }
 
 export interface SecretsPartialConfig extends Record<string | symbol, unknown> {
-    secrets: SecretDef[];
-    vaults: VaultDef[];
+    secrets: SecretParam[];
+    vaults: SecretVaultParams[];
 }
 
-export interface SecretsVaultConfigLoader {
-    canHandle(uri: URL): boolean;
-    load(config: VaultDef): SecretVault;
+export interface SecretsVaultFactory {
+    canBuild(params: SecretVaultParams): boolean;
+    build(params: SecretVaultParams): SecretVault;
 }

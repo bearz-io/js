@@ -1,0 +1,4 @@
+# private key for testing only, DO NOT USE ELSEWHERE
+# created: 2024-12-08T11:50:20-06:00
+# public key: age1690jcga9k3976xdldnk7wpypdcpryq4afmt4st3zltvxand3z97qzdewun
+AGE-SECRET-KEY-1NVF2YM9LNT8ZVTZQEAC0F374Z0EJ2S57W3T0XHTZY3GMQC62NLZQJV33FU

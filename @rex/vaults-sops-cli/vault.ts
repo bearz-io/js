@@ -3,13 +3,15 @@ import { cmd } from "@bearz/exec";
 import { underscore } from "@bearz/strings/underscore";
 import { parse, stringify } from "@bearz/dotenv";
 import { makeTempFile, readTextFile, writeTextFile } from "@bearz/fs";
-import { dirname } from "@std/path";
+import { dirname, isAbsolute, resolve } from "@std/path";
+
+export type SopsProvider = "age" | "aws" | "gcp" | "pgp" | "azure";
 
 export interface SopsVaultParams {
     name: string;
     path: string;
     autoSave: boolean;
-    driver: "age" | "aws" | "gcp" | "azure" | "pgp";
+    driver: SopsProvider;
     age?: {
         recipients?: string;
         keyFile?: string;
@@ -32,6 +34,21 @@ export class SopsVault implements SecretVault {
     constructor(params: SopsVaultParams) {
         this.#params = params;
         this.#slim = Promise.resolve();
+        if (this.#params.age) {
+            if (this.#params.age.keyFile && !isAbsolute(this.#params.age.keyFile)) {
+                this.#params.age.keyFile = resolve(this.#params.age.keyFile);
+            }
+
+            if (this.#params.config && !isAbsolute(this.#params.config)) {
+                this.#params.config = resolve(this.#params.config);
+            }
+
+            if (this.#params.path && !isAbsolute(this.#params.path)) {
+                this.#params.path = resolve(this.#params.path);
+            }
+        }
+
+        console.log("params", this.#params);
     }
 
     get name(): string {
@@ -130,11 +147,15 @@ export class SopsVault implements SecretVault {
             args.push(this.#params.path);
             const dir = dirname(this.#params.path);
 
+            console.log("args", "sops",  args);
+            console.log("cwd", dir);
+            console.log("vars", vars);
             const o = await cmd("sops", args, {
                 env: vars,
                 cwd: dir,
             }).output();
             const envContent = o.text();
+            console.log("envContent", envContent);
             const data = parse(envContent);
             this.#data = {};
             for (const key in data) {

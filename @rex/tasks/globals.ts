@@ -16,3 +16,11 @@ if (!g[REX_REGISTRY_SYMBOL]) {
 }
 
 export const REX_TASKS_REGISTRY = g[REX_REGISTRY_SYMBOL] as TaskRegistry;
+
+export function getTaskRegistry(): TaskRegistry {
+    return g[REX_REGISTRY_SYMBOL] as TaskRegistry;
+}
+
+export function getGlobalTasks(): TaskMap {
+    return g[REX_TASKS_SYMBOL] as TaskMap;
+}

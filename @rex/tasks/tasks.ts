@@ -25,6 +25,7 @@ export function toError(e: unknown): Error {
 }
 
 export interface DelegateTaskDef extends TaskDef {
+    id: string;
     run: RunDelegate;
 }
 

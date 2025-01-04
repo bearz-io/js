@@ -66,6 +66,8 @@
         "@rex/dns",
         "@rex/docker",
         "@rex/e2e",
+        "@rex/dns-flarectl",
+        "@rex/states",
         "@spawn/bash",
         "@spawn/cmd",
         "@spawn/pwsh",
