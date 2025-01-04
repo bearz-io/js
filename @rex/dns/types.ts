@@ -1,10 +1,11 @@
-export interface DnsRecord {
+export interface DnsRecord extends Record<string | symbol, unknown> {
     name: string;
     type: string;
     ttl?: number;
     value: string;
     priority?: number;
     origin?: string;
+    proxy?: boolean;
 }
 
 export interface DnsDriverParams extends Record<string | symbol, unknown> {

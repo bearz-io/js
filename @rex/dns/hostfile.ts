@@ -3,7 +3,7 @@ import { readTextFile, writeTextFile } from "@bearz/fs";
 import { EOL, WINDOWS } from "@bearz/runtime-info";
 import { processElevated } from "@bearz/process-elevated";
 
-export class HostFileDriver implements DnsDriver {
+export class HostfileDnsDriver implements DnsDriver {
     #name: string;
 
     constructor(config: DnsDriverParams) {
@@ -117,18 +117,18 @@ export class HostFileDriver implements DnsDriver {
     }
 }
 
-export class HostFileDriverLoader implements DnsDriverFactory {
-    canHandle(driver: string): boolean {
-        return driver === "hostfile";
+export class HostFileDriverFactory implements DnsDriverFactory {
+    canBuild(params: DnsDriverParams): boolean {
+        return (params.use !== undefined && params.use === "hostfile") || (params.uri !== undefined && params.uri.startsWith("hostfile:"))
     }
 
-    load(config: DnsDriverParams): DnsDriver {
-        if (config.use !== "hostfile") {
-            throw new Error(`Invalid use ${config.use} for hostfile driver`);
-        }
+    build(params: DnsDriverParams): DnsDriver {
+        const name = params.name;
 
-        return new HostFileDriver(config);
+        return new HostfileDnsDriver({
+            name,
+        });
     }
 }
 
-export const loader = new HostFileDriverLoader();
+export const factory = new HostFileDriverFactory();

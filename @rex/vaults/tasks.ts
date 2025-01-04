@@ -14,6 +14,7 @@ import { type Inputs, Outputs } from "@rex/primitives";
 import { getVaultsRegistry } from "./registry.ts";
 import { getVaults } from "./registry.ts";
 import { DefaultSecretGenerator } from "@bearz/secrets/generator";
+import { env } from "@bearz/env";
 
 export interface LoadSecretsTask extends Task {
     params?: SecretParams
@@ -308,11 +309,44 @@ taskRegistry.set("@rex/register-secret-vault", {
         try {
             const inputs = ctx.state.inputs;
 
+            const g : (key: string) => string | undefined = (key) => {
+                if (ctx.state.env.get(key))
+                    return ctx.state.env.get(key);
+                
+                if (ctx.env.get(key))
+                    return ctx.env.get(key);
+
+                return env.get(key);
+            }
+
+            const w = inputs.get("with") as Record<string, unknown> | undefined;
+            if (w) {
+                for (const key in Object.keys(w)) {
+                    let value = w[key];
+                    if (typeof value === "string" && value.includes("$")) {
+                        value = env.expand(value, {
+                            get: g
+                        })
+                    }
+                    
+                    w[key] = value;
+                }
+            }
+
+            let uri = inputs.get("uri") as string | undefined;
+            if (uri) {
+                if (uri.includes("$")) {
+                    uri = env.expand(uri, {
+                        get: g
+                    });
+                }
+            }
+
             const params : SecretVaultParams = {
                 name: inputs.get("name") as string ?? "default",
-                uri: inputs.get("uri") as string | undefined,
+                uri,
                 use: inputs.get("use") as string | undefined,
-                with: inputs.get("with") as Record<string, unknown> | undefined,
+                with: w,
                 replace: inputs.get("update") as boolean ?? false, 
             }
 
@@ -417,6 +451,5 @@ taskRegistry.set("@rex/register-secrets", {
         } catch(e) {
             return fail(toError(e));
         }
-      
     },
 });

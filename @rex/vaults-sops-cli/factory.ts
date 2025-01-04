@@ -1,9 +1,9 @@
 import type { SecretsVaultFactory, SecretVault, SecretVaultParams } from "@rex/vaults/types";
 import type { SopsProvider, SopsVaultParams } from "./vault.ts";
-import { SopsVault } from "./vault.ts";
+import { SopsCliVault } from "./vault.ts";
 import { isAbsolute, resolve } from "@std/path";
 
-export class SopsCliFactory implements SecretsVaultFactory {
+export class SopsCliVaultFactory implements SecretsVaultFactory {
     canBuild(params: SecretVaultParams): boolean {
         return (params.use !== undefined && (params.use === "@rex/vaults-sops-cli" || params.use === "sops-cli")) 
             || (params.uri !== undefined && params.uri.startsWith("sops-cli:"));
@@ -95,8 +95,8 @@ export class SopsCliFactory implements SecretsVaultFactory {
             params.age.recipients = recipients;
         }
 
-        return new SopsVault(params);
+        return new SopsCliVault(params);
     }
 }
 
-export const loader = new SopsCliFactory();
+export const factory = new SopsCliVaultFactory();

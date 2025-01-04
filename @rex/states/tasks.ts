@@ -3,6 +3,7 @@ import { type Inputs, Outputs } from '@rex/primitives';
 import { type Result, ok, fail } from '@bearz/functional';
 import { getStatesRegistry } from "./registry.ts";
 import type { StateDriverParams } from "./types.ts";
+import { env } from "@bearz/env";
 
 const registerStateDriverId = "@rex/register-state-driver";
 
@@ -210,11 +211,45 @@ tasksRegistry.set(registerStateDriverId, {
     run: async (ctx) : Promise<Result<Outputs>> => {
         try {
             const inputs = ctx.state.inputs;
+
+            const g : (key: string) => string | undefined = (key) => {
+                if (ctx.state.env.get(key))
+                    return ctx.state.env.get(key);
+                
+                if (ctx.env.get(key))
+                    return ctx.env.get(key);
+
+                return env.get(key);
+            }
+
+            const w = inputs.get("with") as Record<string, unknown> | undefined;
+            if (w) {
+                for (const key in Object.keys(w)) {
+                    let value = w[key];
+                    if (typeof value === "string" && value.includes("$")) {
+                        value = env.expand(value, {
+                            get: g
+                        })
+                    }
+                    
+                    w[key] = value;
+                }
+            }
+
+            let uri = inputs.get("uri") as string | undefined;
+            if (uri) {
+                if (uri.includes("$")) {
+                    uri = env.expand(uri, {
+                        get: g
+                    });
+                }
+            }
+         
             const params : StateDriverParams = {
                 name: inputs.get("name") as string ?? "default",
                 use: inputs.get("use") as string | undefined,
-                uri: inputs.get("uri") as string | undefined,
-                with: inputs.get("with") as Record<string, unknown> | undefined,
+                uri,
+                with: w,
                 replace: inputs.get("update") as boolean ?? false,
             }
 

@@ -11,6 +11,7 @@ import { type Inputs, Outputs } from "@rex/primitives";
 import type { DnsDriverParams, DnsRecord } from "./types.ts";
 import { ok, fail, type Result } from "@bearz/functional";
 import { getDnsDriverRegistry, getDnsDrivers } from "./registry.ts";
+import { env } from "@bearz/env"
 
 
 const dnsDriverId = "@rex/register-dns-driver";
@@ -155,12 +156,45 @@ taskRegistry.set(dnsDriverId, {
         try {
             const inputs = ctx.state.inputs;
 
+            const g : (key: string) => string | undefined = (key) => {
+                if (ctx.state.env.get(key))
+                    return ctx.state.env.get(key);
+                
+                if (ctx.env.get(key))
+                    return ctx.env.get(key);
+
+                return env.get(key);
+            }
+
+            const w = inputs.get("with") as Record<string, unknown> | undefined;
+            if (w) {
+                for (const key in Object.keys(w)) {
+                    let value = w[key];
+                    if (typeof value === "string" && value.includes("$")) {
+                        value = env.expand(value, {
+                            get: g
+                        })
+                    }
+                    
+                    w[key] = value;
+                }
+            }
+
+            let uri = inputs.get("uri") as string | undefined;
+            if (uri) {
+                if (uri.includes("$")) {
+                    uri = env.expand(uri, {
+                        get: g
+                    });
+                }
+            }
+
             const params : DnsDriverParams = {
                 name: inputs.get("name") as string,
                 use: inputs.get("use") as string | undefined,
-                uri: inputs.get("uri") as string | undefined,
+                uri,
                 replace: inputs.get("replace") as boolean | undefined,
-                with: inputs.get("with") as Record<string, unknown> | undefined,
+                with: w,
             }
 
             const registry = getDnsDriverRegistry();
@@ -296,7 +330,7 @@ taskRegistry.set(updateDnsRecordsId, {
 
             const driver = getDnsDrivers().get(use);
             if (!driver) {
-                throw new Error(`Dns driver ${use} not found`);
+                throw new Error(`Dns driver ${use} not found.`);
             }
 
             if (records && records.length > 0) {

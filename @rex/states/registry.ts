@@ -1,4 +1,4 @@
-import { FileStateDriver, factory } from "./file_state_driver.ts";
+import { JsonStateStore, factory } from "./json_state_store.ts";
 import type { StateStore, StateDriverFactory, StateDriverParams } from "./types.ts";
 
 const g = globalThis as Record<string | symbol, unknown>;
@@ -9,8 +9,8 @@ if (!g[REX_STATES]) {
     g[REX_STATES] = new Map<string, StateStore>();
     const r = g[REX_STATES] as Map<string, StateStore>;
 
-    r.set("default", new FileStateDriver({ name: "default", global: false }));
-    r.set("global", new FileStateDriver({ name: "global", global: true }));
+    r.set("default", new JsonStateStore({ name: "default", global: false }));
+    r.set("global", new JsonStateStore({ name: "global", global: true }));
 }
 
 export function getStates(): Map<string, StateStore> {
@@ -25,7 +25,7 @@ export class StatesRegistry extends Map<string, StateDriverFactory> {
         let { use, uri, } = params;
 
         if (!use && !uri) {
-            use = "file";
+            use = "@rex/states-json";
         } else if (!use && uri) {
             const url = new URL(uri);
             const scheme = url.protocol.replace(":", "");
@@ -38,34 +38,34 @@ export class StatesRegistry extends Map<string, StateDriverFactory> {
             }
 
             use = `@${org}/${moduleName}`;
+        } else if (use) {
+            if (!use.startsWith("@")) {
+                use = `@rex/states-${use}`;
+            }
         }
 
         // use should be the import e.g @rex/vaults-sops-cli
         // import should be jsr:@rex/vaults-sops-cli/loader
-        let loader: StateDriverFactory | undefined = undefined;
-        if (use === 'file') {
-            loader = this.get(use);
-        } else if (use) {
-            const directive = `jsr:${use}/loader`;
-            if (!this.has(use)) {
-                const mod = await import(directive) as { loader: StateDriverFactory };
-                this.set(use, mod.loader);
-            }
-            loader = this.get(use);
+        let factory: StateDriverFactory | undefined = undefined;
+        if (!this.has(use!)) {
+            const directive = `jsr:${use}/factory`;
+            const mod = await import(directive) as { factory: StateDriverFactory };
+            this.set(use!, mod.factory);
         }
 
-        if (!loader) {
-            throw new Error(`State driver loader ${use} not found`);
+        factory = this.get(use!);
+        if (!factory) {
+            throw new Error(`State driver factory ${use} not found`);
         }
 
-        const driver = await loader.build(params);
-        return driver;
+        const store = await factory.build(params);
+        return store;
     }
 
     async buildAndRegister(params: StateDriverParams): Promise<StateStore> {
-        const driver = await this.build(params);
-        getStates().set(params.name, driver);
-        return driver;
+        const store = await this.build(params);
+        getStates().set(params.name, store);
+        return store;
     }
 
     async getOrCreate(params: StateDriverParams): Promise<StateStore> {
@@ -75,17 +75,17 @@ export class StatesRegistry extends Map<string, StateDriverFactory> {
             return states.get(name) as StateStore;
         }
 
-        const driver = await this.build(params);
-        states.set(name, driver);
+        const store = await this.build(params);
+        states.set(name, store);
 
-        return driver;
+        return store;
     }
 }
 
 if (!g[REX_STATES_REGISTRY]) {
     g[REX_STATES_REGISTRY] = new StatesRegistry();
     const r = g[REX_STATES_REGISTRY] as StatesRegistry;
-    r.set("file", factory)
+    r.set("@rex/states-json", factory)
 }
 
 

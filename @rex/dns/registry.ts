@@ -1,4 +1,4 @@
-import { HostFileDriver } from "./hostfile.ts";
+import { factory, HostfileDnsDriver } from "./hostfile.ts";
 import type { DnsDriver, DnsDriverFactory, DnsDriverParams } from "./types.ts";
 
 const g = globalThis as Record<string | symbol, unknown>;
@@ -9,7 +9,7 @@ if (!g[REX_DNS_DRIVERS]) {
     g[REX_DNS_DRIVERS] = new Map<string, DnsDriver>();
     const r = g[REX_DNS_DRIVERS] as Map<string, DnsDriver>;
 
-    r.set("hostfile", new HostFileDriver({ name: "hostfile" }));
+    r.set("hostfile", new HostfileDnsDriver({ name: "hostfile" }));
 }
 
 export function getDnsDrivers(): Map<string, DnsDriver> {
@@ -37,22 +37,22 @@ export class DnsDriverRegistry extends Map<string, DnsDriverFactory> {
             }
 
             use = `@${org}/${moduleName}`;
+        } else if (use) {
+            if (!use.startsWith("@")) {
+                use = `@rex/dns-${use}`;
+            }
         }
 
         // use should be the import e.g @rex/vaults-sops-cli
         // import should be jsr:@rex/vaults-sops-cli/loader
         let factory: DnsDriverFactory | undefined = undefined;
-        if (use === 'hostfile') {
-            factory = this.get(use);
-        } else {
+        if (!this.has(use!)) {
             const directive = `jsr:${use}/loader`;
-            if (!this.has(use!)) {
-                const mod = await import(directive) as { factory: DnsDriverFactory };
-                this.set(use!, mod.factory);
-            }
-            factory = this.get(use!);
+            const mod = await import(directive) as { factory: DnsDriverFactory };
+            this.set(use!, mod.factory);
         }
 
+        factory = this.get(use!);
         if (!factory) {
             throw new Error(`Dns driver factory ${use} not found`);
         }
@@ -82,6 +82,8 @@ export class DnsDriverRegistry extends Map<string, DnsDriverFactory> {
 
 if (!g[REX_DNS_DRIVER_REGISTRY]) {
     g[REX_DNS_DRIVER_REGISTRY] = new DnsDriverRegistry();
+    const r = g[REX_DNS_DRIVER_REGISTRY] as DnsDriverRegistry;
+    r.set("@rex/dns-hostfile", factory);
 }
 
 export function getDnsDriverRegistry(): DnsDriverRegistry {

@@ -25,7 +25,7 @@ export interface SopsVaultParams {
     azureKvUri?: string;
 }
 
-export class SopsVault implements SecretVault {
+export class SopsCliVault implements SecretVault {
     #slim: Promise<void>;
     #params: SopsVaultParams;
     #data: Record<string, SecretRecord | undefined> = {};

@@ -1,17 +1,17 @@
 import type { StateStore, StateDriverFactory, StateDriverParams } from "./types.ts";
 import { WINDOWS } from "@bearz/runtime-info"
 import { env } from "@bearz/env";
-import { join, dirname, fromFileUrl } from "@std/path";
+import { join, dirname } from "@std/path";
 import { exists, readTextFile, writeTextFile, makeDir } from "@bearz/fs";
 
-export interface FileStateDriverParams {
+export interface JsonStateStoreParams {
     name: string;
     path?: string;
     global?: boolean;
 }
 
-export class FileStateDriver implements StateStore {
-    #params: FileStateDriverParams;
+export class JsonStateStore implements StateStore {
+    #params: JsonStateStoreParams;
     #slim: Promise<void>;
     #loaded = false;
     #data: Record<string, unknown> = {};
@@ -19,8 +19,7 @@ export class FileStateDriver implements StateStore {
 
     readonly driver = "file";
 
-
-    constructor(params: FileStateDriverParams) {
+    constructor(params: JsonStateStoreParams) {
         this.#params = params;
         this.#slim = Promise.resolve();
         this.#name = this.#params.name;
@@ -125,11 +124,11 @@ export class FileStateDriver implements StateStore {
     }
 }
 
-export class FileStateDriverFactory implements StateDriverFactory {
+export class JsonStateStoreFactory implements StateDriverFactory {
 
     canBuild(params: StateDriverParams): boolean {
-        return (params.use !== undefined && params.use === "file") ||  
-            (params.uri !== undefined && params.uri.startsWith("file:"));
+        return (params.use !== undefined && params.use === "json" || params.use === "@rex/states-json") ||  
+            (params.uri !== undefined && params.uri.startsWith("file:") && params.uri.includes(".json"));
     }
 
     build(params: StateDriverParams): Promise<StateStore> {
@@ -142,21 +141,27 @@ export class FileStateDriverFactory implements StateDriverFactory {
         if (w) {
             global = w.global as boolean ?? false;
             path = w.path as string ?? "";
-        } else if (uri) {
+        }
+
+        if (uri) {
             const url = new URL(uri);
-            if (url.protocol === "file:") {
-                path = fromFileUrl(url);
+            const p = url.pathname;
+            path = p;
+
+            const g = url.searchParams.get("global");
+            if (g && g === "true" || g === "1") {
+                global = true;
             }
         }
 
-        const p : FileStateDriverParams = {
+        const p : JsonStateStoreParams = {
             name,
             path, 
             global
         }
 
-        return Promise.resolve(new FileStateDriver(p));
+        return Promise.resolve(new JsonStateStore(p));
     }
 }
 
-export const factory = new FileStateDriverFactory();
+export const factory = new JsonStateStoreFactory();

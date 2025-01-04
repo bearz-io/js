@@ -1,7 +1,4 @@
-import type { ExecutionContext } from "@rex/primitives";
-import type { SecretsPartialConfig, SecretsVaultFactory, SecretVault, SecretVaultParams } from "./types.ts";
-import { DefaultSecretGenerator } from "@bearz/secrets/generator";
-
+import type { SecretsVaultFactory, SecretVault, SecretVaultParams } from "./types.ts";
 
 const g = globalThis as Record<string | symbol, unknown>;
 export const REX_VAULTS_REGISTRY = Symbol.for("@@REX_VAULTS_REGISTRY");
@@ -23,7 +20,7 @@ export class SecretVaultRegistry extends Map<string, SecretsVaultFactory> {
         const { uri } = params;
 
         if (!use && !uri) {
-            use = "json";
+            use = "@rex/vaults-json";
         } else if (!use && uri) {
             const url = new URL(uri);
             const scheme = url.protocol.replace(":", "");
@@ -36,10 +33,14 @@ export class SecretVaultRegistry extends Map<string, SecretsVaultFactory> {
             }
 
             use = `@${org}/${moduleName}`;
+        } else if (use) {
+            if (!use.startsWith("@")) {
+                use = `@rex/vaults-${use}`;
+            }
         }
         
-        const importDirective = `jsr:${use}/factory`;
-        if (!registry.has(importDirective)) {
+        if (!registry.has(use!)) {
+            const importDirective = `jsr:${use}/factory`;
             const mod = await import(importDirective) as { factory: SecretsVaultFactory };
             registry.set(use!, mod.factory);
         }
