@@ -105,10 +105,38 @@ export interface SecretParam extends Record<string | symbol, unknown> {
 
 export type SecretParams = SecretParam[];
 
+/**
+ * Represents the parameters for a registering a secret vault.
+ */
 export interface SecretVaultParams extends Record<string | symbol, unknown> {
+    /**
+     * The name of the vault. This is used to reference the vault in other tasks.
+     */
     name: string;
+    /**
+     * The configuration uri for the vault. Configuration can be done with the `uri` or the
+     * the `with` properties.  e.g.  `sops-cli:./etc/secrets.env?sops-config=./etc/.sops.yaml&age-key-file=./etc/keys.txt`
+     * instructs the configuration to use the module `@rex/vaults-sops-cli` with file path of ./etc/secrets/env and
+     * the parameters are key value pairs. 
+     * 
+     * Third-party modules will need to have the org in the protocol where the org/scope is seperated with two hyphens:
+     * `myorg--mymodule:./etc/secrets.env?sops-config=./etc/.sops.yaml&age-key-file=./etc/keys.txt`
+     */
     uri?: string;
+    /**
+     * The name of the vault driver.  Rex modules can use shorthand names for drivers.
+     * For example, the `@rex/vaults-sops-cli` module is mapped the shorthand name `sops-cli`.
+     * 
+     * Other 3rd party modules can be used by specifying the full import path where jsr is assumed 
+     * to be the repository for the module.  For example, `@myorg/mymodule`.  The module must
+     * have a ./factory sub-mobule that exports a factory instance. 
+     */
     use?: string;
+    /**
+     * The configuration for the vault where each key is a configuration parameter. You will
+     * need to refer to the documentation for the specific vault driver to determine the
+     * the available configuration parameters.
+     */
     with?: Record<string, unknown>;
 }
 

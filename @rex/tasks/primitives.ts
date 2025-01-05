@@ -252,9 +252,9 @@ export class TaskMap extends OrderedMap<string, Task> {
     }
 }
 
-export class TaskRegistry extends ProxyMap<TaskDescriptor> {
-    static fromObject(obj: Record<string, TaskDescriptor>): TaskRegistry {
-        const map = new TaskRegistry();
+export class TaskHandlerRegistry extends ProxyMap<TaskDescriptor> {
+    static fromObject(obj: Record<string, TaskDescriptor>): TaskHandlerRegistry {
+        const map = new TaskHandlerRegistry();
         for (const [key, value] of Object.entries(obj)) {
             map.set(key, value);
         }

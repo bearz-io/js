@@ -4,7 +4,7 @@ import {
     type Task,
     type TaskContext,
     type TaskMap,
-    type TaskRegistry,
+    type TaskHandlerRegistry,
     type TaskResult,
     toError,
 } from "@rex/tasks";
@@ -15,7 +15,7 @@ export interface TaskPipelineContext extends TaskContext {
     task: Task;
     bus: LoggingMessageBus;
     status: PipelineStatus;
-    registry: TaskRegistry;
+    registry: TaskHandlerRegistry;
     environmentName: "development" | "staging" | "production" | "test" | "local" | string;
 }
 
@@ -56,7 +56,7 @@ export class TaskPipeline extends Pipeline<TaskResult, TaskPipelineContext> {
 
 export interface TasksPipelineContext extends ExecutionContext {
     tasks: TaskMap;
-    registry: TaskRegistry;
+    registry: TaskHandlerRegistry;
     results: TaskResult[];
     status: PipelineStatus;
     error?: Error;

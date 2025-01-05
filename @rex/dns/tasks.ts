@@ -4,7 +4,7 @@ import {
     type TaskContext,
     type TaskDef,
     type TaskMap,
-    getTaskRegistry,
+    getTaskHandlerRegistry,
     toError,
 } from "@rex/tasks";
 import { type Inputs, Outputs } from "@rex/primitives";
@@ -70,7 +70,7 @@ export function registerDnsDriver(): RegisterDnsDriverTaskBuilder {
             id = `register-dns-driver-${def.with.name}`;
         }
 
-        const tasks = getTaskRegistry();
+        const tasks = getTaskHandlerRegistry();
         let i = 0;
         const old = id;
         while(tasks.has(id)) {
@@ -123,7 +123,7 @@ export function registerDnsDriver(): RegisterDnsDriverTaskBuilder {
 
     const inputs = first as DnsDriverParams;
     let id = `register-dns-driver-${inputs.name}`;
-    const tasks = getTaskRegistry();
+    const tasks = getTaskHandlerRegistry();
     let i = 0;
     const old = id;
     while(tasks.has(id)) {
@@ -147,7 +147,7 @@ export function registerDnsDriver(): RegisterDnsDriverTaskBuilder {
     }, arguments[1]);
 }
 
-const taskRegistry = getTaskRegistry();
+const taskRegistry = getTaskHandlerRegistry();
 taskRegistry.set(dnsDriverId, {
     id: dnsDriverId,
     inputs: [],

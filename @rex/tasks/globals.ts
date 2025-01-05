@@ -1,7 +1,7 @@
-import { TaskMap, TaskRegistry } from "./primitives.ts";
+import { TaskMap, TaskHandlerRegistry } from "./primitives.ts";
 
 const REX_TASKS_SYMBOL = Symbol("@@REX_TASKS");
-const REX_REGISTRY_SYMBOL = Symbol("@@REX_REGISTRY");
+const REX_TASK_HANDLERS_SYMBOL = Symbol("REX_TASK_HANDLER_REGISTRY");
 
 const g = globalThis as Record<symbol, unknown>;
 
@@ -11,14 +11,14 @@ if (!g[REX_TASKS_SYMBOL]) {
 
 export const REX_TASKS = g[REX_TASKS_SYMBOL] as TaskMap;
 
-if (!g[REX_REGISTRY_SYMBOL]) {
-    g[REX_REGISTRY_SYMBOL] = new TaskRegistry();
+if (!g[REX_TASK_HANDLERS_SYMBOL]) {
+    g[REX_TASK_HANDLERS_SYMBOL] = new TaskHandlerRegistry();
 }
 
-export const REX_TASKS_REGISTRY = g[REX_REGISTRY_SYMBOL] as TaskRegistry;
+export const REX_TASKS_REGISTRY = g[REX_TASK_HANDLERS_SYMBOL] as TaskHandlerRegistry;
 
-export function getTaskRegistry(): TaskRegistry {
-    return g[REX_REGISTRY_SYMBOL] as TaskRegistry;
+export function getTaskHandlerRegistry(): TaskHandlerRegistry {
+    return g[REX_TASK_HANDLERS_SYMBOL] as TaskHandlerRegistry;
 }
 
 export function getGlobalTasks(): TaskMap {

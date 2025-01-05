@@ -154,6 +154,7 @@ export class Runner {
             };
 
             ctx.env.set("REX_ENVIRONMENT", options.context ?? "local");
+            ctx.env.set("REX_CONTEXT", options.context ?? "local");
 
             const discoveryPipeline = new DiscoveryPipeline();
             discoveryPipeline.use(new RexfileDiscovery());

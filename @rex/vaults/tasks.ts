@@ -1,7 +1,7 @@
 import type { SecretParam, SecretVaultParams, SecretParams } from "./types.ts";
 import {
 getGlobalTasks,
-    getTaskRegistry,
+    getTaskHandlerRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
@@ -280,7 +280,7 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
     }, arguments[2]);
 }
 
-const taskRegistry = getTaskRegistry();
+const taskRegistry = getTaskHandlerRegistry();
 
 taskRegistry.set("@rex/register-secret-vault", {
     id: "@rex/register-secret-vault",

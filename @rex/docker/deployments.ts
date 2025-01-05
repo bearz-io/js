@@ -10,6 +10,7 @@ import { type Inputs, Outputs } from "@rex/primitives";
 import { fail, ok, type Result } from "@bearz/functional";
 import { down as execDown, type DownArgs } from "./compose/down.ts";
 import { up as execUp, type UpArgs } from "./compose/up.ts";
+import { env } from "@bearz/env";
 
 export interface DeployComposeInputs extends Record<string, unknown> {
     files: string[];
@@ -196,6 +197,8 @@ REX_DEPLOYMENT_REGISTRY.set("@rex/deploy-compose", {
     run: async (ctx: DeploymentContext): Promise<Result<Outputs>> => {
         const directive = ctx.directive;
 
+        ctx.env.set("REX_CONTEXT", ctx.environmentName)
+
         switch (directive) {
             case "destroy":
                 try {
@@ -214,9 +217,46 @@ REX_DEPLOYMENT_REGISTRY.set("@rex/deploy-compose", {
                         return fail(new Error("No inputs provided"));
                     }
 
+                    const g : (key: string) => string | undefined = (key) => {
+                        if (ctx.state.env.get(key))
+                            return ctx.state.env.get(key);
+                        
+                        if (ctx.env.get(key))
+                            return ctx.env.get(key);
+        
+                        return env.get(key);
+                    }
+
+                    let files = inputs.get("files") as string[] ?? [];
+                    let temp = new Array<string>();
+                    for(let file of files) {
+                        if (file.includes("$")) {
+                            file = env.expand(file, { get: g });
+                        }
+
+                        temp.push(file);
+                    }
+
+                    files = temp;
+                    let envFiles = inputs.get("envFiles") as string[] ?? undefined
+                    temp = [];
+                    if (envFiles) {
+                        for(let file of envFiles) {
+                            if (file.includes("$")) {
+                                file = env.expand(file, { get: g });
+                            }
+    
+                            temp.push(file);
+                        }
+
+                        envFiles = temp;
+                    }
+               
+
+
                     const downArgs: DownArgs = {
-                        file: inputs.get("files") as string[] ?? [],
-                        envFile: inputs.get("envFiles") as string[] | undefined,
+                        file: files,
+                        envFile: envFiles,
                         projectDirectory: inputs.get("projectDirectory") as string | undefined,
                         projectName: inputs.get("projectName") as string | undefined,
                         profile: inputs.get("profile") as string[] | undefined,

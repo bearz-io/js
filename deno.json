@@ -68,6 +68,7 @@
         "@rex/e2e",
         "@rex/dns-flarectl",
         "@rex/states",
+        "@rex/ssh-native",
         "@spawn/bash",
         "@spawn/cmd",
         "@spawn/pwsh",

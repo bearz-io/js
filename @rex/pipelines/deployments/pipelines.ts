@@ -1,5 +1,5 @@
 import type { ExecutionContext, LoggingMessageBus } from "@rex/primitives";
-import { type PipelineStatus, type TaskRegistry, toError } from "@rex/tasks";
+import { type PipelineStatus, type TaskHandlerRegistry, toError } from "@rex/tasks";
 import type {
     Deployment,
     DeploymentContext,
@@ -14,7 +14,7 @@ export interface DeploymentPipelineContext extends DeploymentContext {
     deployment: Deployment;
     bus: LoggingMessageBus;
     status: PipelineStatus;
-    tasksRegistry: TaskRegistry;
+    tasksRegistry: TaskHandlerRegistry;
     deploymentsRegistry: DeploymentRegistry;
 }
 
@@ -56,7 +56,7 @@ export class DeploymentPipeline extends Pipeline<DeploymentResult, DeploymentPip
 export interface DeploymentsPipelineContext extends ExecutionContext {
     tasks: DeploymentMap;
     deploymentsRegistry: DeploymentRegistry;
-    tasksRegistry: TaskRegistry;
+    tasksRegistry: TaskHandlerRegistry;
     results: DeploymentResult[];
     status: PipelineStatus;
     error?: Error;
