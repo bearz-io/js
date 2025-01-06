@@ -4,6 +4,8 @@
     "exports": {
         ".": "./mod.ts",
         "./types": "./types.ts",
-        "./resolver": "./resolver.ts"
+        "./registry": "./registry.ts",
+        "./tasks": "./tasks.ts",
+        "./hostfile": "./hostfile.ts"
     }
 }

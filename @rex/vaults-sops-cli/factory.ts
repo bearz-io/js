@@ -5,19 +5,20 @@ import { isAbsolute, resolve } from "@std/path";
 
 export class SopsCliVaultFactory implements SecretsVaultFactory {
     canBuild(params: SecretVaultParams): boolean {
-        return (params.use !== undefined && (params.use === "@rex/vaults-sops-cli" || params.use === "sops-cli")) 
-            || (params.uri !== undefined && params.uri.startsWith("sops-cli:"));
+        return (params.use !== undefined &&
+            (params.use === "@rex/vaults-sops-cli" || params.use === "sops-cli")) ||
+            (params.uri !== undefined && params.uri.startsWith("sops-cli:"));
     }
 
     build(config: SecretVaultParams): SecretVault {
         const { uri } = config;
         const w = config.with;
 
-        let recipients : string | undefined = undefined;
-        let sopsKeyFile : string | undefined = undefined;
-        let configFile : string | undefined = undefined;
-        let driver : SopsProvider = "age";
-        let path : string = "";
+        let recipients: string | undefined = undefined;
+        let sopsKeyFile: string | undefined = undefined;
+        let configFile: string | undefined = undefined;
+        let driver: SopsProvider = "age";
+        let path: string = "";
 
         if (uri) {
             const url = new URL(uri);
@@ -30,7 +31,7 @@ export class SopsCliVaultFactory implements SecretsVaultFactory {
             if (r) {
                 recipients = r;
             }
-            
+
             const k = url.searchParams.get("age-key-file");
             if (k) {
                 sopsKeyFile = k;
@@ -40,7 +41,7 @@ export class SopsCliVaultFactory implements SecretsVaultFactory {
             if (c) {
                 configFile = c;
             }
-           
+
             const d = url.searchParams.get("driver");
             if (d) {
                 driver = d as SopsProvider;
@@ -51,7 +52,7 @@ export class SopsCliVaultFactory implements SecretsVaultFactory {
             if (w.use) {
                 driver = w.use as SopsProvider;
             }
-          
+
             if (w["age-recipients"]) {
                 recipients = w["age-recipients"] as string;
             }
@@ -89,7 +90,7 @@ export class SopsCliVaultFactory implements SecretsVaultFactory {
             params.age ??= {};
             params.age.keyFile = sopsKeyFile;
         }
-        
+
         if (recipients?.length !== 0) {
             params.age ??= {};
             params.age.recipients = recipients;
@@ -99,4 +100,4 @@ export class SopsCliVaultFactory implements SecretsVaultFactory {
     }
 }
 
-export const factory = new SopsCliVaultFactory();
+export const factory: SopsCliVaultFactory = new SopsCliVaultFactory();

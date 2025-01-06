@@ -1,5 +1,5 @@
 [
     "@bearz/twig",
     "@bearz/node-ssh2",
-    "@rex/e2e"
+    "stacks"
 ]

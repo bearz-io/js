@@ -1,6 +1,6 @@
-import type { SecretParam, SecretVaultParams, SecretParams } from "./types.ts";
+import type { SecretParam, SecretParams, SecretVaultParams } from "./types.ts";
 import {
-getGlobalTasks,
+    getGlobalTasks,
     getTaskHandlerRegistry,
     type Task,
     TaskBuilder,
@@ -17,7 +17,7 @@ import { DefaultSecretGenerator } from "@bearz/secrets/generator";
 import { env } from "@bearz/env";
 
 export interface LoadSecretsTask extends Task {
-    params?: SecretParams
+    params?: SecretParams;
 }
 
 export interface LoadSecretsTaskDef extends TaskDef {
@@ -119,7 +119,7 @@ export function registerSecrets(): LoadSecretsTaskBuilder {
             uses,
             name: id,
             needs: third as string[],
-            inputs: second as SecretParams,
+            params: second as SecretParams,
         }, arguments[3]);
     }
 
@@ -128,14 +128,12 @@ export function registerSecrets(): LoadSecretsTaskBuilder {
         uses,
         name: id,
         needs: [],
-        inputs: second as SecretParams,
+        params: second as SecretParams,
     }, arguments[2]);
 }
 
-
-
 export interface RegisterSecretVaultTask extends Task {
-    params?: SecretVaultParams
+    params?: SecretVaultParams;
 }
 
 export interface RegisterSecretVaultTaskDef extends TaskDef {
@@ -153,7 +151,10 @@ export class RegisterSecretVaultTaskBuilder extends TaskBuilder {
     }
 }
 
-export function registerSecretVault(task: RegisterSecretVaultTaskDef, map?: TaskMap): RegisterSecretVaultTaskBuilder;
+export function registerSecretVault(
+    task: RegisterSecretVaultTaskDef,
+    map?: TaskMap,
+): RegisterSecretVaultTaskBuilder;
 export function registerSecretVault(
     inputs: SecretVaultParams,
     map?: TaskMap,
@@ -161,6 +162,11 @@ export function registerSecretVault(
 export function registerSecretVault(
     inputs: SecretVaultParams,
     needs: string[],
+    map?: TaskMap,
+): RegisterSecretVaultTaskBuilder;
+export function registerSecretVault(
+    id: string,
+    inputs: SecretVaultParams,
     map?: TaskMap,
 ): RegisterSecretVaultTaskBuilder;
 export function registerSecretVault(
@@ -178,8 +184,8 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
     const first = arguments[0];
     const second = arguments[1];
 
-    if (typeof first === 'object') {
-        if (first.with !== undefined && (typeof first.with === 'function' || first.with.name)) {
+    if (typeof first === "object") {
+        if (first.with !== undefined && (typeof first.with === "function" || first.with.name)) {
             const def = arguments[0] as RegisterSecretVaultTaskDef;
             const w = def.with;
             const isFunction = typeof w === "function";
@@ -201,10 +207,10 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
                     throw new Error(`Task ${id} already exists`);
                 }
             }
-    
+
             const task: RegisterSecretVaultTask = {
                 id,
-                uses, 
+                uses,
                 needs: def.needs ?? [],
                 name: def.name ?? id,
                 cwd: def.cwd,
@@ -214,12 +220,13 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
                 force: def.force,
                 if: def.if,
             };
-    
-            if (isFunction)
+
+            if (isFunction) {
                 task.with = w;
-            else
+            } else {
                 task.params = w;
-    
+            }
+
             return new RegisterSecretVaultTaskBuilder(task, map);
         } else {
             const params = first as SecretVaultParams;
@@ -228,10 +235,10 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
             if (map.has(id) && !params.replace) {
                 throw new Error(`Task ${id} already exists`);
             }
-        
+
             const old = id;
-            let i = 0
-            while(map.has(id)) {
+            let i = 0;
+            while (map.has(id)) {
                 id = `${old}-${i++}`;
             }
             let needs: string[] = [];
@@ -245,7 +252,7 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
                     params,
                 }, map);
             }
-        
+
             return new RegisterSecretVaultTaskBuilder({
                 id,
                 uses,
@@ -255,7 +262,6 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
             }, map);
         }
     }
-    
 
     const id = first as string;
     const params = second as SecretVaultParams;
@@ -273,7 +279,7 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
 
     return new RegisterSecretVaultTaskBuilder({
         id,
-        uses, 
+        uses,
         name: id,
         needs: [],
         params,
@@ -292,7 +298,7 @@ taskRegistry.set("@rex/register-secret-vault", {
         name: "uri",
         type: "string",
         description: "The URI of the secret vault",
-        required: true,
+        required: false,
     }, {
         name: "use",
         type: "string",
@@ -309,26 +315,28 @@ taskRegistry.set("@rex/register-secret-vault", {
         try {
             const inputs = ctx.state.inputs;
 
-            const g : (key: string) => string | undefined = (key) => {
-                if (ctx.state.env.get(key))
+            const g: (key: string) => string | undefined = (key) => {
+                if (ctx.state.env.get(key)) {
                     return ctx.state.env.get(key);
-                
-                if (ctx.env.get(key))
+                }
+
+                if (ctx.env.get(key)) {
                     return ctx.env.get(key);
+                }
 
                 return env.get(key);
-            }
+            };
 
             const w = inputs.get("with") as Record<string, unknown> | undefined;
             if (w) {
-                for (const key in Object.keys(w)) {
+                for (const key of Object.keys(w)) {
                     let value = w[key];
                     if (typeof value === "string" && value.includes("$")) {
                         value = env.expand(value, {
-                            get: g
-                        })
+                            get: g,
+                        });
                     }
-                    
+
                     w[key] = value;
                 }
             }
@@ -337,18 +345,18 @@ taskRegistry.set("@rex/register-secret-vault", {
             if (uri) {
                 if (uri.includes("$")) {
                     uri = env.expand(uri, {
-                        get: g
+                        get: g,
                     });
                 }
             }
 
-            const params : SecretVaultParams = {
+            const params: SecretVaultParams = {
                 name: inputs.get("name") as string ?? "default",
                 uri,
                 use: inputs.get("use") as string | undefined,
                 with: w,
-                replace: inputs.get("update") as boolean ?? false, 
-            }
+                replace: inputs.get("update") as boolean ?? false,
+            };
 
             const registry = getVaultsRegistry();
             if (registry.has(params.name) && !params.replace) {
@@ -385,7 +393,7 @@ taskRegistry.set("@rex/register-secrets", {
             if (!secrets) {
                 throw new Error("No secrets provided");
             }
-    
+
             const vaults = getVaults();
             for (const secretDef of secrets) {
                 const vaultName = secretDef.vault ?? "default";
@@ -395,7 +403,7 @@ taskRegistry.set("@rex/register-secrets", {
                 if (!vault) {
                     return fail(new Error(`Vault ${vaultName} not found`));
                 }
-    
+
                 try {
                     value = await vault.getSecretValue(key);
                 } catch (ex) {
@@ -405,33 +413,33 @@ taskRegistry.set("@rex/register-secrets", {
                         return fail(new Error(`Unknown error ${ex}`));
                     }
                 }
-    
+
                 if (value === undefined || value === null) {
                     if (!secretDef.gen) {
                         return fail(new Error(`Secret ${key} not found in vault ${vaultName}`));
                     }
-    
+
                     const sg = new DefaultSecretGenerator();
                     if (secretDef.lower === undefined || secretDef.lower) {
                         sg.add("abcdefghijklmnopqrstuvwxyz");
                     }
-    
+
                     if (secretDef.upper === undefined || secretDef.upper) {
                         sg.add("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
                     }
-    
+
                     if (secretDef.digits === undefined || secretDef.digits) {
                         sg.add("0123456789");
                     }
-    
+
                     if (secretDef.special) {
                         sg.add(secretDef.special);
                     }
-    
+
                     if (secretDef.size === undefined) {
                         secretDef.size = 16;
                     }
-    
+
                     try {
                         value = sg.generate(secretDef.size);
                         await vault.setSecret(key, value);
@@ -443,12 +451,12 @@ taskRegistry.set("@rex/register-secrets", {
                         }
                     }
                 }
-    
+
                 ctx.secrets.set(secretDef.name, value);
             }
-    
+
             return ok(new Outputs());
-        } catch(e) {
+        } catch (e) {
             return fail(toError(e));
         }
     },

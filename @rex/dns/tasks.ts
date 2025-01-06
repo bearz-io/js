@@ -1,18 +1,17 @@
 import {
+    getTaskHandlerRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
     type TaskDef,
     type TaskMap,
-    getTaskHandlerRegistry,
     toError,
 } from "@rex/tasks";
 import { type Inputs, Outputs } from "@rex/primitives";
 import type { DnsDriverParams, DnsRecord } from "./types.ts";
-import { ok, fail, type Result } from "@bearz/functional";
+import { fail, ok, type Result } from "@bearz/functional";
 import { getDnsDriverRegistry, getDnsDrivers } from "./registry.ts";
-import { env } from "@bearz/env"
-
+import { env } from "@bearz/env";
 
 const dnsDriverId = "@rex/register-dns-driver";
 const updateDnsRecordsId = "@rex/update-dns-records";
@@ -31,12 +30,15 @@ export class RegisterDnsDriverTaskBuilder extends TaskBuilder {
         super(task, map);
 
         if (task.params) {
-            this.with(task.params.with ?? {});
+            this.with(task.params ?? {});
         }
     }
 }
 
-export function registerDnsDriver(def: RegisterDnsDriverTaskDef, map?: TaskMap): RegisterDnsDriverTaskBuilder;
+export function registerDnsDriver(
+    def: RegisterDnsDriverTaskDef,
+    map?: TaskMap,
+): RegisterDnsDriverTaskBuilder;
 export function registerDnsDriver(
     inputs: DnsDriverParams,
     map?: TaskMap,
@@ -58,12 +60,14 @@ export function registerDnsDriver(
     map?: TaskMap,
 ): RegisterDnsDriverTaskBuilder;
 export function registerDnsDriver(): RegisterDnsDriverTaskBuilder {
-
     const first = arguments[0];
     const second = arguments[1];
-    const uses = dnsDriverId
+    const uses = dnsDriverId;
 
-    if (typeof first === "object" && typeof first.with === 'function' || first.with.name) {
+    if (
+        typeof first === "object" && typeof first.with === "function" ||
+        (typeof first.with === "object" && typeof first.with.name === "string")
+    ) {
         const def = arguments[0] as RegisterDnsDriverTaskDef;
         let id = def.id ?? "register-dns-driver-default";
         if (!def.id && def.with.name) {
@@ -73,7 +77,7 @@ export function registerDnsDriver(): RegisterDnsDriverTaskBuilder {
         const tasks = getTaskHandlerRegistry();
         let i = 0;
         const old = id;
-        while(tasks.has(id)) {
+        while (tasks.has(id)) {
             id = `${old}-${i++}`;
         }
 
@@ -126,10 +130,10 @@ export function registerDnsDriver(): RegisterDnsDriverTaskBuilder {
     const tasks = getTaskHandlerRegistry();
     let i = 0;
     const old = id;
-    while(tasks.has(id)) {
+    while (tasks.has(id)) {
         id = `${old}-${i++}`;
     }
- 
+
     if (second && Array.isArray(second)) {
         return new RegisterDnsDriverTaskBuilder({
             id,
@@ -138,7 +142,7 @@ export function registerDnsDriver(): RegisterDnsDriverTaskBuilder {
             params: inputs,
         }, arguments[2]);
     }
-   
+
     return new RegisterDnsDriverTaskBuilder({
         id,
         uses,
@@ -156,26 +160,28 @@ taskRegistry.set(dnsDriverId, {
         try {
             const inputs = ctx.state.inputs;
 
-            const g : (key: string) => string | undefined = (key) => {
-                if (ctx.state.env.get(key))
+            const g: (key: string) => string | undefined = (key) => {
+                if (ctx.state.env.get(key)) {
                     return ctx.state.env.get(key);
-                
-                if (ctx.env.get(key))
+                }
+
+                if (ctx.env.get(key)) {
                     return ctx.env.get(key);
+                }
 
                 return env.get(key);
-            }
+            };
 
             const w = inputs.get("with") as Record<string, unknown> | undefined;
             if (w) {
-                for (const key in Object.keys(w)) {
+                for (const key of Object.keys(w)) {
                     let value = w[key];
                     if (typeof value === "string" && value.includes("$")) {
                         value = env.expand(value, {
-                            get: g
-                        })
+                            get: g,
+                        });
                     }
-                    
+
                     w[key] = value;
                 }
             }
@@ -184,21 +190,23 @@ taskRegistry.set(dnsDriverId, {
             if (uri) {
                 if (uri.includes("$")) {
                     uri = env.expand(uri, {
-                        get: g
+                        get: g,
                     });
                 }
             }
 
-            const params : DnsDriverParams = {
+            const params: DnsDriverParams = {
                 name: inputs.get("name") as string,
                 use: inputs.get("use") as string | undefined,
                 uri,
                 replace: inputs.get("replace") as boolean | undefined,
                 with: w,
-            }
+            };
 
             const registry = getDnsDriverRegistry();
             await registry.buildAndRegister(params);
+
+            ctx.writer.success(`Registered dns driver '${inputs.get("name")}'`);
 
             const o = new Outputs();
             return ok(o);
@@ -234,15 +242,22 @@ export class UpdateDnsRecordsTaskBuilder extends TaskBuilder {
     }
 }
 
-export function updateDns(def: UpdateDnsRecordsTaskDef, map?: TaskMap): UpdateDnsRecordsTaskBuilder;
-export function updateDns(id: string, inputs: UpdateDnsRecordsParams, map?: TaskMap): UpdateDnsRecordsTaskBuilder;
-export function updateDns(
+export function updateDnsTask(
+    def: UpdateDnsRecordsTaskDef,
+    map?: TaskMap,
+): UpdateDnsRecordsTaskBuilder;
+export function updateDnsTask(
+    id: string,
+    inputs: UpdateDnsRecordsParams,
+    map?: TaskMap,
+): UpdateDnsRecordsTaskBuilder;
+export function updateDnsTask(
     id: string,
     inputs: UpdateDnsRecordsParams,
     needs: string[],
     map?: TaskMap,
 ): UpdateDnsRecordsTaskBuilder;
-export function updateDns(): UpdateDnsRecordsTaskBuilder {
+export function updateDnsTask(): UpdateDnsRecordsTaskBuilder {
     const uses = updateDnsRecordsId;
 
     if (arguments.length < 2 && typeof arguments[0] === "object") {
@@ -272,29 +287,29 @@ export function updateDns(): UpdateDnsRecordsTaskBuilder {
 
     const id = arguments[0] as string;
     const second = arguments[1];
-    if (Array.isArray(second)) {
-        const inputs = arguments[2] as UpdateDnsRecordsParams;
+    const third = arguments[2];
+    if (Array.isArray(third)) {
+        const params = second as UpdateDnsRecordsParams;
         const task: UpdateDnsRecordsTask = {
             id: id,
             uses,
-            needs: second,
-            params: inputs,
+            needs: third as string[],
+            params,
         };
 
         return new UpdateDnsRecordsTaskBuilder(task, arguments[3]);
     }
 
-    const inputs = arguments[1] as UpdateDnsRecordsParams;
+    const params = arguments[1] as UpdateDnsRecordsParams;
     const task: UpdateDnsRecordsTask = {
         id: id,
         uses,
         needs: [],
-        params: inputs,
+        params,
     };
 
     return new UpdateDnsRecordsTaskBuilder(task, arguments[2]);
 }
-
 
 taskRegistry.set(updateDnsRecordsId, {
     id: updateDnsRecordsId,
@@ -345,14 +360,13 @@ taskRegistry.set(updateDnsRecordsId, {
                 }
             }
 
-
             const o = new Outputs();
             o.set("use", use);
             o.set("zone", zone);
             o.set("records", records);
             o.set("remove", remove);
             return ok(o);
-        } catch(error) {
+        } catch (error) {
             return fail(toError(error));
         }
     },

@@ -1,5 +1,5 @@
-import { cwd as getCwd, exit, chdir } from "@bearz/process";
-import { join, dirname, isAbsolute, resolve } from "@std/path";
+import { chdir, cwd as getCwd, exit } from "@bearz/process";
+import { dirname, isAbsolute, join, resolve } from "@std/path";
 import { writer } from "./ci/writer.ts";
 import {
     type ExecutionContext,
@@ -102,7 +102,7 @@ export class Runner {
         file ??= join(cwd, "rexfile.ts");
         writer.trace(`Rexfile: ${file}`);
 
-        timeout ??= 60 * 3;
+        timeout ??= 60 * 60;
         if (timeout < 1) {
             timeout = 60 * 3;
         }

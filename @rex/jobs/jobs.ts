@@ -104,7 +104,7 @@ export class JobBuilder {
             }
         }
 
-        fn(task, add, get);
+        fn(task, add, get, map);
         this.#job.tasks.push(...map.values());
         return this;
     }

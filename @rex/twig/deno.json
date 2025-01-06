@@ -1,7 +1,9 @@
 {
     "name": "@rex/twig",
-    "version": "0.0.0",
+    "version": "0.0.0-beta.2",
     "exports": {
-        ".": "./mod.ts"
+        ".": "./mod.ts",
+        "./twig": "./twig.ts",
+        "./tasks": "./tasks.ts"
     }
 }

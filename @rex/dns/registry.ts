@@ -16,12 +16,9 @@ export function getDnsDrivers(): Map<string, DnsDriver> {
     return g[REX_DNS_DRIVERS] as Map<string, DnsDriver>;
 }
 
-
 export class DnsDriverRegistry extends Map<string, DnsDriverFactory> {
-
-    
     async build(params: DnsDriverParams): Promise<DnsDriver> {
-        let { use, uri, } = params;
+        let { use, uri } = params;
 
         if (!use && !uri) {
             use = "hostfile";
@@ -47,7 +44,7 @@ export class DnsDriverRegistry extends Map<string, DnsDriverFactory> {
         // import should be jsr:@rex/vaults-sops-cli/loader
         let factory: DnsDriverFactory | undefined = undefined;
         if (!this.has(use!)) {
-            const directive = `jsr:${use}/loader`;
+            const directive = `jsr:${use}/factory`;
             const mod = await import(directive) as { factory: DnsDriverFactory };
             this.set(use!, mod.factory);
         }
@@ -62,7 +59,8 @@ export class DnsDriverRegistry extends Map<string, DnsDriverFactory> {
 
     async buildAndRegister(params: DnsDriverParams): Promise<DnsDriver> {
         const driver = await this.build(params);
-        getDnsDrivers().set(params.name, driver);
+        const drivers = getDnsDrivers();
+        drivers.set(params.name, driver);
         return driver;
     }
 

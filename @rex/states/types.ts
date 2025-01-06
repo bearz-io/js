@@ -1,4 +1,3 @@
-
 /**
  * Storage for persisting state data.
  */
@@ -16,20 +15,20 @@ export interface StateStore {
      * Gets the value of a state data at the specified path.
      * @param path The path to the state data.
      */
-    get<T = unknown>(path: string) : Promise<T | undefined>;
+    get<T = unknown>(path: string): Promise<T | undefined>;
 
     /**
      * Sets the value of a state data at the specified path.
      * @param path The path to the state data.
      * @param value The value to set.
      */
-    set<T = unknown>(path: string, value: T) : Promise<void>;
+    set<T = unknown>(path: string, value: T): Promise<void>;
 
     /**
      * Deletes the state data at the specified path.
      * @param path The path to the state data.
      */
-    delete(path: string) : Promise<void>;
+    delete(path: string): Promise<void>;
 }
 
 /**
@@ -43,7 +42,7 @@ export interface StateDriverParams extends Record<string, unknown> {
     /**
      * The type of state driver to create.
      */
-    use?: 'file' | string;
+    use?: "file" | string;
     /**
      * The URI of the state driver.
      */
@@ -67,7 +66,7 @@ export interface StateDriverFactory {
      * Can the factory build a state driver with the specified parameters.
      * @param params The parameters for creating the state driver.
      */
-    canBuild(params: StateDriverParams) : boolean;
+    canBuild(params: StateDriverParams): boolean;
     /**
      * The factory builds a state driver with the specified parameters.
      * @param params The parameters for creating the state driver.
@@ -75,5 +74,5 @@ export interface StateDriverFactory {
      * @throws If the state driver cannot be created or can not load
      * the module that creates the state driver.
      */
-    build(params: StateDriverParams) : Promise<StateStore>;
+    build(params: StateDriverParams): Promise<StateStore>;
 }

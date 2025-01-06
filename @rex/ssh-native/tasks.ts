@@ -1,4 +1,3 @@
-
 import {
     getTaskHandlerRegistry,
     type Task,
@@ -36,7 +35,6 @@ export interface SshTaskParams extends Record<string | symbol, unknown> {
     identityFile?: string;
     /**
      * The command to execute. If file is provided, the command will be read from the file.
-     * 
      */
     command?: string;
     /**
@@ -44,7 +42,7 @@ export interface SshTaskParams extends Record<string | symbol, unknown> {
      */
     file?: string;
     /**
-     * Additional arguments to pass to ssh. The arguments are prepended before the 
+     * Additional arguments to pass to ssh. The arguments are prepended before the
      * target e.g. `ssh [args] user@host`.
      */
     args?: string[];
@@ -58,13 +56,13 @@ export interface SshTaskParams extends Record<string | symbol, unknown> {
 
 /**
  * The ssh task.
- * 
+ *
  * @see SshTaskParams
  */
 export interface SshTask extends Task {
     /**
-     * The parameters for the ssh task. This is only use for 
-     * code tasks. 
+     * The parameters for the ssh task. This is only use for
+     * code tasks.
      */
     params?: SshTaskParams;
 }
@@ -72,7 +70,7 @@ export interface SshTask extends Task {
 /**
  * The ssh task definition. This is as the input for the task builder
  * and convert into `SshTask`.
- * 
+ *
  * @see SshTask
  */
 export interface SshTaskDef extends TaskDef {
@@ -84,7 +82,6 @@ export interface SshTaskDef extends TaskDef {
  * The task builder for the ssh task.
  */
 export class SshTaskBuilder extends TaskBuilder {
-
     /**
      * Creates a new ssh task builder.
      * @param task The task to build.
@@ -106,11 +103,11 @@ export class SshTaskBuilder extends TaskBuilder {
  * @param def The task definition.
  * @param map The task map to register the task with.
  * @returns The ssh task builder.
- * 
- * @example 
+ *
+ * @example
  * ```typescript
  * import { sshTask } from "@rex/ssh-native";
- * 
+ *
  * sshTask({
  *    id: "get-uptime",
  *    with: {
@@ -119,7 +116,7 @@ export class SshTaskBuilder extends TaskBuilder {
  *       command: "uptime",
  *    }
  * });
- * 
+ *
  * sshTask("get-uptime2", {
  *     user: "$USER", // environment variables are expanded
  *     host: "10.0.0.1",
@@ -134,19 +131,19 @@ export function sshTask(def: SshTaskDef, map?: TaskMap): SshTaskBuilder;
  * @param id The id of the task.
  * @param params The parameters for the ssh task.
  * @param map The task map to register the task with. Defaults to the global task registry.
- * 
+ *
  * @example
  * ```typescript
  * // rexfile.ts
  * import { sshTask } from "@rex/ssh-native";
- * 
+ *
  * sshTask("get-uptime", {
  *     user: "user",
  *     host: "10.0.0.1",
  *     command: "uptime",
  *     identityFile: "~/.ssh/id_rsa",
  * });
- * 
+ *
  * sshTask("get-uptime2", {
  *     user: "$USER", // environment variables are expanded
  *     host: "10.0.0.1",
@@ -162,12 +159,12 @@ export function sshTask(id: string, params: SshTaskParams, map?: TaskMap): SshTa
  * @param params The parameters for the ssh task.
  * @param needs The dependent tasks to run before this task is run.
  * @param map The task map to register the task with. Defaults to the global task registry.
- * 
+ *
  * @example
  * ```typescript
  * // rexfile.ts
  * import { sshTask } from "@rex/ssh-native";
- * 
+ *
  * sshTask("get-uptime", {
  *     user: "user",
  *     host: "10.0.0.1",
@@ -181,16 +178,15 @@ export function sshTask(
     params: SshTaskParams,
     needs: string[] | TaskMap,
     map?: TaskMap,
-): SshTaskBuilder 
-export function sshTask() : SshTaskBuilder {
-    
+): SshTaskBuilder;
+export function sshTask(): SshTaskBuilder {
     const first = arguments[0];
     const second = arguments[1];
     const uses = "@rex/ssh-native/ssh";
 
-    if (typeof first === 'object') {
+    if (typeof first === "object") {
         const def = first as SshTaskDef;
-        const task : SshTask = {
+        const task: SshTask = {
             id: def.id,
             uses,
             cwd: def.cwd,
@@ -200,9 +196,9 @@ export function sshTask() : SshTaskBuilder {
             description: def.description,
             needs: def.needs ?? [],
             name: def.name ?? def.id,
-        }
+        };
 
-        if (typeof def.with === 'function') {
+        if (typeof def.with === "function") {
             task.with = def.with;
         } else {
             task.params = def.with;
@@ -240,37 +236,38 @@ taskHandlerRegistery.set("@rex/ssh-native/ssh", {
         name: "user",
         type: "string",
         required: true,
-        "description": "The user to connect as"
+        "description": "The user to connect as",
     }, {
         name: "host",
         type: "string",
         required: true,
-        "description": "The host to connect to"
+        "description": "The host to connect to",
     }, {
         name: "port",
         type: "number",
         required: false,
-        "description": "The port to use. Defaults to 22."
+        "description": "The port to use. Defaults to 22.",
     }, {
         name: "identityFile",
         type: "string",
         required: false,
-        "description": "The identity file to use"
+        "description": "The identity file to use",
     }, {
         name: "file",
         type: "string",
         required: false,
-        "description": "The file to execute. File or command is required. If file is provided, the command will be read from the file."
+        "description":
+            "The file to execute. File or command is required. If file is provided, the command will be read from the file.",
     }, {
         name: "command",
         type: "string",
         required: false,
-        "description": "The command to execute. File or command is required."
+        "description": "The command to execute. File or command is required.",
     }, {
         name: "args",
         type: "array",
         required: false,
-        "description": "Additional arguments to pass to ssh"
+        "description": "Additional arguments to pass to ssh",
     }],
     outputs: [{
         name: "user",
@@ -294,9 +291,8 @@ taskHandlerRegistery.set("@rex/ssh-native/ssh", {
         type: "string",
         required: false,
     }],
-    run: async (ctx: TaskContext) : Promise<Result<Outputs>> => {
+    run: async (ctx: TaskContext): Promise<Result<Outputs>> => {
         try {
-
             const inputs = ctx.state.inputs;
             const args = inputs.get("args") as string[] | undefined ?? [];
             let user = inputs.get("user") as string;
@@ -305,21 +301,23 @@ taskHandlerRegistery.set("@rex/ssh-native/ssh", {
             let file = inputs.get("file") as string | undefined;
             let identityFile = inputs.get("identityFile") as string | undefined;
             let command = inputs.get("command") as string | undefined;
-            let useOutput = inputs.get("useOutput") as boolean | undefined;
+            const captureOutput = inputs.get("captureOutput") as boolean | undefined;
 
             if (!file && !command || (file?.length === 0 && command?.length === 0)) {
                 return fail(new Error("Either a file or command must be provided"));
             }
 
-            const g : (key: string) => string | undefined = (key) => {
-                if (ctx.state.env.has(key))
+            const g: (key: string) => string | undefined = (key) => {
+                if (ctx.state.env.has(key)) {
                     return ctx.state.env.get(key);
-                
-                if (ctx.env.has(key))
+                }
+
+                if (ctx.env.has(key)) {
                     return ctx.env.get(key);
+                }
 
                 return env.get(key);
-            }
+            };
 
             if (file && file.includes("$")) {
                 file = env.expand(file, { get: g });
@@ -349,11 +347,11 @@ taskHandlerRegistery.set("@rex/ssh-native/ssh", {
             }
 
             const cwd = ctx.state.cwd ?? ctx.cwd;
-            const vars : Record<string, string> = {};
-            const envDump = env.toObject()
+            const vars: Record<string, string> = {};
+            const envDump = env.toObject();
             for (const key of ctx.state.env.keys()) {
                 if (!envDump[key]) {
-                    splat.push("-o", `SendEnv=${key}`)
+                    splat.push("-o", `SendEnv=${key}`);
                 }
             }
 
@@ -373,16 +371,20 @@ taskHandlerRegistery.set("@rex/ssh-native/ssh", {
                 env: vars,
             });
 
-            if (useOutput) {
+            if (captureOutput) {
                 const res = await c.output();
                 if (res.code !== 0) {
-                    return fail(new Error(`Failed to execute ssh command. code ${res.code}, stderr: ${res.errorText()}`));
+                    return fail(
+                        new Error(
+                            `Failed to execute ssh command. code ${res.code}, stderr: ${res.errorText()}`,
+                        ),
+                    );
                 }
 
                 const o = new Outputs();
-                o.set("user", user)
-                o.set("host", host)
-                o.set("port", port ?? 22)
+                o.set("user", user);
+                o.set("host", host);
+                o.set("port", port ?? 22);
                 o.set("identityFile", identityFile);
                 o.set("stdout", res.text());
                 o.set("stderr", res.errorText());
@@ -395,15 +397,15 @@ taskHandlerRegistery.set("@rex/ssh-native/ssh", {
             }
 
             const o = new Outputs();
-            o.set("user", user)
-            o.set("host", host)
-            o.set("port", port ?? 22)
+            o.set("user", user);
+            o.set("host", host);
+            o.set("port", port ?? 22);
             o.set("identityFile", identityFile);
             return ok(o);
         } catch (error) {
             return fail(toError(error));
         }
-    }
+    },
 });
 
 export interface ScpParams extends Record<string | symbol, unknown> {
@@ -426,7 +428,6 @@ export interface ScpTaskDef extends TaskDef {
 }
 
 export class ScpTaskBuilder extends TaskBuilder {
-
     constructor(task: ScpTask, map?: TaskMap) {
         super(task, map);
 
@@ -443,14 +444,14 @@ export function scpTask(
     params?: ScpParams,
     needs?: string[] | TaskMap,
     map?: TaskMap,
-): ScpTaskBuilder
-export function scpTask() : ScpTaskBuilder {
+): ScpTaskBuilder;
+export function scpTask(): ScpTaskBuilder {
     const uses = "@rex/ssh-native/scp";
     const first = arguments[0];
     const second = arguments[1];
-    if (typeof first === 'object') {
+    if (typeof first === "object") {
         const def = first as ScpTaskDef;
-        const task : ScpTask = {
+        const task: ScpTask = {
             id: def.id,
             uses,
             cwd: def.cwd,
@@ -460,9 +461,9 @@ export function scpTask() : ScpTaskBuilder {
             description: def.description,
             needs: def.needs ?? [],
             name: def.name ?? def.id,
-        }
+        };
 
-        if (typeof def.with === 'function') {
+        if (typeof def.with === "function") {
             task.with = def.with;
         } else {
             task.params = def.with;
@@ -524,9 +525,8 @@ taskHandlerRegistery.set("@rex/ssh-native/scp", {
         required: false,
     }],
     outputs: [],
-    run: async (ctx: TaskContext) : Promise<Result<Outputs>> => {
+    run: async (ctx: TaskContext): Promise<Result<Outputs>> => {
         try {
-
             const inputs = ctx.state.inputs;
             const args = inputs.get("args") as string[] | undefined ?? [];
             let user = inputs.get("user") as string;
@@ -544,15 +544,17 @@ taskHandlerRegistery.set("@rex/ssh-native/scp", {
                 return fail(new Error("dest is required"));
             }
 
-            const g : (key: string) => string | undefined = (key) => {
-                if (ctx.state.env.has(key))
+            const g: (key: string) => string | undefined = (key) => {
+                if (ctx.state.env.has(key)) {
                     return ctx.state.env.get(key);
-                
-                if (ctx.env.has(key))
+                }
+
+                if (ctx.env.has(key)) {
                     return ctx.env.get(key);
+                }
 
                 return env.get(key);
-            }
+            };
 
             if (src.includes("$")) {
                 src = env.expand(src, { get: g });
@@ -586,11 +588,11 @@ taskHandlerRegistery.set("@rex/ssh-native/scp", {
             }
 
             const cwd = ctx.state.cwd ?? ctx.cwd;
-            const vars : Record<string, string> = {};
-            const envDump = env.toObject()
+            const vars: Record<string, string> = {};
+            const envDump = env.toObject();
             for (const key of ctx.state.env.keys()) {
                 if (!envDump[key]) {
-                    splat.push("-o", `SendEnv=${key}`)
+                    splat.push("-o", `SendEnv=${key}`);
                 }
             }
 
@@ -607,9 +609,9 @@ taskHandlerRegistery.set("@rex/ssh-native/scp", {
             }
 
             const o = new Outputs();
-            o.set("user", user)
-            o.set("host", host)
-            o.set("port", port ?? 22)
+            o.set("user", user);
+            o.set("host", host);
+            o.set("port", port ?? 22);
             o.set("identityFile", identityFile);
             o.set("src", src);
             o.set("dest", dest);
@@ -617,5 +619,5 @@ taskHandlerRegistery.set("@rex/ssh-native/scp", {
         } catch (error) {
             return fail(toError(error));
         }
-    }
+    },
 });

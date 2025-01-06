@@ -13,8 +13,6 @@ export function getVaults(): Map<string, SecretVault> {
 }
 
 export class SecretVaultRegistry extends Map<string, SecretsVaultFactory> {
-
-
     async build(params: SecretVaultParams): Promise<SecretVault> {
         let { use } = params;
         const { uri } = params;
@@ -38,23 +36,24 @@ export class SecretVaultRegistry extends Map<string, SecretsVaultFactory> {
                 use = `@rex/vaults-${use}`;
             }
         }
-        
+
         if (!registry.has(use!)) {
             const importDirective = `jsr:${use}/factory`;
             const mod = await import(importDirective) as { factory: SecretsVaultFactory };
             registry.set(use!, mod.factory);
         }
 
-        const factory = registry.get(use!);   
+        const factory = registry.get(use!);
         if (!factory) {
             throw new Error(`Secrets vault loader ${use} not found`);
         }
-       
+
         return factory.build(params);
     }
 
     async buildAndRegister(params: SecretVaultParams): Promise<SecretVault> {
         const vault = await this.build(params);
+        const vaults = getVaults();
         vaults.set(params.name, vault);
         return vault;
     }
@@ -73,10 +72,9 @@ const registry = new Map<string, SecretsVaultFactory>();
 const vaults = new Map<string, SecretVault>();
 
 if (!g[REX_VAULTS_REGISTRY]) {
-    g[REX_VAULTS_REGISTRY] =  new SecretVaultRegistry();
+    g[REX_VAULTS_REGISTRY] = new SecretVaultRegistry();
 }
 
 export function getVaultsRegistry(): SecretVaultRegistry {
-    return g[REX_VAULTS_REGISTRY] as SecretVaultRegistry
+    return g[REX_VAULTS_REGISTRY] as SecretVaultRegistry;
 }
-

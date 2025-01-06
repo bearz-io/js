@@ -33,7 +33,6 @@ export class ComposeDeploymentBuilder extends DeploymentBuilder {
     constructor(deployment: ComposeDeployment, map?: DeploymentMap) {
         super(deployment, map);
 
-        console.log("builder inputs", deployment.inputs);
         if (deployment.inputs) {
             this.with(deployment.inputs);
         }
@@ -155,7 +154,6 @@ export function deployCompose(): ComposeDeploymentBuilder {
     }, arguments[2]);
 }
 
-
 REX_DEPLOYMENT_REGISTRY.set("@rex/deploy-compose", {
     id: "@rex/deploy-compose",
     description: "A deployment task using inline code",
@@ -197,7 +195,7 @@ REX_DEPLOYMENT_REGISTRY.set("@rex/deploy-compose", {
     run: async (ctx: DeploymentContext): Promise<Result<Outputs>> => {
         const directive = ctx.directive;
 
-        ctx.env.set("REX_CONTEXT", ctx.environmentName)
+        ctx.env.set("REX_CONTEXT", ctx.environmentName);
 
         switch (directive) {
             case "destroy":
@@ -217,19 +215,21 @@ REX_DEPLOYMENT_REGISTRY.set("@rex/deploy-compose", {
                         return fail(new Error("No inputs provided"));
                     }
 
-                    const g : (key: string) => string | undefined = (key) => {
-                        if (ctx.state.env.get(key))
+                    const g: (key: string) => string | undefined = (key) => {
+                        if (ctx.state.env.get(key)) {
                             return ctx.state.env.get(key);
-                        
-                        if (ctx.env.get(key))
+                        }
+
+                        if (ctx.env.get(key)) {
                             return ctx.env.get(key);
-        
+                        }
+
                         return env.get(key);
-                    }
+                    };
 
                     let files = inputs.get("files") as string[] ?? [];
                     let temp = new Array<string>();
-                    for(let file of files) {
+                    for (let file of files) {
                         if (file.includes("$")) {
                             file = env.expand(file, { get: g });
                         }
@@ -238,29 +238,57 @@ REX_DEPLOYMENT_REGISTRY.set("@rex/deploy-compose", {
                     }
 
                     files = temp;
-                    let envFiles = inputs.get("envFiles") as string[] ?? undefined
+                    let envFiles = inputs.get("envFiles") as string[] ?? undefined;
                     temp = [];
                     if (envFiles) {
-                        for(let file of envFiles) {
+                        for (let file of envFiles) {
                             if (file.includes("$")) {
                                 file = env.expand(file, { get: g });
                             }
-    
+
                             temp.push(file);
                         }
 
                         envFiles = temp;
                     }
-               
 
+                    let projectDirectory = inputs.get("projectDirectory") as string | undefined;
+                    let projectName = inputs.get("projectName") as string | undefined;
+                    let profile = inputs.get("profile") as string[] | undefined;
+                    let context = inputs.get("context") as string | undefined;
+
+                    if (projectDirectory && projectDirectory.includes("$")) {
+                        projectDirectory = env.expand(projectDirectory, { get: g });
+                    }
+
+                    if (projectName && projectName.includes("$")) {
+                        projectName = env.expand(projectName, { get: g });
+                    }
+
+                    if (context && context.includes("$")) {
+                        context = env.expand(context, { get: g });
+                    }
+
+                    if (profile) {
+                        temp = new Array<string>();
+                        for (let p of profile) {
+                            if (p.includes("$")) {
+                                p = env.expand(p, { get: g });
+                            }
+
+                            temp.push(p);
+                        }
+
+                        profile = temp;
+                    }
 
                     const downArgs: DownArgs = {
                         file: files,
                         envFile: envFiles,
-                        projectDirectory: inputs.get("projectDirectory") as string | undefined,
-                        projectName: inputs.get("projectName") as string | undefined,
-                        profile: inputs.get("profile") as string[] | undefined,
-                        context: inputs.get("context") as string | undefined,
+                        projectDirectory,
+                        projectName,
+                        profile,
+                        context,
                     };
 
                     const r = await execDown(downArgs, {
@@ -320,19 +348,80 @@ REX_DEPLOYMENT_REGISTRY.set("@rex/deploy-compose", {
                         return fail(new Error("No inputs provided"));
                     }
 
-                    console.log(inputs.size);
+                    const g: (key: string) => string | undefined = (key) => {
+                        if (ctx.state.env.get(key)) {
+                            return ctx.state.env.get(key);
+                        }
 
-                    for (const [k, v] of inputs.entries()) {
-                        console.log(`input: ${k} = ${v}`);
+                        if (ctx.env.get(key)) {
+                            return ctx.env.get(key);
+                        }
+
+                        return env.get(key);
+                    };
+
+                    let files = inputs.get("files") as string[] ?? [];
+                    let temp = new Array<string>();
+                    for (let file of files) {
+                        if (file.includes("$")) {
+                            file = env.expand(file, { get: g });
+                        }
+
+                        temp.push(file);
+                    }
+
+                    files = temp;
+                    let envFiles = inputs.get("envFiles") as string[] ?? undefined;
+                    temp = [];
+                    if (envFiles) {
+                        for (let file of envFiles) {
+                            if (file.includes("$")) {
+                                file = env.expand(file, { get: g });
+                            }
+
+                            temp.push(file);
+                        }
+
+                        envFiles = temp;
+                    }
+
+                    let projectDirectory = inputs.get("projectDirectory") as string | undefined;
+                    let projectName = inputs.get("projectName") as string | undefined;
+                    let profile = inputs.get("profile") as string[] | undefined;
+                    let context = inputs.get("context") as string | undefined;
+
+                    if (projectDirectory && projectDirectory.includes("$")) {
+                        projectDirectory = env.expand(projectDirectory, { get: g });
+                    }
+
+                    if (projectName && projectName.includes("$")) {
+                        projectName = env.expand(projectName, { get: g });
+                    }
+
+                    if (context && context.includes("$")) {
+                        context = env.expand(context, { get: g });
+                    }
+
+                    if (profile) {
+                        temp = new Array<string>();
+                        for (let p of profile) {
+                            if (p.includes("$")) {
+                                p = env.expand(p, { get: g });
+                            }
+
+                            temp.push(p);
+                        }
+
+                        profile = temp;
                     }
 
                     const upArgs: UpArgs = {
-                        file: inputs.get("files") as string[] ?? [],
-                        envFile: inputs.get("envFiles") as string[] | undefined,
-                        projectDirectory: inputs.get("projectDirectory") as string | undefined,
-                        projectName: inputs.get("projectName") as string | undefined,
-                        profile: inputs.get("profile") as string[] | undefined,
-                        context: inputs.get("context") as string | undefined,
+                        file: files,
+                        envFile: envFiles,
+                        projectDirectory,
+                        projectName,
+                        profile,
+                        context,
                         detach: true,
                     };
 

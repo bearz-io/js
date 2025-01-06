@@ -168,7 +168,6 @@ export class DeploymentBuilder {
             | Inputs
             | ((ctx: DeploymentContext) => Inputs | Promise<Inputs>),
     ): this {
-        console.log("setting inputs", inputs);
         if (inputs instanceof Inputs) {
             this.#deployment.with = inputs;
             return this;
@@ -178,8 +177,6 @@ export class DeploymentBuilder {
             this.#deployment.with = inputs;
             return this;
         }
-
-        
 
         this.#deployment.with = new Inputs();
         this.#deployment.with.merge(inputs);

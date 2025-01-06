@@ -12,6 +12,7 @@ export {
     exec,
     type Output as CommandOutput,
     pathFinder,
+    setLogger,
     ShellCommand,
     type ShellCommandOptions,
     spawn,

@@ -1,4 +1,4 @@
-import type { DnsDriver, DnsDriverParams, DnsDriverFactory, DnsRecord } from "./types.ts";
+import type { DnsDriver, DnsDriverFactory, DnsDriverParams, DnsRecord } from "./types.ts";
 import { readTextFile, writeTextFile } from "@bearz/fs";
 import { EOL, WINDOWS } from "@bearz/runtime-info";
 import { processElevated } from "@bearz/process-elevated";
@@ -119,7 +119,8 @@ export class HostfileDnsDriver implements DnsDriver {
 
 export class HostFileDriverFactory implements DnsDriverFactory {
     canBuild(params: DnsDriverParams): boolean {
-        return (params.use !== undefined && params.use === "hostfile") || (params.uri !== undefined && params.uri.startsWith("hostfile:"))
+        return (params.use !== undefined && params.use === "hostfile") ||
+            (params.uri !== undefined && params.uri.startsWith("hostfile:"));
     }
 
     build(params: DnsDriverParams): DnsDriver {
@@ -131,4 +132,4 @@ export class HostFileDriverFactory implements DnsDriverFactory {
     }
 }
 
-export const factory = new HostFileDriverFactory();
+export const factory: HostFileDriverFactory = new HostFileDriverFactory();

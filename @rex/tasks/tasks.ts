@@ -1,5 +1,5 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
-import { REX_TASKS, REX_TASKS_REGISTRY } from "./globals.ts";
+import { getGlobalTasks, REX_TASKS_REGISTRY } from "./globals.ts";
 import type {
     DelegateTask,
     RunDelegate,
@@ -34,7 +34,7 @@ export class TaskBuilder {
 
     constructor(task: Task, map?: TaskMap) {
         this.#task = task;
-        map ??= REX_TASKS;
+        map ??= getGlobalTasks();
         map.set(task.id, task);
     }
 

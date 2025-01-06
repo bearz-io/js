@@ -30,22 +30,34 @@ for await (const entry of walk(libDir)) {
         }
 
         if (await isFile(mod) && await isFile(readme)) {
-            const readmeContent = await Deno.readTextFile(readme);
+            let readmeContent = await Deno.readTextFile(readme);
             const modContent = await Deno.readTextFile(mod);
 
             const overviewIndex = readmeContent.indexOf("## Overview");
             const modCommentEndIndex = modContent.indexOf("*/");
+
+            /*
+             * If the readme contains *\/ we need to escape it
+             */
+            if (readmeContent.match(/\*\//gm)) {
+                console.log("Found */ in readme");
+                readmeContent = readmeContent.replaceAll(/\*\//gm, "*\\/");
+                console.log(readmeContent);
+            }
+
             if (readmeContent.indexOf("## Overview") > -1) {
                 if (modCommentEndIndex > -1) {
                     const modContentWithoutComment = modContent.slice(modCommentEndIndex + 2);
                     const newModContent = `/**
  * ${readmeContent.slice(overviewIndex).replaceAll("\n", "\n * ")}
+ * @module
  */`;
 
                     await Deno.writeTextFile(mod, newModContent + modContentWithoutComment);
                 } else {
                     const newModContent = `/**
  * ${readmeContent.slice(overviewIndex).replaceAll("\n", "\n * ")}
+ * @module
  */
 ${modContent}`;
                     await Deno.writeTextFile(mod, newModContent);

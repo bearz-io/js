@@ -4,8 +4,9 @@ export type { FlareCtlDnsProviderParams } from "./driver.ts";
 
 export class FlareCtlDnsDriverFactory implements DnsDriverFactory {
     canBuild(params: DnsDriverParams): boolean {
-        return (params.uri !== undefined && params.uri.startsWith("flarectl:"))
-            || (params.use !== undefined && params.use === "flarectl" || params.use === "@rex/dns-flarectl");
+        return (params.uri !== undefined && params.uri.startsWith("flarectl:")) ||
+            (params.use !== undefined && params.use === "flarectl" ||
+                params.use === "@rex/dns-flarectl");
     }
 
     build(params: DnsDriverParams): DnsDriver {
@@ -44,10 +45,10 @@ export class FlareCtlDnsDriverFactory implements DnsDriverFactory {
         }
 
         return new FlareCtlDnsDriver({
-            name, 
-            apiToken: token
-        })
+            name,
+            apiToken: token,
+        });
     }
 }
 
-export const factory = new FlareCtlDnsDriverFactory();
+export const factory: FlareCtlDnsDriverFactory = new FlareCtlDnsDriverFactory();

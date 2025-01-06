@@ -3,8 +3,8 @@ import {
     type PipelineStatus,
     type Task,
     type TaskContext,
-    type TaskMap,
     type TaskHandlerRegistry,
+    type TaskMap,
     type TaskResult,
     toError,
 } from "@rex/tasks";

@@ -324,8 +324,6 @@ export interface SshArgs extends SplatObject {
     redirectBackground?: boolean;
 }
 
-
-
 pathFinder.set("scp", {
     name: "scp",
     windows: [
@@ -480,4 +478,22 @@ export class SshKeygenCommand extends Command {
  */
 export function sshKeygen(args?: CommandArgs, options?: CommandOptions): SshKeygenCommand {
     return new SshKeygenCommand(args, options);
+}
+
+export function sshExec(cmd: Command, args: SshArgs, options?: CommandOptions): SshCommand {
+    const splatArgs = cmd.toArgs();
+
+    const command = splatArgs.map((o) => {
+        if (o.includes("$")) {
+            return `"${o}"`;
+        } else if (/[\s\t\n\r]/.test(o)) {
+            return `'${o}'`;
+        } else {
+            return o;
+        }
+    }).join(" ");
+
+    args.command = command;
+
+    return ssh(args, options);
 }

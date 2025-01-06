@@ -1,4 +1,4 @@
-import { TaskMap, TaskHandlerRegistry } from "./primitives.ts";
+import { TaskHandlerRegistry, TaskMap } from "./primitives.ts";
 
 const REX_TASKS_SYMBOL = Symbol("@@REX_TASKS");
 const REX_TASK_HANDLERS_SYMBOL = Symbol("REX_TASK_HANDLER_REGISTRY");

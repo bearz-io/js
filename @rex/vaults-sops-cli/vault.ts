@@ -47,8 +47,6 @@ export class SopsCliVault implements SecretVault {
                 this.#params.path = resolve(this.#params.path);
             }
         }
-
-        console.log("params", this.#params);
     }
 
     get name(): string {
@@ -147,15 +145,11 @@ export class SopsCliVault implements SecretVault {
             args.push(this.#params.path);
             const dir = dirname(this.#params.path);
 
-            console.log("args", "sops",  args);
-            console.log("cwd", dir);
-            console.log("vars", vars);
             const o = await cmd("sops", args, {
                 env: vars,
                 cwd: dir,
             }).output();
             const envContent = o.text();
-            console.log("envContent", envContent);
             const data = parse(envContent);
             this.#data = {};
             for (const key in data) {

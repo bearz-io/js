@@ -55,8 +55,6 @@ export class ApplyDeploymentContext extends DeploymentPipelineMiddleware {
                 meta.env.merge(e);
             }
 
-            console.log("with", task.with);
-
             if (typeof task.with === "function") {
                 meta.inputs = await task.with(ctx);
             } else if (typeof task.with !== "undefined") {

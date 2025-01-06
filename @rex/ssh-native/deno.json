@@ -4,6 +4,6 @@
     "exports": {
         ".": "./mod.ts",
         "./tasks": "./tasks.ts",
-        "./command": "./command.ts"
+        "./command": "./commands.ts"
     }
 }

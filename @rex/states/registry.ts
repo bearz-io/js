@@ -1,5 +1,5 @@
-import { JsonStateStore, factory } from "./json_state_store.ts";
-import type { StateStore, StateDriverFactory, StateDriverParams } from "./types.ts";
+import { factory, JsonStateStore } from "./json_state_store.ts";
+import type { StateDriverFactory, StateDriverParams, StateStore } from "./types.ts";
 
 const g = globalThis as Record<string | symbol, unknown>;
 export const REX_STATES_REGISTRY = Symbol.for("@@REX_STATES_REGISTRY");
@@ -17,12 +17,9 @@ export function getStates(): Map<string, StateStore> {
     return g[REX_STATES] as Map<string, StateStore>;
 }
 
-
 export class StatesRegistry extends Map<string, StateDriverFactory> {
-
-
     async build(params: StateDriverParams): Promise<StateStore> {
-        let { use, uri, } = params;
+        let { use, uri } = params;
 
         if (!use && !uri) {
             use = "@rex/states-json";
@@ -85,12 +82,11 @@ export class StatesRegistry extends Map<string, StateDriverFactory> {
 if (!g[REX_STATES_REGISTRY]) {
     g[REX_STATES_REGISTRY] = new StatesRegistry();
     const r = g[REX_STATES_REGISTRY] as StatesRegistry;
-    r.set("@rex/states-json", factory)
+    r.set("@rex/states-json", factory);
 }
 
-
 export function getStatesRegistry(): StatesRegistry {
-    return g[REX_STATES_REGISTRY] as StatesRegistry
+    return g[REX_STATES_REGISTRY] as StatesRegistry;
 }
 
 export function getGlobalState(): StateStore {
@@ -100,4 +96,3 @@ export function getGlobalState(): StateStore {
 export function getDefaultState(): StateStore {
     return getStates().get("default") as StateStore;
 }
-

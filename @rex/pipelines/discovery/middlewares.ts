@@ -1,7 +1,7 @@
 import { JobMap, REX_JOBS } from "@rex/jobs";
 import { REX_TASKS, TaskMap, toError } from "@rex/tasks";
 import { DeploymentMap, REX_DEPLOYMENTS } from "@rex/deployments";
-import type { ExecutionContext } from "@rex/primitives";
+import { type ExecutionContext, LogLevel } from "@rex/primitives";
 import type { Next } from "../pipeline.ts";
 import { type DiscoveryPipelineContext, DiscoveryPipelineMiddleware } from "./pipelines.ts";
 import { exists, realPath } from "@bearz/fs";
@@ -39,10 +39,15 @@ export class RexfileDiscovery extends DiscoveryPipelineMiddleware {
 
             if (file === undefined || file === null || file === "") {
                 file = join(cwd, "rexfile.ts");
-                writer.trace(`No tasks file specified.  Using ${file}`);
+
+                if (writer.enabled(LogLevel.Trace)) {
+                    writer.trace(`No tasks file specified.  Using ${file}`);
+                }
             }
             if (!isAbsolute(file)) {
-                console.log("file", file);
+                if (writer.enabled(LogLevel.Trace)) {
+                    writer.trace(`Resolving relative path ${file}`);
+                }
                 file = await realPath(file);
             }
 

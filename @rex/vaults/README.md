@@ -18,7 +18,7 @@ are using task targets, you will need to assign the `registerSecretVault` and
 
 Documentation is available on [jsr.io/@rex/vaults/doc](https://jsr.io/@rex/vaults/doc)
 
-Documentation about the rex cli is avaialble [jsr.io/@rex/cli/doc](https://jsr.io/@rex/cli/doc)
+Documentation about the rex cli is available [jsr.io/@rex/cli/doc](https://jsr.io/@rex/cli/doc)
 
 ## Register Secret Vault
 

@@ -1,8 +1,8 @@
-import type { StateStore, StateDriverFactory, StateDriverParams } from "./types.ts";
-import { WINDOWS } from "@bearz/runtime-info"
+import type { StateDriverFactory, StateDriverParams, StateStore } from "./types.ts";
+import { WINDOWS } from "@bearz/runtime-info";
 import { env } from "@bearz/env";
-import { join, dirname } from "@std/path";
-import { exists, readTextFile, writeTextFile, makeDir } from "@bearz/fs";
+import { dirname, join } from "@std/path";
+import { exists, makeDir, readTextFile, writeTextFile } from "@bearz/fs";
 
 export interface JsonStateStoreParams {
     name: string;
@@ -29,7 +29,7 @@ export class JsonStateStore implements StateStore {
 
         if (!this.#params.path) {
             if (WINDOWS) {
-                let dir = ""
+                let dir = "";
                 if (this.#params.global) {
                     dir = env.get("ALLUSERSPROFILE") ?? "c:\\ProgramData";
                     dir = join(dir, "rex", "states");
@@ -39,12 +39,11 @@ export class JsonStateStore implements StateStore {
                 }
 
                 this.#params.path = join(dir, this.#params.name + ".json");
-
             } else {
-                let dir = ""
+                let dir = "";
                 if (this.#params.global) {
                     dir = "/etc/rex/states";
-                } else {        
+                } else {
                     const tmp = env.get("XDG_CONFIG_HOME");
                     if (!tmp) {
                         const home = env.get("HOME");
@@ -57,12 +56,10 @@ export class JsonStateStore implements StateStore {
                         dir = join(tmp, "rex", "states");
                     }
 
-
                     this.#params.path = join(dir, this.#params.name + ".json");
                 }
             }
         }
-
     }
 
     get name(): string {
@@ -79,8 +76,8 @@ export class JsonStateStore implements StateStore {
 
     async set<T = unknown>(path: string, value: T): Promise<void> {
         if (!this.#loaded) {
-              await this.load(); 
-        }    
+            await this.load();
+        }
 
         this.#data[path] = value;
         await this.save();
@@ -95,10 +92,10 @@ export class JsonStateStore implements StateStore {
         await this.save();
     }
 
-    save() : Promise<void> {
+    save(): Promise<void> {
         return this.#slim.then(async () => {
             const dir = dirname(this.#params.path!);
-            if (! await exists(dir)) {
+            if (!await exists(dir)) {
                 await makeDir(dir, { recursive: true });
             }
 
@@ -107,14 +104,14 @@ export class JsonStateStore implements StateStore {
         });
     }
 
-    async load() : Promise<void> {
+    async load(): Promise<void> {
         if (this.#loaded) {
-            return
+            return;
         }
 
         this.#loaded = true;
         await this.#slim.then(async () => {
-            if (! await exists(this.#params.path!)) {
+            if (!await exists(this.#params.path!)) {
                 return;
             }
 
@@ -125,10 +122,11 @@ export class JsonStateStore implements StateStore {
 }
 
 export class JsonStateStoreFactory implements StateDriverFactory {
-
     canBuild(params: StateDriverParams): boolean {
-        return (params.use !== undefined && params.use === "json" || params.use === "@rex/states-json") ||  
-            (params.uri !== undefined && params.uri.startsWith("file:") && params.uri.includes(".json"));
+        return (params.use !== undefined && params.use === "json" ||
+            params.use === "@rex/states-json") ||
+            (params.uri !== undefined && params.uri.startsWith("file:") &&
+                params.uri.includes(".json"));
     }
 
     build(params: StateDriverParams): Promise<StateStore> {
@@ -154,11 +152,11 @@ export class JsonStateStoreFactory implements StateDriverFactory {
             }
         }
 
-        const p : JsonStateStoreParams = {
+        const p: JsonStateStoreParams = {
             name,
-            path, 
-            global
-        }
+            path,
+            global,
+        };
 
         return Promise.resolve(new JsonStateStore(p));
     }

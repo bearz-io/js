@@ -2,8 +2,8 @@ import type { DnsDriver, DnsRecord } from "@rex/dns/types";
 import { cmd } from "@bearz/exec";
 
 export interface FlareCtlDnsProviderParams {
-    name: string
-    apiToken: string
+    name: string;
+    apiToken: string;
 }
 
 export interface CloudFlareRecord {
@@ -35,7 +35,7 @@ export class FlareCtlDnsDriver implements DnsDriver {
     }
 
     async setRecord(zone: string, record: DnsRecord): Promise<void> {
-        const vars : Record<string, string> = { "CF_API_TOKEN": this.#params.apiToken };
+        const vars: Record<string, string> = { "CF_API_TOKEN": this.#params.apiToken };
 
         if (zone === null || zone === undefined || zone === "") {
             throw new Error("zone is required");
@@ -57,7 +57,18 @@ export class FlareCtlDnsDriver implements DnsDriver {
             record.name = record.name.replace(`.${zone}`, "");
         }
 
-        const args = ["dns", "o", "--zone", zone, "--name", record.name, "--type", record.type, "--content", record.value ];
+        const args = [
+            "dns",
+            "o",
+            "--zone",
+            zone,
+            "--name",
+            record.name,
+            "--type",
+            record.type,
+            "--content",
+            record.value,
+        ];
         if (record.ttl) {
             args.push("--ttl", record.ttl.toString());
         }
@@ -70,15 +81,19 @@ export class FlareCtlDnsDriver implements DnsDriver {
             args.push("--proxy");
         }
 
+        console.log("");
         const output = await cmd("flarectl", args, {
             env: vars,
         }).run();
-        
+        console.log("");
+
         if (output.code !== 0) {
-            throw new Error(`Failed to set record. code ${output.code}, stderr: ${output.errorText()}`);
+            throw new Error(
+                `Failed to set record. code ${output.code}, stderr: ${output.errorText()}`,
+            );
         }
     }
-   
+
     async removeRecord(zone: string, name: string): Promise<void> {
         if (zone === null || zone === undefined || zone === "") {
             throw new Error("zone is required");
@@ -88,7 +103,7 @@ export class FlareCtlDnsDriver implements DnsDriver {
             throw new Error("name is required");
         }
 
-        const vars : Record<string, string> = {  "CF_API_TOKEN": this.#params.apiToken };
+        const vars: Record<string, string> = { "CF_API_TOKEN": this.#params.apiToken };
         if (!name.endsWith(zone)) {
             name = `${name}.${zone}`;
         }
@@ -99,7 +114,9 @@ export class FlareCtlDnsDriver implements DnsDriver {
         }).output();
 
         if (output.code !== 0) {
-            throw new Error(`Failed to list records. code ${output.code}, stderr: ${output.errorText()}`);
+            throw new Error(
+                `Failed to list records. code ${output.code}, stderr: ${output.errorText()}`,
+            );
         }
 
         const json = output.json() as Array<{ ID: string }>;
@@ -108,13 +125,15 @@ export class FlareCtlDnsDriver implements DnsDriver {
             const output = await cmd("flarectl", args, {
                 env: vars,
             }).run();
-            
+
             if (output.code !== 0) {
-                throw new Error(`Failed to remove record. code ${output.code}, stderr: ${output.errorText()}`);
+                throw new Error(
+                    `Failed to remove record. code ${output.code}, stderr: ${output.errorText()}`,
+                );
             }
         }
     }
-   
+
     async getRecord(zone: string, name: string): Promise<DnsRecord | undefined> {
         if (zone === null || zone === undefined || zone === "") {
             throw new Error("zone is required");
@@ -123,8 +142,8 @@ export class FlareCtlDnsDriver implements DnsDriver {
         if (name === null || name === undefined || name === "") {
             throw new Error("name is required");
         }
-       
-        const vars : Record<string, string> = { "CF_API_TOKEN": this.#params.apiToken };
+
+        const vars: Record<string, string> = { "CF_API_TOKEN": this.#params.apiToken };
         if (!name.endsWith(zone)) {
             name = `${name}.${zone}`;
         }
@@ -135,7 +154,9 @@ export class FlareCtlDnsDriver implements DnsDriver {
         }).output();
 
         if (output.code !== 0) {
-            throw new Error(`Failed to list records. code ${output.code}, stderr: ${output.errorText()}`);
+            throw new Error(
+                `Failed to list records. code ${output.code}, stderr: ${output.errorText()}`,
+            );
         }
 
         const json = output.json() as Array<CloudFlareRecord>;

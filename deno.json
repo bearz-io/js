@@ -65,7 +65,6 @@
         "@rex/vaults-sops-cli",
         "@rex/dns",
         "@rex/docker",
-        "@rex/e2e",
         "@rex/dns-flarectl",
         "@rex/states",
         "@rex/ssh-native",
@@ -85,11 +84,14 @@
         "@spawn/curl",
         "@spawn/aws",
         "@spawn/ubi",
-        "@spawn/terraform"
+        "@spawn/terraform",
+        "stacks"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",
         "@cliffy/keypress": "jsr:@cliffy/keypress@1.0.0-rc.7",
+        "@std/cli": "jsr:@std/cli@^1.0.9",
+        "@std/collections": "jsr:@std/collections@^1.0.9",
         "@std/encoding": "jsr:@std/encoding@^1.0.5",
         "@std/path": "jsr:@std/path@^1.0.6",
         "@types/bun": "npm:@types/bun@^1.1.13",
