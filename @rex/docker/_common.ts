@@ -1,4 +1,4 @@
-import type { InputDescriptor } from "../primitives/primitives.ts";
+import type { InputDescriptor } from "@rex/primitives";
 
 export const ComposeInputs: InputDescriptor[] = [
     {

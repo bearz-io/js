@@ -1,4 +1,4 @@
-import type { DnsDriver, DnsDriverFactory, DnsDriverParams } from "../dns/types.ts";
+import type { DnsDriver, DnsDriverFactory, DnsDriverParams } from "@rex/dns/types";
 import { FlareCtlDnsDriver } from "./driver.ts";
 export type { FlareCtlDnsProviderParams } from "./driver.ts";
 
