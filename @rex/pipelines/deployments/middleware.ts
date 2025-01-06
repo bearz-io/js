@@ -10,7 +10,7 @@ import {
     DeploymentStarted,
 } from "./messages.ts";
 import { type DeploymentPipelineContext, DeploymentPipelineMiddleware } from "./pipelines.ts";
-import { REX_TASKS_REGISTRY, TaskMap } from "@rex/tasks";
+import { getTaskHandlerRegistry, TaskMap } from "@rex/tasks";
 import { underscore } from "@bearz/strings/underscore";
 import { setPipelineVar } from "../ci/vars.ts";
 
@@ -157,7 +157,7 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
                         cwd: c.cwd,
                         tasks: map,
                         targets,
-                        registry: REX_TASKS_REGISTRY,
+                        registry: getTaskHandlerRegistry(),
                         results: [],
                         status: "success",
                         secrets: new StringMap().merge(ctx.secrets),

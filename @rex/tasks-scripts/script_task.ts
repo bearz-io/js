@@ -1,7 +1,7 @@
 import {
     type DelegateTask,
+    getTaskHandlerRegistry,
     output,
-    REX_TASKS_REGISTRY,
     TaskBuilder,
     type TaskContext,
     type TaskMap,
@@ -85,7 +85,9 @@ export function scriptTask(): ScriptTaskBuilder {
     });
 }
 
-REX_TASKS_REGISTRY.set("shell-task", {
+const taskHandlerRegistry = getTaskHandlerRegistry();
+
+taskHandlerRegistry.set("shell-task", {
     id: "shell-task",
     description: "an inline task",
     inputs: [],

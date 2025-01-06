@@ -1,5 +1,5 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
-import { getGlobalTasks, REX_TASKS_REGISTRY } from "./globals.ts";
+import { getGlobalTasks, getTaskHandlerRegistry } from "./globals.ts";
 import type {
     DelegateTask,
     RunDelegate,
@@ -185,7 +185,7 @@ export function task(): TaskBuilder {
     return new TaskBuilder(task, tasks);
 }
 
-const taskRegistry = REX_TASKS_REGISTRY;
+const taskRegistry = getTaskHandlerRegistry();
 taskRegistry.set("delegate-task", {
     id: "delegate-task",
     description: "an inline task",

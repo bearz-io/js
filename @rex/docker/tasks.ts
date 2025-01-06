@@ -1,5 +1,5 @@
 import {
-    REX_TASKS_REGISTRY,
+    getTaskHandlerRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
@@ -17,6 +17,7 @@ export interface ComposeUpTask extends Task {
 }
 
 export interface ComposeUpTaskDef extends TaskDef {
+    id: string;
     with: UpArgs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
 }
 
@@ -205,7 +206,9 @@ const upInputs: InputDescriptor[] = [
     },
 ];
 
-REX_TASKS_REGISTRY.set("@rex/compose-up", {
+const taskHandlerRegistery = getTaskHandlerRegistry();
+
+taskHandlerRegistery.set("@rex/compose-up", {
     id: "@rex/compose-up",
     outputs: [],
     inputs: ComposeInputs.concat(upInputs),
@@ -256,6 +259,7 @@ export interface ComposeDownTask extends Task {
 }
 
 export interface ComposeDownTaskDef extends TaskDef {
+    id: string;
     with: DownArgs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
 }
 
@@ -349,7 +353,8 @@ const downInputs: InputDescriptor[] = [
     },
 ];
 
-REX_TASKS_REGISTRY.set("@rex/compose-down", {
+
+taskHandlerRegistery.set("@rex/compose-down", {
     id: "@rex/compose-down",
     outputs: [],
     inputs: ComposeInputs.concat(downInputs),

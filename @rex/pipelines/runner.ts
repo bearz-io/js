@@ -20,7 +20,7 @@ import {
 } from "./tasks/pipelines.ts";
 import { env } from "@bearz/env";
 import { DiscoveryPipeline, type DiscoveryPipelineContext } from "./discovery/pipelines.ts";
-import { REX_TASKS_REGISTRY, TaskMap } from "@rex/tasks";
+import { getTaskHandlerRegistry, TaskMap } from "@rex/tasks";
 import { JobMap } from "@rex/jobs";
 import { DeploymentMap, DeploymentResult, REX_DEPLOYMENT_REGISTRY } from "@rex/deployments";
 import { RexfileDiscovery } from "./discovery/middlewares.ts";
@@ -250,7 +250,7 @@ export class Runner {
                         const tasksCtx: TasksPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
-                            registry: REX_TASKS_REGISTRY,
+                            registry: getTaskHandlerRegistry(),
                             results: [],
                             status: "success",
                             bus: bus,
@@ -279,7 +279,7 @@ export class Runner {
                         const jobsCtx: JobsPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
-                            registry: REX_TASKS_REGISTRY,
+                            registry: getTaskHandlerRegistry(),
                             results: [],
                             status: "success",
                             bus: bus,
@@ -350,7 +350,7 @@ export class Runner {
 
                         const deploymentsCtx: DeploymentPipelineContext = {
                             deployment,
-                            tasksRegistry: REX_TASKS_REGISTRY,
+                            tasksRegistry: getTaskHandlerRegistry(),
                             bus,
                             writer,
                             directive: command as "deploy" | "rollback" | "destroy",

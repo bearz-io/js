@@ -1,6 +1,6 @@
 {
     "name": "@rex/docker",
-    "version": "0.0.0",
+    "version": "0.0.0-beta.2",
     "exports": {
         ".": "./mod.ts",
         "./commands": "./commands.ts",

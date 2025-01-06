@@ -3,7 +3,7 @@ import { REX_DEPLOYMENT_REGISTRY, REX_DEPLOYMENTS } from "./globals.ts";
 import {
     type AddTaskDelegate,
     output,
-    REX_TASKS,
+    getGlobalTasks,
     type RunDelegate,
     task as defineTask,
     type TaskBuilder,
@@ -96,7 +96,7 @@ export class DeploymentBuilder {
         fn: AddTaskDelegate,
     ): this {
         const map = new TaskMap();
-        const get = (id: string) => REX_TASKS.get(id);
+        const get = (id: string) => getGlobalTasks().get(id);
 
         const add = (id: string) => {
             const task = get(id);

@@ -1,5 +1,5 @@
 import { JobMap, REX_JOBS } from "@rex/jobs";
-import { REX_TASKS, TaskMap, toError } from "@rex/tasks";
+import { getGlobalTasks, TaskMap, toError } from "@rex/tasks";
 import { DeploymentMap, REX_DEPLOYMENTS } from "@rex/deployments";
 import { type ExecutionContext, LogLevel } from "@rex/primitives";
 import type { Next } from "../pipeline.ts";
@@ -21,7 +21,7 @@ export class RexfileDiscovery extends DiscoveryPipelineMiddleware {
         try {
             const { writer } = ctx;
             writer.trace("Discovering tasks");
-            const globalTasks = REX_TASKS;
+            const globalTasks = getGlobalTasks();
             const globalJobs = REX_JOBS;
             const globalDeployments = REX_DEPLOYMENTS;
             let file = ctx.file;

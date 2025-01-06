@@ -16,7 +16,7 @@ import {
     type JobsPipelineContext,
     JobsPipelineMiddleware,
 } from "./pipelines.ts";
-import { REX_TASKS_REGISTRY, TaskMap } from "@rex/tasks";
+import { getTaskHandlerRegistry, TaskMap } from "@rex/tasks";
 import { type Job, JobResult } from "@rex/jobs";
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
 import { underscore } from "@bearz/strings/underscore";
@@ -162,7 +162,7 @@ export class RunJob extends JobPipelineMiddleware {
             const tasksCtx: TasksPipelineContext = Object.assign({}, ctx, {
                 targets: targets,
                 tasks: tasks,
-                registry: REX_TASKS_REGISTRY,
+                registry: getTaskHandlerRegistry(),
                 results: [],
                 status: "success",
                 bus: ctx.bus,
