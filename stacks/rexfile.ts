@@ -1,7 +1,7 @@
 import { cmd, fs, job, path, setLogger, task } from "@rex/rexfile";
 import * as dotenv from "@bearz/dotenv";
 import { parseArgs } from "@std/cli";
-import { DefaultSecretGenerator } from "../@bearz/secrets/src/generator.ts";
+import { DefaultSecretGenerator } from "@bearz/secrets/generator";
 import { registerSecrets, registerSecretVault } from "@rex/vaults";
 import { ssh } from "@rex/ssh-native";
 import { registerDnsDriver, updateDnsTask } from "@rex/dns";

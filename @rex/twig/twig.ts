@@ -1,6 +1,6 @@
 import { TwingEnvironment, TwingFunction, TwingLexer, TwingLoaderArray } from "npm:twing@5.2.2";
 import { readTextFile } from "@bearz/fs";
-import { DefaultSecretGenerator } from "../../@bearz/secrets/src/generator.ts";
+import { DefaultSecretGenerator } from "@bearz/secrets/generator";
 
 export interface TwigParams {
     expr?: boolean;
