@@ -24,6 +24,8 @@
     "npm:assertion-error@^2.0.1": "2.0.1",
     "npm:bcrypt-pbkdf@^1.0.2": "1.0.2",
     "npm:chai@^5.1.1": "5.1.2",
+    "npm:p-retry@^6.2.1": "6.2.1",
+    "npm:retry@~0.13.1": "0.13.1",
     "npm:twig@^1.17.1": "1.17.1",
     "npm:twing@5.2.2": "5.2.2",
     "npm:twing@6.1.0": "6.1.0",
@@ -132,6 +134,9 @@
       "dependencies": [
         "undici-types@6.19.8"
       ]
+    },
+    "@types/retry@0.12.2": {
+      "integrity": "sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow=="
     },
     "@types/twig@1.12.16": {
       "integrity": "sha512-6kXSQwqxWxdHVITY6lur6pVpKbTk5D8R/ZUn2/7Y2AACKFlRqO4jbtHgWPDLe7JUc91sZQhkmopboYDABtZqlA=="
@@ -259,6 +264,9 @@
     "inherits@2.0.4": {
       "integrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="
     },
+    "is-network-error@1.1.0": {
+      "integrity": "sha512-tUdRRAnhT+OtCZR/LxZelH/C7QtjtFrTu5tXCA8pl55eTUElUHT+GPYV8MBMBvea/j+NxQqVt3LbWMRir7Gx9g=="
+    },
     "is-plain-object@2.0.4": {
       "integrity": "sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==",
       "dependencies": [
@@ -318,6 +326,14 @@
     "os-tmpdir@1.0.2": {
       "integrity": "sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g=="
     },
+    "p-retry@6.2.1": {
+      "integrity": "sha512-hEt02O4hUct5wtwg4H4KcWgDdm+l1bOaEy/hWzd8xtXB9BqxTWBBhb+2ImAtH4Cv4rPjV76xN3Zumqk3k3AhhQ==",
+      "dependencies": [
+        "@types/retry",
+        "is-network-error",
+        "retry"
+      ]
+    },
     "pad@2.3.0": {
       "integrity": "sha512-lxrgnOG5AXmzMRT1O5urWtYFxHnFSE+QntgTHij1nvS4W+ubhQLmQRHmZXDeEvk9I00itAixLqU9Q6fE0gW3sw==",
       "dependencies": [
@@ -340,6 +356,9 @@
     },
     "regex-parser@2.3.0": {
       "integrity": "sha512-TVILVSz2jY5D47F4mA4MppkBrafEaiUWJO/TcZHEIuI13AqoZMkK1WMA4Om1YkYbTx+9Ki1/tSUXbceyr9saRg=="
+    },
+    "retry@0.13.1": {
+      "integrity": "sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg=="
     },
     "ripemd160@2.0.2": {
       "integrity": "sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==",
@@ -503,6 +522,8 @@
       "npm:assertion-error@^2.0.1",
       "npm:bcrypt-pbkdf@^1.0.2",
       "npm:chai@^5.1.1",
+      "npm:p-retry@^6.2.1",
+      "npm:retry@~0.13.1",
       "npm:twig@^1.17.1",
       "npm:twing@6.1.0",
       "npm:yaml@^2.7.0"

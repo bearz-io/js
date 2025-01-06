@@ -366,3 +366,20 @@ export function splat(
 
     return splatted;
 }
+
+/**
+ * Joins command arguments into a single string.
+ * @param args The command arguments to join.
+ * @returns The joined command arguments.
+ */
+export function joinArgs(args: string[]): string {
+    return args.map((arg) => {
+         if (arg.match(/[\$']/gm)) {
+            return `"${arg}"`;
+         } else if (arg.match(/[\n\r\s\t"]/gm)) {
+            return `'${arg}'`;
+         } else {
+            return arg;
+         }
+    }).join(" ");
+}
