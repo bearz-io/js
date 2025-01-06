@@ -40,7 +40,6 @@ export function tasksConsoleSink(message: Message): void {
 
                         return;
                     case LogLevel.Info:
-                        console.log;
                         if (logMessage.message) {
                             writer.info(logMessage.message, message.args);
                         }
@@ -90,6 +89,7 @@ export function tasksConsoleSink(message: Message): void {
         }
 
         case "task:started": {
+            writer.writeLine("");
             const msg = message as TaskStarted;
             const name = msg.task.name ?? msg.task.id;
             writer.startGroup(`${name}`);
@@ -97,6 +97,7 @@ export function tasksConsoleSink(message: Message): void {
         }
 
         case "task:skipped": {
+            writer.writeLine("");
             const msg = message as TaskSkipped;
             const name = msg.task.name ?? msg.task.id;
             writer.skipGroup(name);
@@ -117,6 +118,7 @@ export function tasksConsoleSink(message: Message): void {
             }
 
             writer.endGroup();
+            writer.writeLine("");
             return;
         }
 

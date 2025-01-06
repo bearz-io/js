@@ -3,12 +3,12 @@ import { REX_JOBS } from "./globals.ts";
 import type { Job, JobContext, JobMap } from "./primitives.ts";
 import {
     type AddTaskDelegate,
-    REX_TASKS,
     type RunDelegate,
     type Task,
     task as defineTask,
     type TaskBuilder,
     TaskMap,
+    getGlobalTasks,
 } from "@rex/tasks";
 
 export class JobBuilder {
@@ -58,7 +58,7 @@ export class JobBuilder {
      */
     task(taskOrId: Task | string): this {
         if (typeof taskOrId === "string") {
-            const t = REX_TASKS.get(taskOrId);
+            const t = getGlobalTasks().get(taskOrId);
             if (!t) {
                 throw new Error(`Task ${taskOrId} not found`);
             }
@@ -82,7 +82,7 @@ export class JobBuilder {
         fn: AddTaskDelegate,
     ): this {
         const map = new TaskMap();
-        const get = (id: string) => REX_TASKS.get(id);
+        const get = (id: string) => getGlobalTasks().get(id);
         const add = (id: string) => {
             const task = get(id);
             if (!task) {
@@ -104,7 +104,7 @@ export class JobBuilder {
             }
         }
 
-        fn(task, add, get);
+        fn(task, add, get, map);
         this.#job.tasks.push(...map.values());
         return this;
     }

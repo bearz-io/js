@@ -21,8 +21,8 @@ export const destroyCommand = new Command()
     .option("-t, --timeout <timeout:number>", "Set the timeout for the job")
     .option(
         "-c --context <context:string>",
-        "The context (environment) name. Defaults to 'local'",
-        { default: "local" },
+        "The context (environment) name. Defaults to 'default'",
+        { default: "default" },
     )
     .option("-e --env <env:string>", "Sets an environment variable", { collect: true })
     .option("--env-file, --ef <env-file:file>", "Sets an environment variable from a file", {

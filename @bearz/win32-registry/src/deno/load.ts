@@ -547,7 +547,6 @@ if (DENO && WINDOWS) {
                     }
 
                     if (result !== 0) {
-                        console.log(names);
                         throw new Error(`Failed to enumerate value names.  Error: ${result}`);
                     }
 

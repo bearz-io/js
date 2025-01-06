@@ -3,7 +3,7 @@ import { REX_DEPLOYMENT_REGISTRY, REX_DEPLOYMENTS } from "./globals.ts";
 import {
     type AddTaskDelegate,
     output,
-    REX_TASKS,
+    getGlobalTasks,
     type RunDelegate,
     task as defineTask,
     type TaskBuilder,
@@ -15,36 +15,21 @@ import type {
     Deploy,
     Deployment,
     DeploymentContext,
+    DeploymentDef,
     DeploymentMap,
 } from "./primitives.ts";
 import { fail, ok, type Result } from "@bearz/functional";
 
-export interface DelegateDeploymentDef {
-    id: string;
-    description?: string;
+export interface DelegateDeploymentDef extends DeploymentDef {
     run: Deploy;
     rollback?: Deploy;
     destroy?: Deploy;
-    before?: AddTaskDelegate;
-    after?: AddTaskDelegate;
-    beforeRollback?: AddTaskDelegate;
-    afterRollback?: AddTaskDelegate;
-    beforeDestroy?: AddTaskDelegate;
-    afterDestroy?: AddTaskDelegate;
-    needs?: string[];
-    cwd?: string | ((ctx: DeploymentContext) => string | Promise<string>);
-    env?: StringMap | ((ctx: DeploymentContext) => StringMap | Promise<StringMap>);
-    force?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
-    if?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
-    timeout?: number | ((ctx: DeploymentContext) => number | Promise<number>);
-    with?: Inputs | ((ctx: DeploymentContext) => Inputs | Promise<Inputs>);
-    name?: string;
 }
 
 export class DeploymentBuilder {
-    #deployment: DelegateDeployment;
+    #deployment: Deployment;
 
-    constructor(deployment: DelegateDeployment, map?: DeploymentMap) {
+    constructor(deployment: Deployment, map?: DeploymentMap) {
         this.#deployment = deployment;
         map ??= REX_DEPLOYMENTS;
         map.set(deployment.id, deployment);
@@ -111,7 +96,7 @@ export class DeploymentBuilder {
         fn: AddTaskDelegate,
     ): this {
         const map = new TaskMap();
-        const get = (id: string) => REX_TASKS.get(id);
+        const get = (id: string) => getGlobalTasks().get(id);
 
         const add = (id: string) => {
             const task = get(id);
@@ -134,7 +119,7 @@ export class DeploymentBuilder {
             }
         }
 
-        fn(task, add, get);
+        fn(task, add, get, map);
 
         this.#deployment.hooks[event] = map.values().toArray();
 
@@ -285,10 +270,6 @@ export function deploy(): DeploymentBuilder {
 
         if (def.timeout) {
             builder.timeout(def.timeout);
-        }
-
-        if (def.with) {
-            builder.with(def.with);
         }
 
         if (def.name) {

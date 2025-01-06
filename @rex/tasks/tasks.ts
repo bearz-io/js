@@ -1,6 +1,13 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
-import { REX_TASKS, REX_TASKS_REGISTRY } from "./globals.ts";
-import type { DelegateTask, RunDelegate, Task, TaskContext, TaskMap } from "./primitives.ts";
+import { getGlobalTasks, getTaskHandlerRegistry } from "./globals.ts";
+import type {
+    DelegateTask,
+    RunDelegate,
+    Task,
+    TaskContext,
+    TaskDef,
+    TaskMap,
+} from "./primitives.ts";
 import { fail, ok, type Result } from "@bearz/functional";
 
 export function output(data: Record<string, unknown> | Outputs): Outputs {
@@ -17,18 +24,9 @@ export function toError(e: unknown): Error {
     return e instanceof Error ? e : new Error(`Unkown error: ${e}`);
 }
 
-export interface DelegateTaskDef extends Record<string, unknown> {
+export interface DelegateTaskDef extends TaskDef {
     id: string;
     run: RunDelegate;
-    needs?: string[];
-    cwd?: string | ((ctx: TaskContext) => string | Promise<string>);
-    description?: string;
-    env?: StringMap | ((ctx: TaskContext) => StringMap | Promise<StringMap>);
-    force?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
-    if?: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>);
-    timeout?: number | ((ctx: TaskContext) => number | Promise<number>);
-    with?: Inputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>);
-    name?: string;
 }
 
 export class TaskBuilder {
@@ -36,7 +34,7 @@ export class TaskBuilder {
 
     constructor(task: Task, map?: TaskMap) {
         this.#task = task;
-        map ??= REX_TASKS;
+        map ??= getGlobalTasks();
         map.set(task.id, task);
     }
 
@@ -187,7 +185,7 @@ export function task(): TaskBuilder {
     return new TaskBuilder(task, tasks);
 }
 
-const taskRegistry = REX_TASKS_REGISTRY;
+const taskRegistry = getTaskHandlerRegistry();
 taskRegistry.set("delegate-task", {
     id: "delegate-task",
     description: "an inline task",
@@ -239,4 +237,5 @@ export type AddTaskDelegate = (
     task: DefineTask,
     add: (id: string) => void,
     get: (id: string) => Task | undefined,
+    map: TaskMap,
 ) => void;

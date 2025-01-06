@@ -1,0 +1,9 @@
+{
+    "name": "@rex/dns-flarectl",
+    "version": "0.0.0-beta.2",
+    "exports": {
+        ".": "./mod.ts",
+        "./driver": "./driver.ts",
+        "./factory": "./factory.ts"
+    }
+}

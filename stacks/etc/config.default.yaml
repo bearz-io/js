@@ -1,0 +1,36 @@
+traefik:
+    log:
+        level: DEBUG
+
+    api:
+        dashboard: true
+
+    endpoints:
+        - name: mysql
+          public: "3306"
+          private: "3306"
+
+    networks:
+        frontend:
+            suffix: .0.2
+
+    acme:
+        enabled: true
+        email: "admin@rex"
+        cloudflare: true
+
+docker:
+    networks:
+        frontend:
+            name: rex_vnet_frontend
+            driver: bridge
+            subnet: 172.19.0.0/16
+            gateway: 172.19.0.1
+            prefix: 172.19
+
+        backend:
+            name: rex_vnet_backend
+            driver: bridge
+            subnet: 172.20.0.0/16
+            gateway: 172.20.0.1
+            prefix: 172.20

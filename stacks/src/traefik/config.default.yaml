@@ -1,0 +1,19 @@
+traefik:
+    log:
+        level: DEBUG
+
+    api:
+        dashboard: true
+
+    endpoints:
+        - name: mysql
+          public: "3306"
+          private: "3306"
+
+    networks:
+        frontend:
+            suffix: .0.2
+
+acme:
+    enabled: true
+    email: "admin@rex"

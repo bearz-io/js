@@ -1,0 +1,11 @@
+{
+    "name": "@rex/dns",
+    "version": "0.0.0-beta.2",
+    "exports": {
+        ".": "./mod.ts",
+        "./types": "./types.ts",
+        "./registry": "./registry.ts",
+        "./tasks": "./tasks.ts",
+        "./hostfile": "./hostfile.ts"
+    }
+}

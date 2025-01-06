@@ -1,0 +1,9 @@
+{
+    "name": "@rex/vaults-sops-cli",
+    "version": "0.0.0-beta.2",
+    "exports": {
+        ".": "./mod.ts",
+        "./factory": "./factory.ts",
+        "./vault": "./vault.ts"
+    }
+}

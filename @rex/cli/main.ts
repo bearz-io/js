@@ -287,8 +287,8 @@ special type of job that has has before and after tasks and the primary task is 
     .option("-t, --timeout <timeout:number>", "Set the timeout in minutes.")
     .option(
         "-c --context <context:string>",
-        "The context (environment) name. Defaults to 'local'",
-        { default: "local" },
+        "The context (environment) name. Defaults to 'default'",
+        { default: "default" },
     )
     .option("-e --env <env:string>", "Sets an environment variable", { collect: true })
     .option("--env-file, --ef <env-file:file>", "Sets an environment variable from a file", {

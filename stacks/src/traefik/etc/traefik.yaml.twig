@@ -1,0 +1,50 @@
+api:
+  dashboard: {{ traefik.api.dashboard | default(true) }}
+
+log:
+  level: {{ traefik.log.level | default("DEBUG") }}
+  filePath: {{ traefik.log.filePath | default("/var/log/traefik/traefik.log") }}
+
+accessLog:
+  filePath: {{ traefik.accessLog.filePath | default("/var/log/traefik/access.log") }}
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: 
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
+
+entryPoints:
+  http:
+    address: ":80"
+
+  https:
+    address: ":443"
+{% for endpoint in traefik.endpoints %}
+  {{ endpoint.name }}:
+    address: ":{{ endpoint.public }}"
+{% endfor %}
+  
+
+
+{% if traefik.acme.enabled %}
+certificatesResolvers:
+  le:
+    acme:
+      email: {{ env.ACME_EMAIL }}
+      storage: acme.json
+{% if traefik.acme.staging %}
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+{% endif %}
+{% if traefik.acme.cloudflare %}
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 20
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+{% endif %}
+{% endif %}

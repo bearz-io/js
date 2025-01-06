@@ -26,8 +26,8 @@ export {
 
 export {
     output,
-    REX_TASKS,
-    REX_TASKS_REGISTRY,
+    getGlobalTasks,
+    getTaskHandlerRegistry,
     type RunDelegate,
     type Task,
     task,

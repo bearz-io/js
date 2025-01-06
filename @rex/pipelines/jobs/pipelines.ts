@@ -1,5 +1,5 @@
 import type { ExecutionContext, LoggingMessageBus } from "@rex/primitives";
-import { type PipelineStatus, type TaskRegistry, toError } from "@rex/tasks";
+import { type PipelineStatus, type TaskHandlerRegistry, toError } from "@rex/tasks";
 import type { Job, JobContext, JobMap, JobResult } from "@rex/jobs";
 import { type Next, Pipeline } from "../pipeline.ts";
 
@@ -8,7 +8,7 @@ export interface JobPipelineContext extends JobContext {
     job: Job;
     bus: LoggingMessageBus;
     status: PipelineStatus;
-    registry: TaskRegistry;
+    registry: TaskHandlerRegistry;
     environmentName: "development" | "staging" | "production" | "test" | "local" | string;
     args?: string[];
 }
@@ -50,7 +50,7 @@ export class JobPipeline extends Pipeline<JobResult, JobPipelineContext> {
 
 export interface JobsPipelineContext extends ExecutionContext {
     jobs: JobMap;
-    registry: TaskRegistry;
+    registry: TaskHandlerRegistry;
     results: JobResult[];
     status: PipelineStatus;
     error?: Error;

@@ -1,5 +1,5 @@
-import { cwd as getCwd, exit } from "@bearz/process";
-import { join } from "@std/path";
+import { chdir, cwd as getCwd, exit } from "@bearz/process";
+import { dirname, isAbsolute, join, resolve } from "@std/path";
 import { writer } from "./ci/writer.ts";
 import {
     type ExecutionContext,
@@ -20,7 +20,7 @@ import {
 } from "./tasks/pipelines.ts";
 import { env } from "@bearz/env";
 import { DiscoveryPipeline, type DiscoveryPipelineContext } from "./discovery/pipelines.ts";
-import { REX_TASKS_REGISTRY, TaskMap } from "@rex/tasks";
+import { getTaskHandlerRegistry, TaskMap } from "@rex/tasks";
 import { JobMap } from "@rex/jobs";
 import { DeploymentMap, DeploymentResult, REX_DEPLOYMENT_REGISTRY } from "@rex/deployments";
 import { RexfileDiscovery } from "./discovery/middlewares.ts";
@@ -64,6 +64,18 @@ export class Runner {
 
         cwd ??= getCwd();
 
+        if (file) {
+            if (!isAbsolute(file)) {
+                file = resolve(file);
+            }
+
+            const dir = dirname(file);
+            if (dir) {
+                cwd = dir;
+                chdir(cwd);
+            }
+        }
+
         if (options.envFile) {
             for (const file of options.envFile) {
                 const content = await readTextFile(file);
@@ -90,7 +102,7 @@ export class Runner {
         file ??= join(cwd, "rexfile.ts");
         writer.trace(`Rexfile: ${file}`);
 
-        timeout ??= 60 * 3;
+        timeout ??= 60 * 60;
         if (timeout < 1) {
             timeout = 60 * 3;
         }
@@ -142,6 +154,7 @@ export class Runner {
             };
 
             ctx.env.set("REX_ENVIRONMENT", options.context ?? "local");
+            ctx.env.set("REX_CONTEXT", options.context ?? "local");
 
             const discoveryPipeline = new DiscoveryPipeline();
             discoveryPipeline.use(new RexfileDiscovery());
@@ -237,7 +250,7 @@ export class Runner {
                         const tasksCtx: TasksPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
-                            registry: REX_TASKS_REGISTRY,
+                            registry: getTaskHandlerRegistry(),
                             results: [],
                             status: "success",
                             bus: bus,
@@ -266,7 +279,7 @@ export class Runner {
                         const jobsCtx: JobsPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
-                            registry: REX_TASKS_REGISTRY,
+                            registry: getTaskHandlerRegistry(),
                             results: [],
                             status: "success",
                             bus: bus,
@@ -337,7 +350,7 @@ export class Runner {
 
                         const deploymentsCtx: DeploymentPipelineContext = {
                             deployment,
-                            tasksRegistry: REX_TASKS_REGISTRY,
+                            tasksRegistry: getTaskHandlerRegistry(),
                             bus,
                             writer,
                             directive: command as "deploy" | "rollback" | "destroy",

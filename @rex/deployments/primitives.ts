@@ -11,7 +11,7 @@ import {
     ProxyMap,
     type StringMap,
 } from "@rex/primitives";
-import type { PipelineStatus, Task, TaskResult, TaskState } from "@rex/tasks";
+import type { AddTaskDelegate, PipelineStatus, Task, TaskResult, TaskState } from "@rex/tasks";
 
 export interface DeploymentState extends TaskState {
     uses: "docker" | string;
@@ -65,6 +65,24 @@ export interface Deployment extends Record<string, unknown> {
         "after:destroy": Task[];
         [key: string]: Task[];
     };
+}
+
+export interface DeploymentDef extends Record<string, unknown> {
+    id: string;
+    name?: string;
+    description?: string;
+    before?: AddTaskDelegate;
+    after?: AddTaskDelegate;
+    beforeRollback?: AddTaskDelegate;
+    afterRollback?: AddTaskDelegate;
+    beforeDestroy?: AddTaskDelegate;
+    afterDestroy?: AddTaskDelegate;
+    needs?: string[];
+    cwd?: string | ((ctx: DeploymentContext) => string | Promise<string>);
+    env?: StringMap | ((ctx: DeploymentContext) => StringMap | Promise<StringMap>);
+    force?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
+    if?: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>);
+    timeout?: number | ((ctx: DeploymentContext) => number | Promise<number>);
 }
 
 export class DeploymentResult {
