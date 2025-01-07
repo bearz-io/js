@@ -1,3 +1,6 @@
+// Original source: https://github.com/tim-kos/node-retry
+// Orgional source: https://github.com/sindresorhus/p-retry
+
 import { isError, isNetworkError } from "@bearz/errors/utils"
 import { AbortError } from "@bearz/errors/abort";
 import { RetryOptions , RetryOperationOptions,  RequiredRetryOptions, RetryError, RetryOperation } from "./operation.ts";

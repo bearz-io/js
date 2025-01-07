@@ -37,6 +37,7 @@
         "@bearz/ci-env",
         "@bearz/debug",
         "@bearz/errors",
+        "@bearz/downloader-abstractions",
         "@bearz/dotenv",
         "@bearz/env",
         "@bearz/exec",
