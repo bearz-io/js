@@ -1,8 +1,0 @@
-{
-    "name": "@rex/tasks-scripts",
-    "description": "@rex/tasks-scripts module",
-    "version": "0.0.0-beta.2",
-    "exports": {
-        ".": "./mod.ts"
-    }
-}

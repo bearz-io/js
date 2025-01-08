@@ -1,9 +1,8 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives/collections";
-import { REX_DEPLOYMENT_REGISTRY, REX_DEPLOYMENTS } from "./globals.ts";
+import { rexDeploymentHandlerRegistry, rexDeployments } from "./globals.ts";
 import {
     type AddTaskDelegate,
-    output,
-    getGlobalTasks,
+    rexTasks,
     type RunDelegate,
     task as defineTask,
     type TaskBuilder,
@@ -17,86 +16,166 @@ import type {
     DeploymentContext,
     DeploymentDef,
     DeploymentMap,
-} from "./primitives.ts";
+} from "./types.ts";
 import { fail, ok, type Result } from "@bearz/functional";
 
+/**
+ * The delegate deployment definition.
+ */
 export interface DelegateDeploymentDef extends DeploymentDef {
+    /**
+     * The unique identifier of the deployment.
+     */
+    id: string;
+    /**
+     * The deployment function.
+     */
     run: Deploy;
+    /**
+     * The rollback function for the deployment.
+     */
     rollback?: Deploy;
+    /**
+     * The destroy function for the deployment.
+     */
     destroy?: Deploy;
 }
 
+/**
+ * A monadic builder for creating deployments.
+ */
 export class DeploymentBuilder {
     #deployment: Deployment;
 
+    /**
+     * Creates a new deployment builder.
+     * @param deployment The deployment to build.
+     * @param map The deployment collection to add the deployment to.
+     */
     constructor(deployment: Deployment, map?: DeploymentMap) {
         this.#deployment = deployment;
-        map ??= REX_DEPLOYMENTS;
+        map ??= rexDeployments();
         map.set(deployment.id, deployment);
     }
 
+    /**
+     * Sets the current working directory for the deployment.
+     * @param cwd The current working directory as a string or a function that returns a string.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     cwd(cwd: string | ((ctx: DeploymentContext) => string | Promise<string>)): this {
         this.#deployment.cwd = cwd;
         return this;
     }
 
+    /**
+     * Sets the description of the deployment.
+     * @param description The description of the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     description(description: string): this {
         this.#deployment.description = description;
         return this;
     }
 
+    /**
+     * Sets the task to run before the deployment.
+     * @param fn The function to add tasks to the deployment before event.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     before(
         fn: AddTaskDelegate,
     ): this {
         return this.tasks("before:deploy", fn);
     }
 
+    /**
+     * Sets the tasks to run after the deployment.
+     * @param fn The function to add tasks to the deployment after event.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     after(
         fn: AddTaskDelegate,
     ): this {
         return this.tasks("after:deploy", fn);
     }
 
+    /**
+     * Sets the tasks to run before the rollback.
+     * @param fn The function to add tasks to the deployment before:rollback event.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     beforeRollback(
         fn: AddTaskDelegate,
     ): this {
         return this.tasks("before:rollback", fn);
     }
 
+    /**
+     * Sets the tasks to run after the rollback.
+     * @param fn The function to add tasks to the deployment after:rollback event.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     afterRollback(
         fn: AddTaskDelegate,
     ): this {
         return this.tasks("after:rollback", fn);
     }
 
+    /**
+     * Sets the tasks to run before the destroy.
+     * @param fn The function to add tasks to the deployment before:destroy event.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     beforeDestroy(
         fn: AddTaskDelegate,
     ): this {
         return this.tasks("before:destroy", fn);
     }
 
+    /**
+     * Sets the tasks to run after the destroy.
+     * @param fn The function to add tasks to the deployment after:destroy event.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     afterDestroy(
         fn: AddTaskDelegate,
     ): this {
         return this.tasks("after:destroy", fn);
     }
 
+    /**
+     * Sets the rollback function for the deployment.
+     * @param fn The rollback function for the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     rollback(fn: Deploy): this {
         this.#deployment.rollback = fn;
         return this;
     }
 
+    /**
+     * Sets the destroy function for the deployment.
+     * @param fn The destroy function for the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     destroy(fn: Deploy): this {
         this.#deployment.destroy = fn;
         return this;
     }
 
+    /**
+     * Sets the tasks to run for a specific event.
+     * @param event The event to add tasks to.
+     * @param fn The function to add tasks to the event.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     tasks(
         event: string,
         fn: AddTaskDelegate,
     ): this {
         const map = new TaskMap();
-        const get = (id: string) => getGlobalTasks().get(id);
+        const get = (id: string) => rexTasks().get(id);
 
         const add = (id: string) => {
             const task = get(id);
@@ -126,6 +205,11 @@ export class DeploymentBuilder {
         return this;
     }
 
+    /**
+     * Sets the environment variables for the deployment.
+     * @param env The environment variables for the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     env(
         env:
             | Record<string, string>
@@ -147,21 +231,41 @@ export class DeploymentBuilder {
         return this;
     }
 
+    /**
+     * Sets the force option for the deployment.
+     * @param force The force option for the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     force(force: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>)): this {
         this.#deployment.force = force;
         return this;
     }
 
+    /**
+     * Sets the if condition for the deployment.
+     * @param condition The if condition for the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     if(condition: boolean | ((ctx: DeploymentContext) => boolean | Promise<boolean>)): this {
         this.#deployment.if = condition;
         return this;
     }
 
+    /**
+     * Sets the timeout for the deployment.
+     * @param timeout The timeout in seconds or a function that takes.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     timeout(timeout: number | ((ctx: DeploymentContext) => number | Promise<number>)): this {
         this.#deployment.timeout = timeout;
         return this;
     }
 
+    /**
+     * Sets the inputs for the deployment.
+     * @param inputs The inputs for the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     with(
         inputs:
             | Record<string, unknown>
@@ -183,48 +287,110 @@ export class DeploymentBuilder {
         return this;
     }
 
+    /**
+     * Sets the name of the deployment.
+     * @param name The name of the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     name(name: string): this {
         this.#deployment.name = name;
         return this;
     }
 
+    /**
+     * Sets the dependencies for the deployment.
+     * @param needs The dependencies for the deployment.
+     * @returns The instance of the deployment builder for method chaining.
+     */
     needs(...needs: string[]): this {
         this.#deployment.needs = needs;
         return this;
     }
 
+    /**
+     * Builds the deployment.
+     * @returns The deployment.
+     */
     build(): Deployment {
         return this.#deployment;
     }
 }
 
+/**
+ * Creates a new deployment.
+ * @param id The unique identifier of the deployment.
+ * @param fn The deployment function.
+ * @param map The deployment map to add the deployment to.
+ * @returns The deployment builder.
+ * ```ts
+ * import { deploy } from "@rex/deployments";
+ * import { cmd } from "@bearz/exec"
+ *
+ * deploy("my-deployment", async (ctx) => {
+ *    // deployment code
+ *    await cmd("az", ["group", "create", "--name", "my-resource-group", "--location", "eastus"]);
+ * });
+ * ```
+ */
+export function deploy(id: string, fn: Deploy, map?: DeploymentMap): DeploymentBuilder;
+/**
+ * Creates a new deployment.
+ * @param id The unique identifier of the deployment.
+ * @param needs The dependencies for the deployment.
+ * @param fn The deployment function.
+ * @param map The deployment map to add the deployment to.
+ * @returns The deployment builder.
+ * ```ts
+ * import { deploy } from "@rex/deployments";
+ * import { cmd } from "@bearz/exec"
+ *
+ * deploy("my-other-deployment", async (ctx) => {
+ *      // deployment code
+ * });
+ *
+ * deploy("my-deployment", ["my-other-deployment"], async (ctx) => {
+ *   // deployment code
+ * });
+ * ```
+ */
 export function deploy(
     id: string,
     needs: string[],
-    rn: Deploy,
+    fn: Deploy,
     map?: DeploymentMap,
 ): DeploymentBuilder;
-export function deploy(id: string, fn: Deploy, map?: DeploymentMap): DeploymentBuilder;
+/**
+ * Creates a new deployment.
+ * @param def The deployment definition.
+ * @returns The deployment builder.
+ * ```ts
+ * import { deploy } from "@rex/deployments";
+ * import { cmd } from "@bearz/exec"
+ *
+ * deploy({
+ *    id: "my-deployment",
+ *    run: async (ctx) => {
+ *      // deployment code
+ *      await cmd("az", ["group", "create", "--name", "my-resource-group", "--location", "eastus"]);
+ *    }
+ * });
+ * ```
+ */
 export function deploy(def: DelegateDeploymentDef): DeploymentBuilder;
 export function deploy(): DeploymentBuilder {
+    const uses = "@rex/delegate-deployment";
+
     if (arguments.length === 1 && typeof arguments[0] === "object") {
         const def = arguments[0] as DelegateDeploymentDef;
         const task: DelegateDeployment = {
             id: def.id,
-            uses: "delegate-deployment",
+            uses,
             name: def.name ?? def.id,
             needs: def.needs ?? [],
             run: def.run,
             rollback: def.rollback,
             destroy: def.destroy,
-            hooks: {
-                "before:deploy": [],
-                "after:deploy": [],
-                "before:rollback": [],
-                "after:rollback": [],
-                "before:destroy": [],
-                "after:destroy": [],
-            },
+            hooks: {},
         };
 
         const builder = new DeploymentBuilder(task);
@@ -301,37 +467,35 @@ export function deploy(): DeploymentBuilder {
 
     const task: DelegateDeployment = {
         id: id,
-        uses: "delegate-deployment",
+        uses,
         name: id,
         needs: needs,
         run: fn,
-        hooks: {
-            "before:deploy": [],
-            "after:deploy": [],
-            "before:rollback": [],
-            "after:rollback": [],
-            "before:destroy": [],
-            "after:destroy": [],
-        },
+        hooks: {},
     };
 
     return new DeploymentBuilder(task, tasks);
 }
 
-const taskRegistry = REX_DEPLOYMENT_REGISTRY;
-taskRegistry.set("delegate-deployment", {
-    id: "delegate-deployment",
+/**
+ * Common events for deployments. Do not edit this array.
+ */
+export const CommonEvents: string[] = [
+    "before:deploy",
+    "after:deploy",
+    "before:rollback",
+    "after:rollback",
+    "before:destroy",
+    "after:destroy",
+];
+
+const taskRegistry = rexDeploymentHandlerRegistry();
+taskRegistry.set("@rex/delegate-deployment", {
+    id: "@rex/delegate-deployment",
     description: "A deployment task using inline code",
     inputs: [],
     outputs: [],
-    events: [
-        "before:deploy",
-        "after:deploy",
-        "before:rollback",
-        "after:rollback",
-        "before:destroy",
-        "after:destroy",
-    ],
+    events: CommonEvents,
     run: async (ctx: DeploymentContext): Promise<Result<Outputs>> => {
         const task = ctx.deployment as DelegateDeployment;
         const directive = ctx.directive;
@@ -384,7 +548,7 @@ taskRegistry.set("delegate-deployment", {
                         return ok(res);
                     }
 
-                    return ok(output({}));
+                    return ok(new Outputs());
                 } catch (e) {
                     return fail(toError(e));
                 }
@@ -420,7 +584,7 @@ taskRegistry.set("delegate-deployment", {
                         return ok(res);
                     }
 
-                    return ok(output({}));
+                    return ok(new Outputs());
                 } catch (e) {
                     return fail(toError(e));
                 }
@@ -455,7 +619,7 @@ taskRegistry.set("delegate-deployment", {
                         return ok(res);
                     }
 
-                    return ok(output({}));
+                    return ok(new Outputs());
                 } catch (e) {
                     return fail(toError(e));
                 }

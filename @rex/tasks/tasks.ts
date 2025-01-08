@@ -1,58 +1,80 @@
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
-import { getGlobalTasks, getTaskHandlerRegistry } from "./globals.ts";
-import type {
-    DelegateTask,
-    RunDelegate,
-    Task,
-    TaskContext,
-    TaskDef,
-    TaskMap,
-} from "./primitives.ts";
+import { rexTaskHandlerRegistry, rexTasks } from "./globals.ts";
+import type { DelegateTask, RunDelegate, Task, TaskContext, TaskDef, TaskMap } from "./types.ts";
 import { fail, ok, type Result } from "@bearz/functional";
-
-export function output(data: Record<string, unknown> | Outputs): Outputs {
-    if (data instanceof Outputs) {
-        return data;
-    }
-
-    const outputs = new Outputs();
-    outputs.merge(data);
-    return outputs;
-}
 
 export function toError(e: unknown): Error {
     return e instanceof Error ? e : new Error(`Unkown error: ${e}`);
 }
 
+/**
+ * A task that executes a delegate function.
+ */
 export interface DelegateTaskDef extends TaskDef {
+    /**
+     * The unique identifier of the task.
+     */
     id: string;
+    /**
+     * The function that is executed by the task.
+     */
     run: RunDelegate;
 }
 
+/**
+ * A monadic builder for creating tasks.
+ */
 export class TaskBuilder {
     #task: Task;
 
+    /**
+     * Creates a new task builder.
+     * @param task The task to build.
+     * @param map The task collection to add the task to.
+     */
     constructor(task: Task, map?: TaskMap) {
         this.#task = task;
-        map ??= getGlobalTasks();
+        map ??= rexTasks();
         map.set(task.id, task);
     }
 
-    set(def: Omit<DelegateTaskDef, "id" | "run">): this {
+    /**
+     * Sets multiple properties of the task.
+     * @param def the task definition.
+     * @returns The task builder.
+     */
+    set(def: TaskDef): this {
         this.#task = { ...this.#task, ...def };
         return this;
     }
 
+    /**
+     * Sets the current working directory for the task.
+     *
+     * @param cwd - The current working directory as a string or
+     *  function that returns a string or a Promise that resolves to a string.
+     * @returns The current instance for method chaining.
+     */
     cwd(cwd: string | ((ctx: TaskContext) => string | Promise<string>)): this {
         this.#task.cwd = cwd;
         return this;
     }
 
+    /**
+     * Sets the description of the task.
+     * @param description The description of the task.
+     * @returns The current instance for method chaining.
+     */
     description(description: string): this {
         this.#task.description = description;
         return this;
     }
 
+    /**
+     * Sets the environment variables for the task.
+     * @param env The environment variables to set.
+     * @returns The current instance for method chaining.
+     */
     env(
         env:
             | Record<string, string>
@@ -74,21 +96,45 @@ export class TaskBuilder {
         return this;
     }
 
+    /**
+     * Sets the force flag for the task.
+     * @param force The force flag.
+     * @returns The current instance for method chaining.
+     */
     force(force: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>)): this {
         this.#task.force = force;
         return this;
     }
 
+    /**
+     * Sets a condition for the task.
+     *
+     * @param condition - A boolean value or a function that takes
+     * a `TaskContext` and returns a boolean or a Promise that resolves to a boolean.
+     * @returns The current instance for chaining.
+     */
     if(condition: boolean | ((ctx: TaskContext) => boolean | Promise<boolean>)): this {
         this.#task.if = condition;
         return this;
     }
 
+    /**
+     * Sets the timeout for the task.
+     *
+     * @param timeout - The timeout in seconds or a function that takes
+     * a `TaskContext` and returns a timeout in seconds or a Promise that resolves to a timeout in seconds.
+     * @returns The current instance for chaining.
+     */
     timeout(timeout: number | ((ctx: TaskContext) => number | Promise<number>)): this {
         this.#task.timeout = timeout;
         return this;
     }
 
+    /**
+     * Sets the inputs for the task.
+     * @param inputs The inputs for the task.
+     * @returns The current instance for method chaining.
+     */
     with(
         inputs: Record<string, unknown> | Inputs | ((ctx: TaskContext) => Inputs | Promise<Inputs>),
     ): this {
@@ -107,16 +153,30 @@ export class TaskBuilder {
         return this;
     }
 
+    /**
+     * Sets the name of the task.
+     * @param name The name of the task.
+     * @returns The current instance for method chaining.
+     */
     name(name: string): this {
         this.#task.name = name;
         return this;
     }
 
+    /**
+     * Sets the dependencies for the task.
+     * @param needs The dependencies for the task.
+     * @returns The current instance for method chaining.
+     */
     needs(...needs: string[]): this {
         this.#task.needs = needs;
         return this;
     }
 
+    /**
+     * Builds the task.
+     * @returns The task.
+     */
     build(): Task {
         return this.#task;
     }
@@ -125,7 +185,7 @@ export class TaskBuilder {
 /**
  * Creates a task that uses a task descriptor to execute a task.
  * @param id The id of the task
- * @param uses The task to use. This is a key that points to a task definition.
+ * @param uses The task handler to use. This is a key that points to a task definition.
  * @param tasks The map of tasks to add the task to. Defaults to the global tasks map.
  * @returns The task builder
  */
@@ -138,8 +198,57 @@ export function usesTask(id: string, uses: string, tasks?: TaskMap): TaskBuilder
     }, tasks);
 }
 
+/**
+ * Creates a delegate task that executes a function.
+ * @param id The id of the task.
+ * @param needs The dependencies of the task.
+ * @param rn The run function of the task.
+ * @param tasks The map of tasks to add the task to. Defaults to the global tasks map.
+ *
+ * ```ts
+ * import { task } from "@rex/tasks";
+ *
+ * task("hello", (ctx) => {
+ *      console.log("Hello");
+ * });
+ *
+ * task("world", ["hello"], (ctx) => {
+ *      console.log("World");
+ * });
+ * ```
+ */
 export function task(id: string, needs: string[], rn: RunDelegate, tasks?: TaskMap): TaskBuilder;
+/**
+ * Creates a delegate task that executes a function.
+ * @param id The id of the task.
+ * @param rn The run function of the task.
+ * @param tasks The map of tasks to add the task to. Defaults to the global tasks map.
+ *
+ * ```ts
+ * import { task } from "@rex/tasks";
+ *
+ * task("hello", (ctx) => {
+ *      console.log("Hello");
+ * });
+ * ```
+ */
 export function task(id: string, fn: RunDelegate, tasks?: TaskMap): TaskBuilder;
+/**
+ * Creates a delegate task that executes a function.
+ * @param def The task definition.
+ * @param tasks The map of tasks to add the task to. Defaults to the global tasks map.
+ *
+ * ```ts
+ * import { task } from "@rex/tasks";
+ *
+ * task({
+ *   id: "hello",
+ *   run: (ctx) => {
+ *      console.log("Hello");
+ *   }
+ * });
+ * ```
+ */
 export function task(def: DelegateTaskDef, tasks?: TaskMap): TaskBuilder;
 export function task(): TaskBuilder {
     if (arguments.length < 1) {
@@ -185,9 +294,9 @@ export function task(): TaskBuilder {
     return new TaskBuilder(task, tasks);
 }
 
-const taskRegistry = getTaskHandlerRegistry();
-taskRegistry.set("delegate-task", {
-    id: "delegate-task",
+const taskRegistry = rexTaskHandlerRegistry();
+taskRegistry.set("@rex/delegate-task", {
+    id: "@rex/delegate-task",
     description: "an inline task",
     inputs: [{
         name: "shell",
@@ -210,14 +319,14 @@ taskRegistry.set("delegate-task", {
                     return ok(out);
                 }
 
-                return ok(output({}));
+                return ok(new Outputs());
             }
 
             if (res instanceof Outputs) {
                 return ok(res);
             }
 
-            return ok(output({}));
+            return ok(new Outputs());
         } catch (e) {
             return fail(toError(e));
         }

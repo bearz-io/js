@@ -374,12 +374,12 @@ export function splat(
  */
 export function joinArgs(args: string[]): string {
     return args.map((arg) => {
-         if (arg.match(/[\$']/gm)) {
+        if (arg.match(/[\$']/gm)) {
             return `"${arg}"`;
-         } else if (arg.match(/[\n\r\s\t"]/gm)) {
+        } else if (arg.match(/[\n\r\s\t"]/gm)) {
             return `'${arg}'`;
-         } else {
+        } else {
             return arg;
-         }
+        }
     }).join(" ");
 }

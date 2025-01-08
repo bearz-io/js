@@ -1,5 +1,5 @@
 import {
-    getTaskHandlerRegistry,
+    rexTaskHandlerRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
@@ -206,7 +206,7 @@ const upInputs: InputDescriptor[] = [
     },
 ];
 
-const taskHandlerRegistery = getTaskHandlerRegistry();
+const taskHandlerRegistery = rexTaskHandlerRegistry();
 
 taskHandlerRegistery.set("@rex/compose-up", {
     id: "@rex/compose-up",
@@ -352,7 +352,6 @@ const downInputs: InputDescriptor[] = [
         required: false,
     },
 ];
-
 
 taskHandlerRegistery.set("@rex/compose-down", {
     id: "@rex/compose-down",

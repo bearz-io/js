@@ -5,6 +5,9 @@ import { VERSION } from "../version.ts";
 import { getDeployments } from "../discovery.ts";
 import { logLevels, parseLogLevel } from "./types.ts";
 
+/**
+ * The deploy command.
+ */
 export const deployCommand = new Command()
     .name("rex-deploy")
     .description(
@@ -36,7 +39,7 @@ export const deployCommand = new Command()
             const kp = keypress();
             kp.addEventListener("keydown", (event: KeyPressEvent) => {
                 if (event.ctrlKey && event.key === "c") {
-                    controller.abort();
+                    controller.abort("Cancelled by user.");
                     kp.dispose();
                 }
             });

@@ -1,5 +1,3 @@
-
-
 /**
  * Represents an error that occurs when an operation times out.
  */
@@ -26,6 +24,6 @@ export class TimeoutError extends Error {
      * @returns `true` if the object is an instance of `TimeoutError`; otherwise, `false`.
      */
     static is(e: unknown): e is TimeoutError {
-        return e instanceof TimeoutError
+        return e instanceof TimeoutError;
     }
 }

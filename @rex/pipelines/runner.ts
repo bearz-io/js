@@ -10,9 +10,9 @@ import {
     StringMap,
 } from "@rex/primitives";
 import { DefaultLoggingMessageBus } from "./bus.ts";
-import { tasksConsoleSink } from "./tasks/console_sink.ts";
-import { jobsConsoleSink } from "./jobs/console_sink.ts";
-import { deployConsoleSink } from "./deployments/console_sink.ts";
+import { handleTaskMessages } from "./tasks/console_sink.ts";
+import { handleJobMessages } from "./jobs/console_sink.ts";
+import { handleDeploymentMessages } from "./deployments/console_sink.ts";
 import {
     SequentialTasksPipeline,
     TaskPipeline,
@@ -20,9 +20,9 @@ import {
 } from "./tasks/pipelines.ts";
 import { env } from "@bearz/env";
 import { DiscoveryPipeline, type DiscoveryPipelineContext } from "./discovery/pipelines.ts";
-import { getTaskHandlerRegistry, TaskMap } from "@rex/tasks";
+import { rexTaskHandlerRegistry, TaskMap } from "@rex/tasks";
 import { JobMap } from "@rex/jobs";
-import { DeploymentMap, DeploymentResult, REX_DEPLOYMENT_REGISTRY } from "@rex/deployments";
+import { DeploymentMap, DeploymentResult, rexDeploymentHandlerRegistry } from "@rex/deployments";
 import { RexfileDiscovery } from "./discovery/middlewares.ts";
 import { ApplyTaskContext, SequentialTaskExecution, TaskExecution } from "./tasks/middlewares.ts";
 import { type JobsPipelineContext, SequentialJobsPipeline } from "./jobs/mod.ts";
@@ -33,25 +33,73 @@ import { parse } from "@bearz/dotenv";
 import { load } from "@bearz/dotenv/load";
 import { readTextFile } from "@bearz/fs";
 import { ApplyDeploymentContext, RunDeployment } from "./deployments/middleware.ts";
+import { TimeoutError } from "../../@bearz/errors/timeout_error.ts";
 
+/**
+ * The options for the runner.
+ */
 export interface RunnerOptions {
+    /**
+     * The rexfile to run.
+     */
     file?: string;
+    /**
+     * The current working directory.
+     */
     cwd?: string;
+    /**
+     * The command to run.
+     */
     command?: string;
+    /**
+     * The targets to run.
+     */
     targets?: string[];
+    /**
+     * The timeout for the runner.
+     */
     timeout?: number;
+    /**
+     * The log level for the runner.
+     */
     logLevel?: LogLevel;
+    /**
+     * The context for the runner which is mapped to the environmentName.
+     */
     context?: string;
+
+    /**
+     * Additional environment variables to set.
+     */
     env?: string[];
+    /**
+     * Dotenv files to load.
+     */
     envFile?: string[];
+    /**
+     * The signal to abort the runner.
+     */
     signal?: AbortSignal;
+    /**
+     * Additional arguments to pass to the tasks, jobs, or deployments.
+     */
     args?: string[];
 }
 
+/**
+ * The runner for the rex tasks, jobs, and deployments.
+ */
 export class Runner {
+    /**
+     * Creates a new Runner.
+     */
     constructor() {
     }
 
+    /**
+     * Runs the specified options.
+     * @param options The options to run.
+     */
     async run(options: RunnerOptions) {
         let { file, cwd, command, targets, timeout, logLevel } = options;
 
@@ -119,7 +167,9 @@ export class Runner {
 
         if (timeout > 0) {
             handle = setTimeout(() => {
-                controller.abort();
+                const e = new TimeoutError(`Max timeout of ${timeout} seconds exceeded.`);
+                e.timeout = timeout;
+                controller.abort(e);
             }, timeout * 1000);
         }
 
@@ -135,9 +185,9 @@ export class Runner {
             targets ??= ["default"];
 
             const bus = new DefaultLoggingMessageBus();
-            bus.addListener(tasksConsoleSink);
-            bus.addListener(jobsConsoleSink);
-            bus.addListener(deployConsoleSink);
+            bus.addListener(handleTaskMessages);
+            bus.addListener(handleJobMessages);
+            bus.addListener(handleDeploymentMessages);
 
             const ctx: ExecutionContext = {
                 services: new ObjectMap(),
@@ -184,6 +234,7 @@ export class Runner {
             ctx.services.set("SequentialJobsPipeline", jobsPipeline);
             ctx.services.set("JobPipeline", jobPipeline);
             ctx.services.set("DeploymentPipeline", deploymentPipeline);
+            ctx.services.set("timeout", timeout);
 
             for (const [key, value] of Object.entries(env.toObject())) {
                 if (value !== undefined) {
@@ -250,7 +301,7 @@ export class Runner {
                         const tasksCtx: TasksPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
-                            registry: getTaskHandlerRegistry(),
+                            registry: rexTaskHandlerRegistry(),
                             results: [],
                             status: "success",
                             bus: bus,
@@ -279,7 +330,7 @@ export class Runner {
                         const jobsCtx: JobsPipelineContext = Object.assign({}, ctx, {
                             targets: targets,
                             tasks: res.tasks,
-                            registry: getTaskHandlerRegistry(),
+                            registry: rexTaskHandlerRegistry(),
                             results: [],
                             status: "success",
                             bus: bus,
@@ -344,13 +395,14 @@ export class Runner {
                             return;
                         }
 
-                        if (deployment.needs.length > 0) {
+                        const needs = deployment.needs ?? [];
+                        if (needs.length > 0) {
                             writer.warn(`Deployment needs are are not supported yet`);
                         }
 
                         const deploymentsCtx: DeploymentPipelineContext = {
                             deployment,
-                            tasksRegistry: getTaskHandlerRegistry(),
+                            tasksRegistry: rexTaskHandlerRegistry(),
                             bus,
                             writer,
                             directive: command as "deploy" | "rollback" | "destroy",
@@ -358,7 +410,7 @@ export class Runner {
                             variables: new ObjectMap(),
                             services: ctx.services,
                             cwd: ctx.cwd,
-                            deploymentsRegistry: REX_DEPLOYMENT_REGISTRY,
+                            deploymentsRegistry: rexDeploymentHandlerRegistry(),
                             outputs: ctx.outputs,
                             secrets: ctx.secrets,
                             env: ctx.env,
@@ -378,7 +430,8 @@ export class Runner {
                                 env: new StringMap(),
                                 deploy: true,
                                 force: false,
-                                needs: deployment.needs,
+                                needs: deployment.needs ?? [],
+                                envKeys: [],
                                 if: true,
                                 timeout: 0,
                                 inputs: new Inputs(),

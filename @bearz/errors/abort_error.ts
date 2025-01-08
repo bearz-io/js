@@ -1,15 +1,13 @@
-
-
 /**
  * Represents an error that occurs when an operation is aborted.
- * 
+ *
  * @extends {Error}
- * 
+ *
  * @example
  * ```typescript
  * throw new AbortError("The operation was aborted.");
  * ```
- * 
+ *
  * @example
  * ```typescript
  * try {
@@ -20,7 +18,7 @@
  *     }
  * }
  * ```
- * 
+ *
  * @property {string} [link] - A URL linking to more information about the error.
  */
 export class AbortError extends Error {
@@ -33,7 +31,7 @@ export class AbortError extends Error {
         super(message, options);
         this.name = "AbortError";
 
-        this.link = "https://jsr.io/@bearz/errors/docs/abort-error"
+        this.link = "https://jsr.io/@bearz/errors/docs/abort-error";
     }
 
     /**

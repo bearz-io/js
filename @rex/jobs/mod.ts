@@ -14,6 +14,6 @@
  * [MIT License](./LICENSE.md)
  * @module
  */
-export * from "./primitives.ts";
+export * from "./types.ts";
 export * from "./globals.ts";
 export * from "./jobs.ts";

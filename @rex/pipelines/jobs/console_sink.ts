@@ -11,7 +11,11 @@ import type {
 import { cyan, green, red, reset } from "@bearz/ansi/styles";
 import { AnsiMode, AnsiSettings } from "@bearz/ansi";
 
-export function jobsConsoleSink(message: Message): void {
+/**
+ * Handles job messages and writes them out to the console.
+ * @param message The message to handle.
+ */
+export function handleJobMessages(message: Message): void {
     switch (message.kind) {
         case "job:missing-dependencies": {
             const msg = message as MissingJobDependencies;

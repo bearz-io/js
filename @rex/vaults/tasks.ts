@@ -1,7 +1,7 @@
 import type { SecretParam, SecretParams, SecretVaultParams } from "./types.ts";
 import {
-    getGlobalTasks,
-    getTaskHandlerRegistry,
+    rexTaskHandlerRegistry,
+    rexTasks,
     type Task,
     TaskBuilder,
     type TaskContext,
@@ -189,7 +189,7 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
             const def = arguments[0] as RegisterSecretVaultTaskDef;
             const w = def.with;
             const isFunction = typeof w === "function";
-            const map = arguments[1] as TaskMap ?? getGlobalTasks();
+            const map = arguments[1] as TaskMap ?? rexTasks();
             const replace = !isFunction && w.replace;
             let id = "";
             if (def.id) {
@@ -231,7 +231,7 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
         } else {
             const params = first as SecretVaultParams;
             let id = `secret-vault-${params.name}`;
-            const map = arguments[1] as TaskMap ?? getGlobalTasks();
+            const map = arguments[1] as TaskMap ?? rexTasks();
             if (map.has(id) && !params.replace) {
                 throw new Error(`Task ${id} already exists`);
             }
@@ -286,7 +286,7 @@ export function registerSecretVault(): RegisterSecretVaultTaskBuilder {
     }, arguments[2]);
 }
 
-const taskRegistry = getTaskHandlerRegistry();
+const taskRegistry = rexTaskHandlerRegistry();
 
 taskRegistry.set("@rex/register-secret-vault", {
     id: "@rex/register-secret-vault",

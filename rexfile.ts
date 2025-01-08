@@ -49,7 +49,7 @@ task({
 
 // a job is a collection of tasks that are
 // executed in order of declaration
-job("build").tasks((task, add) => {
+job("build", (task, add) => {
     // adds a top level task to the job. enables reuse.
     add("test");
 

@@ -40,7 +40,7 @@ export const taskCommand = new Command()
             const controller = new AbortController();
             keypress().addEventListener("keydown", (event: KeyPressEvent) => {
                 if (event.ctrlKey && event.key === "c") {
-                    controller.abort();
+                    controller.abort("Cancelled by user.");
                     keypress().dispose();
                 }
             });

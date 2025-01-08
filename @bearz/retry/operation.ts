@@ -1,8 +1,9 @@
-import { shimClearTimeout as clearTimeout, shimSetTimeout as setTimeout, type Timeout } from "./shims.ts";
-import { TimeoutError } from "@bearz/errors/timeout"
-
-
-
+import {
+    shimClearTimeout as clearTimeout,
+    shimSetTimeout as setTimeout,
+    type Timeout,
+} from "./shims.ts";
+import { TimeoutError } from "@bearz/errors/timeout";
 
 export interface RetryOptions extends Record<string | symbol, unknown> {
     retries?: number;
@@ -35,7 +36,7 @@ export interface TimeoutOptions extends Record<string | symbol, unknown> {
 
 export class RetryError extends Error {
     constructor(message: string | Error, options?: ErrorOptions) {
-        super(typeof message === 'string' ? message : message.message, options);
+        super(typeof message === "string" ? message : message.message, options);
         this.name = "RetryError";
 
         if (message instanceof Error) {
@@ -58,7 +59,7 @@ export class RetryError extends Error {
  */
 export class RetryOperation {
     #timeouts: number[] = [];
-    #options: RetryOperationOptions
+    #options: RetryOperationOptions;
     #signal?: AbortSignal;
     #originalTimeouts: number[] = [];
     #fn?: (attempts: number) => void;
@@ -106,13 +107,13 @@ export class RetryOperation {
     /**
      * Gets the main error that caused the operation to fail.
      */
-    get error() : Error | undefined {
+    get error(): Error | undefined {
         if (this.#errors.length === 0) {
             return undefined;
         }
 
-        const counts : Record<string, number> = {};
-        let error : Error | undefined = undefined;
+        const counts: Record<string, number> = {};
+        let error: Error | undefined = undefined;
         let errorCount = 0;
 
         for (let i = 0; i < this.#errors.length; i++) {
@@ -157,19 +158,21 @@ export class RetryOperation {
 
     /**
      * Attempts to invoke the function for the first time.
-     * 
+     *
      * @param fn The function to execute.
      * @param options The options to use.
      */
-    start(fn: (attempts: number) => void, options?: TimeoutOptions) : void {
+    start(fn: (attempts: number) => void, options?: TimeoutOptions): void {
         this.#fn = fn;
 
         if (options) {
-            if (options.timeout)
+            if (options.timeout) {
                 this.#operationTimeout = options.timeout;
-            
-            if (options.callback)
+            }
+
+            if (options.callback) {
                 this.#operationTimeoutCb = options.callback;
+            }
         }
 
         if (this.#operationTimeoutCb) {
@@ -180,22 +183,22 @@ export class RetryOperation {
 
         this.#start = new Date().getTime();
 
-        this.#fn(this.#attempts)
+        this.#fn(this.#attempts);
     }
 
     /**
-     * 
-     * @param error 
-     * @returns 
+     * @param error
+     * @returns
      */
-    retry(error?: Error) : boolean {
+    retry(error?: Error): boolean {
         if (this.#timeout) {
             clearTimeout(this.#timeout);
         }
 
-        if (!error)
-            return false 
-        
+        if (!error) {
+            return false;
+        }
+
         const ct = new Date().getTime();
         if (ct - this.#start! > this.#maxRetryTime!) {
             this.#errors.push(error);
@@ -238,4 +241,3 @@ export class RetryOperation {
         return true;
     }
 }
-

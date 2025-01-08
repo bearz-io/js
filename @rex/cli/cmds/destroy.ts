@@ -5,6 +5,9 @@ import { VERSION } from "../version.ts";
 import { getDeployments } from "../discovery.ts";
 import { logLevels, parseLogLevel } from "./types.ts";
 
+/**
+ * The destroy command.
+ */
 export const destroyCommand = new Command()
     .name("rex-destroy")
     .description(
@@ -35,7 +38,7 @@ export const destroyCommand = new Command()
         const kp = keypress();
         kp.addEventListener("keydown", (event: KeyPressEvent) => {
             if (event.ctrlKey && event.key === "c") {
-                controller.abort();
+                controller.abort("Cancelled by user.");
                 kp.dispose();
             }
         });

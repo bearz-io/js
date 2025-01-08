@@ -6,4 +6,7 @@ masker.addGenerator((s) => {
     return encodeBase64(new TextEncoder().encode(s));
 });
 
+/**
+ * The secret masker used to mask secrets in the output.
+ */
 export const secretMasker = masker;

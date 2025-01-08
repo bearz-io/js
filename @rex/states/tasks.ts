@@ -1,5 +1,5 @@
 import {
-    getTaskHandlerRegistry,
+    rexTaskHandlerRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
@@ -84,7 +84,7 @@ export function registerStateStore(): RegisterStateStoreTaskBuilder {
             const w = def.with;
             const isFunction = typeof w === "function";
             const replace = !isFunction && w.replace;
-            const map = arguments[1] as TaskMap ?? getTaskHandlerRegistry();
+            const map = arguments[1] as TaskMap ?? rexTaskHandlerRegistry();
             let id = "";
 
             if (def.id) {
@@ -136,7 +136,7 @@ export function registerStateStore(): RegisterStateStoreTaskBuilder {
             const inputs = first as StateDriverParams;
             let id = `register-state-${inputs.name}`;
             const isArray = Array.isArray(second);
-            const map = arguments[isArray ? 2 : 1] as TaskMap ?? getTaskHandlerRegistry();
+            const map = arguments[isArray ? 2 : 1] as TaskMap ?? rexTaskHandlerRegistry();
             if (map.has(id)) {
                 if (!inputs.replace) {
                     let i = 0;
@@ -187,7 +187,7 @@ export function registerStateStore(): RegisterStateStoreTaskBuilder {
     }, arguments[2]);
 }
 
-const tasksRegistry = getTaskHandlerRegistry();
+const tasksRegistry = rexTaskHandlerRegistry();
 
 tasksRegistry.set(registerStateDriverId, {
     id: registerStateDriverId,

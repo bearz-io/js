@@ -1,5 +1,5 @@
 import {
-    getTaskHandlerRegistry,
+    rexTaskHandlerRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
@@ -228,7 +228,7 @@ export function sshTask(): SshTaskBuilder {
     }, arguments[2]);
 }
 
-const taskHandlerRegistery = getTaskHandlerRegistry();
+const taskHandlerRegistery = rexTaskHandlerRegistry();
 
 taskHandlerRegistery.set("@rex/ssh-native/ssh", {
     id: "@rex/ssh-native/ssh",

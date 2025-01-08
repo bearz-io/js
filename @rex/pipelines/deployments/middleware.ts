@@ -10,10 +10,15 @@ import {
     DeploymentStarted,
 } from "./messages.ts";
 import { type DeploymentPipelineContext, DeploymentPipelineMiddleware } from "./pipelines.ts";
-import { getTaskHandlerRegistry, TaskMap } from "@rex/tasks";
+import { rexTaskHandlerRegistry, TaskMap } from "@rex/tasks";
 import { underscore } from "@bearz/strings/underscore";
 import { setPipelineVar } from "../ci/vars.ts";
+import { AbortError, TimeoutError } from "@bearz/errors";
 
+/**
+ * The middleware that applies the deployment context to the pipeline
+ * by resolving the values of the deployment task.
+ */
 export class ApplyDeploymentContext extends DeploymentPipelineMiddleware {
     override async run(ctx: DeploymentPipelineContext, next: Next): Promise<void> {
         const meta = ctx.state;
@@ -78,6 +83,9 @@ export class ApplyDeploymentContext extends DeploymentPipelineMiddleware {
     }
 }
 
+/**
+ * The middleware that runs the deployment task.
+ */
 export class RunDeployment extends DeploymentPipelineMiddleware {
     override async run(ctx: DeploymentPipelineContext, next: Next): Promise<void> {
         const { state } = ctx;
@@ -104,16 +112,24 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
             return;
         }
 
-        let timeout = state.timeout;
-        if (timeout === 0) {
-            timeout = ctx.services.get("timeout") as number ?? (60 * 1000) * 3;
-        } else {
-            timeout = timeout * 1000;
+        let timeout = state.timeout * 1000;
+        if (timeout < 1) {
+            timeout = 0;
+        }
+        let maxTimeout = ctx.services.get("timeout") as number ?? 0;
+        if (maxTimeout < 1) {
+            maxTimeout = 0;
+        }
+
+        if (timeout === 0 && maxTimeout > 0) {
+            timeout = maxTimeout;
+        } else if (timeout > 0 && maxTimeout > 0) {
+            timeout = Math.min(timeout, maxTimeout);
         }
 
         const controller = new AbortController();
-        const onAbort = () => {
-            controller.abort();
+        const onAbort = function (this: AbortSignal) {
+            controller.abort(this.reason);
         };
         ctx.signal.addEventListener("abort", onAbort, { once: true });
         const signal = controller.signal;
@@ -125,7 +141,9 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
 
         signal.addEventListener("abort", listener, { once: true });
         const handle = setTimeout(() => {
-            controller.abort();
+            const e = new TimeoutError(`Deployment timed out after ${timeout} seconds.`);
+            e.timeout = timeout;
+            controller.abort(e);
         }, timeout);
 
         const descriptor = ctx.deploymentsRegistry.get(ctx.deployment.uses);
@@ -157,7 +175,7 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
                         cwd: c.cwd,
                         tasks: map,
                         targets,
-                        registry: getTaskHandlerRegistry(),
+                        registry: rexTaskHandlerRegistry(),
                         results: [],
                         status: "success",
                         secrets: new StringMap().merge(ctx.secrets),
@@ -256,6 +274,13 @@ export class RunDeployment extends DeploymentPipelineMiddleware {
             ctx.result.success();
             ctx.result.outputs = result.unwrap();
             ctx.bus.send(new DeploymentCompleted(ctx.state, ctx.result, directive));
+        } catch (e) {
+            if (e instanceof AbortError) {
+                ctx.result.cancel();
+                ctx.result.stop();
+                ctx.bus.send(new DeploymentCancelled(ctx.state, directive));
+                return;
+            }
         } finally {
             clearTimeout(handle);
             signal.removeEventListener("abort", listener);

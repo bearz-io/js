@@ -158,7 +158,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
                 path.join(testdataDir, "ensure_file_9"),
                 path.join(testdataDir, "ensure_file_9", "test.txt"),
             ],
-            run: [Deno.execPath()],
+            run: true,
         },
         async fn() {
             const testDir = path.join(testdataDir, "ensure_file_9");
@@ -178,6 +178,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
                 await new Deno.Command(Deno.execPath(), {
                     args: [
                         "eval",
+                        "-A",
                         "--no-lock",
                         `Deno.removeSync("${testDir}", { recursive: true });`,
                     ],
@@ -194,7 +195,7 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
                 path.join(testdataDir, "ensure_file_10"),
                 path.join(testdataDir, "ensure_file_10", "test.txt"),
             ],
-            run: [Deno.execPath()],
+            run: true,
         },
         fn() {
             const testDir = path.join(testdataDir, "ensure_file_10");
@@ -213,7 +214,9 @@ if (g.Deno && !g.BEARZ_USE_NODE) {
                 // it's dirty, but we can't remove the test output in the same process after dropping the write permission
                 new Deno.Command(Deno.execPath(), {
                     args: [
+                        "--allow-run",
                         "eval",
+
                         "--no-lock",
                         `Deno.removeSync("${testDir}", { recursive: true });`,
                     ],

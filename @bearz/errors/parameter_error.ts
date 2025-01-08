@@ -1,21 +1,19 @@
-
 /**
  * Represents an error that occurs due to an invalid parameter.
- * 
+ *
  * @remarks
  * This error is thrown when a function or method receives an invalid parameter.
  * It extends the built-in `Error` class and provides additional properties
  * to store the parameter name, value, and a documentation link.
- * 
+ *
  * @example
  * ```typescript
  * throw new ParameterError("username", "Username cannot be empty");
  * ```
- * 
+ *
  * @public
  */
 export class ParameterError extends Error {
-
     /**
      * Constructs a new `ParameterError` instance.
      *
@@ -28,7 +26,7 @@ export class ParameterError extends Error {
         this.name = "ArgumentError";
         this.paramName = name;
 
-        this.link = "https://jsr.io/@bearz/errors/docs/argument-error"
+        this.link = "https://jsr.io/@bearz/errors/docs/argument-error";
     }
 
     /**

@@ -11,10 +11,7 @@
         "./collections/ordered-map": "./collections/ordered_map.ts",
         "./collections/inputs": "./collections/inputs.ts",
         "./collections/ouputs": "./collections/outputs.ts",
-        "./contexts": "./contexts/mod.ts",
-        "./primitives": "./primitives.ts",
-        "./writer": "./writer.ts",
-        "./bus": "./bus.ts",
-        "./log-level": "./log_level.ts"
+        "./lookup": "./lookup.ts",
+        "./types": "./types.ts"
     }
 }

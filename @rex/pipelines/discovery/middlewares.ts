@@ -1,29 +1,53 @@
-import { JobMap, REX_JOBS } from "@rex/jobs";
-import { getGlobalTasks, TaskMap, toError } from "@rex/tasks";
-import { DeploymentMap, REX_DEPLOYMENTS } from "@rex/deployments";
+import { JobMap, rexJobs } from "@rex/jobs";
+import { rexTasks, TaskMap, toError } from "@rex/tasks";
+import { DeploymentMap, rexDeployments } from "@rex/deployments";
 import { type ExecutionContext, LogLevel } from "@rex/primitives";
 import type { Next } from "../pipeline.ts";
 import { type DiscoveryPipelineContext, DiscoveryPipelineMiddleware } from "./pipelines.ts";
 import { exists, realPath } from "@bearz/fs";
 import { isAbsolute, join } from "@std/path";
 
+/**
+ * The imported tasks, jobs, and deployments from a rexfile.ts file.
+ */
 export interface RexFileImports {
+    /**
+     * The discovered tasks.
+     */
     tasks?: TaskMap;
+    /**
+     * A setup function to run before the tasks are executed.
+     * @param ctx The execution context.
+     * @returns The setup function.
+     */
     setup?: (ctx: ExecutionContext) => Promise<void> | void;
+    /**
+     * A teardown function to run after the tasks are executed.
+     */
     teardown?: (ctx: ExecutionContext) => Promise<void> | void;
+    /**
+     * The discovered jobs.
+     */
     jobs?: JobMap;
+
+    /**
+     * The discovered deployments.
+     */
     deployments?: DeploymentMap;
 }
 
+/**
+ * A middleware that discovers tasks, jobs, and deployments from a rexfile.ts file.
+ */
 export class RexfileDiscovery extends DiscoveryPipelineMiddleware {
     override async run(context: DiscoveryPipelineContext, next: Next): Promise<void> {
         const ctx = context as DiscoveryPipelineContext;
         try {
             const { writer } = ctx;
             writer.trace("Discovering tasks");
-            const globalTasks = getGlobalTasks();
-            const globalJobs = REX_JOBS;
-            const globalDeployments = REX_DEPLOYMENTS;
+            const globalTasks = rexTasks();
+            const globalJobs = rexJobs();
+            const globalDeployments = rexDeployments();
             let file = ctx.file;
             if (file && !file.endsWith(".ts")) {
                 ctx.bus.warn(`Tasks file ${ctx.file} must be a typescript file.`);

@@ -5,6 +5,9 @@ import { getJobs } from "../discovery.ts";
 import { keypress, type KeyPressEvent } from "@cliffy/keypress";
 import { logLevels, parseLogLevel } from "./types.ts";
 
+/**
+ * The job command.
+ */
 export const jobCommand = new Command()
     .name("rex-job")
     .description(
@@ -34,7 +37,7 @@ export const jobCommand = new Command()
         const controller = new AbortController();
         keypress().addEventListener("keydown", (event: KeyPressEvent) => {
             if (event.ctrlKey && event.key === "c") {
-                controller.abort();
+                controller.abort("Cancelled by user.");
                 keypress().dispose();
             }
         });

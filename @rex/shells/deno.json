@@ -1,0 +1,12 @@
+{
+    "name": "@rex/shells",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts",
+        "./bash": "./bash.ts",
+        "./pwsh": "./pwsh.ts",
+        "./powershell": "./powershell.ts",
+        "./sh": "./sh.ts",
+        "./wincmd": "./wincmd.ts"
+    }
+}

@@ -266,6 +266,9 @@ import { rollbackCommand } from "./cmds/rollback.ts";
 import { destroyCommand } from "./cmds/destroy.ts";
 import { logLevels, parseLogLevel } from "./cmds/types.ts";
 
+/**
+ * The root command.
+ */
 const app = new Command()
     .name("rex")
     .description(
@@ -300,7 +303,7 @@ special type of job that has has before and after tasks and the primary task is 
         const controller = new AbortController();
         keypress().addEventListener("keydown", (event: KeyPressEvent) => {
             if (event.ctrlKey && event.key === "c") {
-                controller.abort();
+                controller.abort("Cancelled by user.");
                 keypress().dispose();
             }
         });

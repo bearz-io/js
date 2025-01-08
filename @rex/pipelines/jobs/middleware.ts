@@ -16,11 +16,16 @@ import {
     type JobsPipelineContext,
     JobsPipelineMiddleware,
 } from "./pipelines.ts";
-import { getTaskHandlerRegistry, TaskMap } from "@rex/tasks";
+import { rexTaskHandlerRegistry, TaskMap } from "@rex/tasks";
 import { type Job, JobResult } from "@rex/jobs";
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
 import { underscore } from "@bearz/strings/underscore";
+import { TimeoutError } from "@bearz/errors";
 
+/**
+ * Middleware that applies a job to the context by resolving the job's properties
+ * into values that can be used to execute the job
+ */
 export class ApplyJobContext extends JobPipelineMiddleware {
     override async run(ctx: JobPipelineContext, next: Next): Promise<void> {
         const meta = ctx.state;
@@ -55,9 +60,11 @@ export class ApplyJobContext extends JobPipelineMiddleware {
 
             if (typeof task.env === "function") {
                 const e = await task.env(ctx);
+                meta.envKeys = e.keys().toArray();
                 meta.env.merge(e);
             } else if (typeof task.env === "object") {
                 const e = task.env;
+                meta.envKeys = e.keys().toArray();
                 meta.env.merge(e);
             }
 
@@ -84,6 +91,9 @@ export class ApplyJobContext extends JobPipelineMiddleware {
     }
 }
 
+/**
+ * Middleware that runs a job by executing the tasks in the job
+ */
 export class RunJob extends JobPipelineMiddleware {
     override async run(ctx: JobPipelineContext, next: Next): Promise<void> {
         const { state } = ctx;
@@ -109,17 +119,26 @@ export class RunJob extends JobPipelineMiddleware {
             return;
         }
 
-        let timeout = state.timeout;
-        if (timeout === 0) {
-            timeout = ctx.services.get("timeout") as number ?? (60 * 1000) * 3;
-        } else {
-            timeout = timeout * 1000;
+        let timeout = state.timeout * 1000;
+        if (timeout < 1) {
+            timeout = 0;
+        }
+        let maxTimeout = ctx.services.get("timeout") as number ?? 0;
+        if (maxTimeout < 1) {
+            maxTimeout = 0;
+        }
+
+        if (timeout === 0 && maxTimeout > 0) {
+            timeout = maxTimeout;
+        } else if (timeout > 0 && maxTimeout > 0) {
+            timeout = Math.min(timeout, maxTimeout);
         }
 
         const controller = new AbortController();
-        const onAbort = () => {
-            controller.abort();
+        const onAbort = function (this: AbortSignal) {
+            controller.abort(this.reason);
         };
+
         ctx.signal.addEventListener("abort", onAbort, { once: true });
         const signal = controller.signal;
         const listener = () => {
@@ -130,13 +149,15 @@ export class RunJob extends JobPipelineMiddleware {
 
         signal.addEventListener("abort", listener, { once: true });
         const handle = setTimeout(() => {
-            controller.abort();
+            const e = new TimeoutError(`Job ${state.id} timed out after ${timeout}ms`);
+            e.timeout = timeout;
+            controller.abort(e);
         }, timeout);
 
         try {
             ctx.result.start();
 
-            if (ctx.signal.aborted) {
+            if (signal.aborted) {
                 ctx.result.cancel();
                 ctx.result.stop();
                 ctx.bus.send(new JobCancelled(ctx.state));
@@ -162,9 +183,10 @@ export class RunJob extends JobPipelineMiddleware {
             const tasksCtx: TasksPipelineContext = Object.assign({}, ctx, {
                 targets: targets,
                 tasks: tasks,
-                registry: getTaskHandlerRegistry(),
+                registry: rexTaskHandlerRegistry(),
                 results: [],
                 status: "success",
+                signal: signal,
                 bus: ctx.bus,
             }) as TasksPipelineContext;
 
@@ -195,6 +217,9 @@ export class RunJob extends JobPipelineMiddleware {
     }
 }
 
+/**
+ * Middleware that executes multiple jobs in sequence.
+ */
 export class JobsExcution extends JobsPipelineMiddleware {
     override async run(ctx: JobsPipelineContext, next: Next): Promise<void> {
         const jobs = ctx.jobs;
@@ -280,8 +305,9 @@ export class JobsExcution extends JobsPipelineMiddleware {
                     tasks: job.tasks,
                     if: true,
                     env: new StringMap(),
+                    envKeys: [],
                     cwd: ctx.cwd,
-                    needs: job.needs,
+                    needs: job.needs ?? [],
                 },
             };
 

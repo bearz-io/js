@@ -12,7 +12,11 @@ import type {
 import { green, red, reset } from "@bearz/ansi/styles";
 import { AnsiMode, AnsiSettings } from "@bearz/ansi";
 
-export function tasksConsoleSink(message: Message): void {
+/**
+ * Handles task messages and writes them out to the console.
+ * @param message The message to handle.
+ */
+export function handleTaskMessages(message: Message): void {
     switch (message.kind) {
         case "log":
             {

@@ -1,8 +1,14 @@
 import { writer } from "./writer.ts";
-import { CI_DRIVER } from "./driver.ts";
+import { CI_DRIVER } from "@bearz/ci-env/driver";
 import { env } from "@bearz/env";
 import { readTextFileSync, writeTextFileSync } from "@bearz/fs";
 
+/**
+ * Set a pipeline variable.
+ * @param name The name of the variable.
+ * @param value The value of the variable.
+ * @param options The options for the variable.
+ */
 export function setPipelineVar(
     name: string,
     value: string,

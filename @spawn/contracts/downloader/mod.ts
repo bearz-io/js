@@ -13,7 +13,6 @@ export interface Downloader {
 export const DownloaderRegistrySymbol = Symbol("@DOWNLOADER_REGISTRY");
 
 export class DownloaderRegistry extends Map<string, Downloader> {
-
 }
 
 const g = globalThis as Record<string | symbol, unknown>;

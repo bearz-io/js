@@ -16,10 +16,15 @@ import {
     TasksPipelineMiddleware,
 } from "./pipelines.ts";
 import { underscore } from "@bearz/strings/underscore";
-import { type Task, TaskResult } from "@rex/tasks";
+import { type Task, type TaskContext, TaskResult } from "@rex/tasks";
 import { Inputs, Outputs, StringMap } from "@rex/primitives";
 import { setPipelineVar } from "../ci/vars.ts";
+import { AbortError, TimeoutError } from "@bearz/errors";
 
+/**
+ * Middleware that applies the task context to the pipeline by
+ * resolving task properties and setting the task state.
+ */
 export class ApplyTaskContext extends TaskPipelineMiddleware {
     override async run(ctx: TaskPipelineContext, next: Next): Promise<void> {
         const meta = ctx.state;
@@ -53,9 +58,11 @@ export class ApplyTaskContext extends TaskPipelineMiddleware {
 
             if (typeof task.env === "function") {
                 const e = await task.env(ctx);
+                meta.envKeys = e.keys().toArray();
                 meta.env.merge(e);
             } else if (typeof task.env === "object") {
                 const e = task.env;
+                meta.envKeys = e.keys().toArray();
                 meta.env.merge(e);
             }
 
@@ -117,6 +124,9 @@ export class ApplyTaskContext extends TaskPipelineMiddleware {
     }
 }
 
+/**
+ * Middleware that executes a task by running the task descriptor
+ */
 export class TaskExecution extends TaskPipelineMiddleware {
     override async run(ctx: TaskPipelineContext, next: Next): Promise<void> {
         const { state } = ctx;
@@ -132,7 +142,14 @@ export class TaskExecution extends TaskPipelineMiddleware {
         if (ctx.signal.aborted) {
             ctx.result.cancel();
             ctx.result.stop();
-            ctx.bus.send(new TaskCancelled(ctx.state));
+            let reason = "Task was cancelled";
+            if (ctx.signal.reason instanceof Error) {
+                reason = ctx.signal.reason.message;
+            } else if (typeof ctx.signal.reason === "string") {
+                reason = ctx.signal.reason;
+            }
+
+            ctx.bus.send(new TaskCancelled(ctx.state, reason));
             return;
         }
 
@@ -150,54 +167,106 @@ export class TaskExecution extends TaskPipelineMiddleware {
             return;
         }
 
-        let timeout = state.timeout;
-        if (timeout === 0) {
-            timeout = ctx.services.get("timeout") as number ?? (60 * 1000) * 3;
-        } else {
-            timeout = timeout * 1000;
+        let timeout = state.timeout * 1000;
+        if (timeout < 1) {
+            timeout = 0;
+        }
+        let maxTimeout = ctx.services.get("timeout") as number ?? 0;
+        if (maxTimeout < 1) {
+            maxTimeout = 0;
+        }
+
+        if (timeout === 0 && maxTimeout > 0) {
+            timeout = maxTimeout;
+        } else if (timeout > 0 && maxTimeout > 0) {
+            timeout = Math.min(timeout, maxTimeout);
         }
 
         const controller = new AbortController();
-        const onAbort = () => {
-            controller.abort();
+        const onAbort = function (this: AbortSignal, _: Event) {
+            controller.abort(this.reason);
+            return;
         };
         ctx.signal.addEventListener("abort", onAbort, { once: true });
         const signal = controller.signal;
         const listener = () => {
-            ctx.result.cancel();
             ctx.result.stop();
-            ctx.bus.send(new TaskCancelled(ctx.state));
+            ctx.result.cancel();
+            let reason = "Task was cancelled";
+            if (signal.reason instanceof Error) {
+                reason = signal.reason.message;
+            } else if (typeof signal.reason === "string") {
+                reason = signal.reason;
+            }
+            ctx.bus.send(new TaskCancelled(ctx.state, reason));
         };
 
         signal.addEventListener("abort", listener, { once: true });
-        const handle = setTimeout(() => {
-            controller.abort();
-        }, timeout);
+        let handle: number | undefined;
+        if (timeout > 0) {
+            handle = setTimeout(() => {
+                const e = new TimeoutError(`Task ${state.id} timed out after ${timeout}ms`);
+                e.timeout = timeout;
+                controller.abort(e);
+            }, timeout);
+        }
 
         try {
             ctx.result.start();
-            if (ctx.signal.aborted) {
-                ctx.result.cancel();
+            if (signal.aborted) {
                 ctx.result.stop();
-                ctx.bus.send(new TaskCancelled(ctx.state));
+                ctx.result.cancel();
+                let reason = "Task was cancelled";
+                if (signal.reason instanceof Error) {
+                    reason = signal.reason.message;
+                } else if (typeof signal.reason === "string") {
+                    reason = signal.reason;
+                }
+
+                ctx.bus.send(new TaskCancelled(ctx.state, reason));
                 return;
             }
 
             ctx.bus.send(new TaskStarted(ctx.state));
 
-            const result = await descriptor.run(ctx);
+            const c: TaskContext = {
+                ...ctx,
+                signal,
+            };
+
+            const result = await descriptor.run(c);
             ctx.result.stop();
             if (result.isError) {
                 ctx.result.stop();
-                ctx.result.fail(result.unwrapError());
+                const e = result.unwrapError();
+                if (e instanceof AbortError) {
+                    ctx.result.cancel();
+                    ctx.bus.send(new TaskCancelled(ctx.state, e.message));
+                    return;
+                }
+
+                if (e instanceof TimeoutError) {
+                    ctx.result.cancel();
+                    ctx.bus.send(new TaskCancelled(ctx.state, e.message));
+                    return;
+                }
+
+                ctx.result.fail(e);
                 ctx.bus.send(new TaskFailed(ctx.state, result.unwrapError()));
                 return;
             }
 
-            if (ctx.signal.aborted) {
+            if (signal.aborted) {
                 ctx.result.cancel();
                 ctx.result.stop();
-                ctx.bus.send(new TaskCancelled(ctx.state));
+                let reason = "Task was cancelled";
+                if (signal.reason instanceof Error) {
+                    reason = signal.reason.message;
+                } else if (typeof signal.reason === "string") {
+                    reason = signal.reason;
+                }
+
+                ctx.bus.send(new TaskCancelled(ctx.state, reason));
                 return;
             }
 
@@ -205,7 +274,10 @@ export class TaskExecution extends TaskPipelineMiddleware {
             ctx.result.outputs = result.unwrap();
             ctx.bus.send(new TaskCompleted(ctx.state, ctx.result));
         } finally {
-            clearTimeout(handle);
+            if (handle) {
+                clearTimeout(handle);
+            }
+
             signal.removeEventListener("abort", listener);
             ctx.signal.removeEventListener("abort", onAbort);
         }
@@ -214,6 +286,9 @@ export class TaskExecution extends TaskPipelineMiddleware {
     }
 }
 
+/**
+ * Middleware that executes multiple tasks in sequence.
+ */
 export class SequentialTaskExecution extends TasksPipelineMiddleware {
     override async run(ctx: TasksPipelineContext, next: Next): Promise<void> {
         const { tasks } = ctx;
@@ -301,8 +376,9 @@ export class SequentialTaskExecution extends TasksPipelineMiddleware {
                     timeout: 0,
                     if: true,
                     env: new StringMap(),
+                    envKeys: [],
                     cwd: ctx.cwd,
-                    needs: task.needs,
+                    needs: task.needs ?? [],
                 },
             };
 

@@ -6,7 +6,9 @@ most of the other modules.
 
 ## Documentation
 
-See the [cli module](https://jsr.io/@rex/cli/doc) for a basic overview.
+[rex.jolt9.com](rex.jolt9.com)
+
+Code Documentation for the module available at [jsr](https://jsr.io/@rex/primitives/doc).
 
 ## License
 

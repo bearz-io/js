@@ -12,7 +12,11 @@ import { cyan, green, red } from "@bearz/ansi/styles";
 import { AnsiMode, AnsiSettings } from "@bearz/ansi";
 import { capitalize } from "@bearz/strings/capitalize";
 
-export function deployConsoleSink(message: Message): void {
+/**
+ * Handles deployment messages and writes them out to the console.
+ * @param message The message to deploy.
+ */
+export function handleDeploymentMessages(message: Message): void {
     switch (message.kind) {
         case "deployment:missing-dependencies": {
             const msg = message as MissingDeploymentDependencies;

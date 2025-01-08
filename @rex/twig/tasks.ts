@@ -1,5 +1,5 @@
 import {
-    getTaskHandlerRegistry,
+    rexTaskHandlerRegistry,
     type Task,
     TaskBuilder,
     type TaskContext,
@@ -101,7 +101,7 @@ export function twigTask(): TwigTaskBuilder {
     }, arguments[2]);
 }
 
-const taskHandlerRegistery = getTaskHandlerRegistry();
+const taskHandlerRegistery = rexTaskHandlerRegistry();
 
 taskHandlerRegistery.set("@rex/twig", {
     id: "@rex/twig",

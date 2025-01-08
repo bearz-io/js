@@ -2,6 +2,9 @@ import { Command } from "@cliffy/command";
 import { Runner, type RunnerOptions } from "@rex/pipelines/runner";
 import { VERSION } from "../version.ts";
 
+/**
+ * The list command.
+ */
 export const listCommand = new Command()
     .name("rex-list")
     .description("List the tasks, jobs, and deployments in a rexfile")
