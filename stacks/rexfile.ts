@@ -7,7 +7,7 @@ import { ssh } from "@rex/ssh-native";
 import { registerDnsDriver, updateDnsTask } from "@rex/dns";
 import { writer } from "@rex/pipelines/ci";
 import { twigTask } from "@rex/twig";
-import { deployCompose } from "@rex/docker";
+import { deployCompose } from "../@rex/spawn-docker/mod.ts";
 
 setLogger((file, args) => {
     writer.command(file, args);

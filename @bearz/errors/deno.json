@@ -7,6 +7,7 @@
         "./abort": "./abort_error.ts",
         "./parameter": "./parameter_error.ts",
         "./timeout": "./timeout_error.ts",
-        "./validation": "./validation_error.ts"
+        "./validation": "./validation_error.ts",
+        "./not-found": "./not_found_error.ts"
     }
 }

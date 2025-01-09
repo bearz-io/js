@@ -1,5 +1,5 @@
 {
-    "name": "@rex/vaults-sops-cli",
+    "name": "@rex/vaults-spawn-sops",
     "version": "0.0.0-beta.2",
     "exports": {
         ".": "./mod.ts",

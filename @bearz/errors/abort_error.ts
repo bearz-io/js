@@ -27,8 +27,8 @@ export class AbortError extends Error {
      * @param message The error message.
      * @param options The error options.
      */
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, options);
+    constructor(message?: string, options?: ErrorOptions) {
+        super(message ?? "The operation was cancelled.", options);
         this.name = "AbortError";
 
         this.link = "https://jsr.io/@bearz/errors/docs/abort-error";

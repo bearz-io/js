@@ -413,6 +413,27 @@ export function fail<T = never, E = Error>(error: E): Result<T, E> {
 }
 
 /**
+ * Creates a result of Result<T> as an Err result and coerces the provided error 
+ * to an Error if it is not already an Error.
+ * @returns A new Err result with a value of error.
+ */
+export function coerceError<T = unknown>(error: Error): Result<T> {
+    if (error instanceof Error) {
+        return fail(error);
+    }
+
+    return fail(new Error(`${error}`));
+}
+
+/**
+ * Creates a `Result<void>` a new Ok result with a value of `void`.
+ * @returns A new Ok result with a value of `void`.
+ */
+export function voided(): Result<void> {
+    return ok(void 0);
+}
+
+/**
  * Syncronously try to execute the provided function and return a result.
  * @param fn The function to execute
  * @returns The result of the function.

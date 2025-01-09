@@ -1,0 +1,10 @@
+{
+    "name": "@spawn/sops",
+    "version": "0.0.2",
+    "exports": {
+        ".": "./mod.ts",
+        "./command": "./command.ts"
+    },
+
+    "publish": { "exclude": ["**/*_test.ts"] }
+}
