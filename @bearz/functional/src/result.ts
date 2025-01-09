@@ -360,7 +360,27 @@ export class Result<T, E = Error> {
 
         return fn(this.#error!);
     }
+
+    tryMap<U>(fn: (value: T) => U, coerce?: (e: unknown) => E): Result<U, E> {
+        coerce ??= (e) => {
+            if (e instanceof Error) {
+                return e as E;
+            }
+            return new Error(`${e}`) as E;
+        }
+        try {
+            return ok(fn(this.#value!));
+        } catch (error) {
+            return fail(coerce(error));
+        }
+    }
 }
+
+/**
+ * Represents an result of Result<void> which represents
+ * an operation that does not return a value, but may return an error.
+ */
+export type VoidResult = Result<void>;
 
 /**
  * Represents a successful result with a value of type `T`.
@@ -413,24 +433,11 @@ export function fail<T = never, E = Error>(error: E): Result<T, E> {
 }
 
 /**
- * Creates a result of Result<T> as an Err result and coerces the provided error 
- * to an Error if it is not already an Error.
- * @returns A new Err result with a value of error.
- */
-export function coerceError<T = unknown>(error: Error): Result<T> {
-    if (error instanceof Error) {
-        return fail(error);
-    }
-
-    return fail(new Error(`${error}`));
-}
-
-/**
  * Creates a `Result<void>` a new Ok result with a value of `void`.
  * @returns A new Ok result with a value of `void`.
  */
 export function voided(): Result<void> {
-    return ok(void 0);
+    return new Ok(void 0);
 }
 
 /**

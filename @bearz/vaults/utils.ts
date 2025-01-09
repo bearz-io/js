@@ -6,25 +6,8 @@ import {
     CHAR_UNDERSCORE,
 } from "@bearz/chars/constants";
 import { CharArrayBuilder } from "@bearz/slices";
-import { coerceError, fail, type Result } from "@bearz/functional";
-import { NotFoundError } from "@bearz/errors/not-found";
-import { AbortError } from "../errors/abort_error.ts";
 
-/**
- * Determines if the result is an error and the error is a not found error.
- * @param res The result to check.
- * @returns `true` if the result is an error and the error is a not found error, otherwise `false`.
- */
-export function notFound<T = unknown>(res: Result<T>) {
-    return res.isError && NotFoundError.is(res.unwrapError())
-}
 
-export function abort(signal: AbortSignal) : Result<never> {
-    if (signal.reason) 
-        return coerceError(signal.reason);
-
-    return fail(new AbortError());
-}
 
 /**
  * Options for normalizing a key.

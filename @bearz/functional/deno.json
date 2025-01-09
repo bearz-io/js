@@ -3,6 +3,10 @@
     "description": "functional module",
     "version": "0.0.0",
     "exports": {
-        ".": "./src/mod.ts"
+        ".": "./src/mod.ts",
+        "./result": "./src/result.ts",
+        "./lazy": "./src/lazy.ts",
+        "./option": "./src/option.ts",
+        "./errors": "./src/errors.ts"
     }
 }

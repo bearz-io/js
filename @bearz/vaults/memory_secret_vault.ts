@@ -1,10 +1,9 @@
 
 import type { GetSecretParams, SecretOperationParams, SecretProperties, SecretRecord, SecretVault, SecretVaultFeatures, SecretVaultParams, SecretsVaultFactory } from "./types.ts";
-import { abort, normalizeKey } from "./utils.ts";
-import { AbortError } from "@bearz/errors/abort";
+import { normalizeKey } from "./utils.ts";
 import { NotFoundError } from "@bearz/errors/not-found";
-import { type Result, ok, fail, coerceError, voided } from "@bearz/functional";
-
+import { type Result, ok, fail, voided } from "@bearz/functional";
+import { abort } from "@bearz/functional/errors";
 
 
 /**

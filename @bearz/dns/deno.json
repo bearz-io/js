@@ -1,0 +1,10 @@
+{
+    "name": "@bearz/dns",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts",
+        "./types": "./types.ts",
+        "./registries": "./registries.ts",
+        "./memory-client": "./memory_client.ts"
+    }
+}
