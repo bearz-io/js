@@ -82,6 +82,7 @@
         "@spawn/curl",
         "@spawn/deno",
         "@spawn/docker",
+        "@spawn/flarectl",
         "@spawn/node",
         "@spawn/powershell",
         "@spawn/pwsh",

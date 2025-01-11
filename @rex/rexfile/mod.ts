@@ -38,7 +38,7 @@ export {
     toError,
     usesTask,
 } from "@rex/tasks";
-export { type Job, job, JobBuilder, type JobContext, JobMap, REX_JOBS } from "@rex/jobs";
+export { type Job, job, JobBuilder, type JobContext, JobMap, rexJobs } from "@rex/jobs";
 export { script, scriptTask, ScriptTaskBuilder } from "@rex/tasks-scripts";
 export {
     type Deploy,

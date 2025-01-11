@@ -1466,9 +1466,6 @@ export function unpause(
 /**
  * Represents the arguments for the "up" command in the Docker Compose CLI.
  */
-/**
- * Represents the arguments for the "up" command in the Docker Compose CLI.
- */
 export interface DockerComposeUpArgs extends ComposeGlobalArgs {
     /**
      * If set to true, the command will abort if any container exits.
