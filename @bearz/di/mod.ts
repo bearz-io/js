@@ -1,4 +1,4 @@
-import { type Result, ok, fail, coerceError} from "@bearz/functional";
+import { coerceError, fail, ok, type Result } from "@bearz/functional";
 import { NotFoundError } from "@bearz/errors/not-found";
 import { toError } from "@bearz/errors/utils";
 
@@ -6,7 +6,6 @@ import { toError } from "@bearz/errors/utils";
  * The service provider interface.
  */
 export interface ServiceProvider {
-
     /**
      * Enumerates all services of a given key.
      * @param key The key to get the service.
@@ -14,7 +13,7 @@ export interface ServiceProvider {
     enumerate<T>(key: string): T[];
 
     /**
-     * Creates a service of a given key. If multiple services are registered, 
+     * Creates a service of a given key. If multiple services are registered,
      * the first one will be returned.
      * @param key The key to get the service.
      * @returns The service or undefined if the service is not registered.
@@ -23,15 +22,15 @@ export interface ServiceProvider {
 
     /**
      * Creates a required service. The function returns a `Result<T>` that is either a Ok result or an Err result.
-     * 
+     *
      * @description
-     * If the service is not registered, the function returns a NotFoundError. If an error occurs while creating the service, 
+     * If the service is not registered, the function returns a NotFoundError. If an error occurs while creating the service,
      * the function returns the error. If there are no errors, the function returns an Ok result with the service which
      * can be obtained by calling `unwrap()` on the result.
-     * 
+     *
      * This design forces the caller to handle the error and makes it easier to test the code and force
      * the caller to make a decision on how to handle the error.
-     * 
+     *
      * @param key The key to get the service.
      * @returns A result that is Ok if the service is registered, otherwise an error.
      */
@@ -71,19 +70,19 @@ export interface Descriptor {
 
 /**
  * The service container that manages the services.
- * 
+ *
  * @description
  * A root container is created by default and can be accessed using the `getServices()` function.
  * A root container will dispose of all singleton instances and scoped instances when disposed. A
  * container with a parent will only dispose of the scoped instances.
- * 
+ *
  * Dispose will call the [Symbol.dispose] method on instances/services that implement dispose.
  */
 export class ServicesContainer implements ServiceProvider {
     #resolvers: Map<string, Descriptor[]> = new Map();
     #singletonCache: Map<string, unknown> = new Map();
     #scopedCache: Map<string, unknown> = new Map();
-    #root: boolean
+    #root: boolean;
 
     /**
      * Creates a new ServicesContainer.
@@ -106,10 +105,10 @@ export class ServicesContainer implements ServiceProvider {
      * Removes a registration for a given key.
      * @param key The key to remove the registration for.
      */
-    removeRegistration(key: string) {   
+    removeRegistration(key: string) {
         this.#resolvers.delete(key);
     }
-    
+
     /**
      * Registers a service descriptor.
      * @param descriptor The descriptor to register.
@@ -125,7 +124,7 @@ export class ServicesContainer implements ServiceProvider {
      * @param key The key to set.
      * @param value The singleton value to set.
      */
-    set(key: string, value: unknown) : void {
+    set(key: string, value: unknown): void {
         this.#singletonCache.set(key, value);
     }
 
@@ -135,11 +134,15 @@ export class ServicesContainer implements ServiceProvider {
      * @param lifecycle The lifecycle of the service.
      * @param fn The async function that returns a service factory.
      */
-    async registerAsync(key: string, lifecycle: Lifecycle, fn: () => Promise<ServiceFactory> | ServiceFactory) {
+    async registerAsync(
+        key: string,
+        lifecycle: Lifecycle,
+        fn: () => Promise<ServiceFactory> | ServiceFactory,
+    ) {
         this.register({
             key,
             factory: await fn(),
-            lifecycle
+            lifecycle,
         });
     }
 
@@ -152,7 +155,7 @@ export class ServicesContainer implements ServiceProvider {
         this.register({
             key,
             factory: () => value,
-            lifecycle: "singleton"
+            lifecycle: "singleton",
         });
     }
 
@@ -166,7 +169,7 @@ export class ServicesContainer implements ServiceProvider {
         this.register({
             key,
             factory,
-            lifecycle: "singleton"
+            lifecycle: "singleton",
         });
     }
 
@@ -180,7 +183,7 @@ export class ServicesContainer implements ServiceProvider {
         this.register({
             key,
             factory,
-            lifecycle: "transient"
+            lifecycle: "transient",
         });
     }
 
@@ -194,7 +197,7 @@ export class ServicesContainer implements ServiceProvider {
         this.register({
             key,
             factory,
-            lifecycle: "scoped"
+            lifecycle: "scoped",
         });
     }
 
@@ -202,7 +205,7 @@ export class ServicesContainer implements ServiceProvider {
      * Only registers a service descriptor if the key is not already registered.
      * @param descriptor The descriptor to register.
      */
-    tryRegister(descriptor: Descriptor) : boolean {
+    tryRegister(descriptor: Descriptor): boolean {
         if (!this.#resolvers.has(descriptor.key)) {
             this.register(descriptor);
             return true;
@@ -218,11 +221,11 @@ export class ServicesContainer implements ServiceProvider {
      * @param key The key to register.
      * @param factory The singleton factory to set.
      */
-    tryRegisterSingleton(key: string, factory: ServiceFactory) : boolean {
+    tryRegisterSingleton(key: string, factory: ServiceFactory): boolean {
         return this.tryRegister({
             key,
             factory,
-            lifecycle: "singleton"
+            lifecycle: "singleton",
         });
     }
 
@@ -233,11 +236,11 @@ export class ServicesContainer implements ServiceProvider {
      * @param key The key to register.
      * @param value The singleton value to set.
      */
-    tryRegisterSingletonValue(key: string, value: unknown) : boolean {
+    tryRegisterSingletonValue(key: string, value: unknown): boolean {
         return this.tryRegister({
             key,
             factory: () => value,
-            lifecycle: "singleton"
+            lifecycle: "singleton",
         });
     }
 
@@ -248,11 +251,11 @@ export class ServicesContainer implements ServiceProvider {
      * @param key The key to register.
      * @param factory The transient factory to set.
      */
-    tryRegisterTransient(key: string, factory: ServiceFactory) : boolean {
+    tryRegisterTransient(key: string, factory: ServiceFactory): boolean {
         return this.tryRegister({
             key,
             factory,
-            lifecycle: "transient"
+            lifecycle: "transient",
         });
     }
 
@@ -263,11 +266,11 @@ export class ServicesContainer implements ServiceProvider {
      * @param key The key to register.
      * @param factory The transient factory to set.
      */
-    tryRegisterScoped(key: string, factory: ServiceFactory) : boolean {
+    tryRegisterScoped(key: string, factory: ServiceFactory): boolean {
         return this.tryRegister({
             key,
             factory,
-            lifecycle: "scoped"
+            lifecycle: "scoped",
         });
     }
 
@@ -280,7 +283,7 @@ export class ServicesContainer implements ServiceProvider {
         const results: T[] = [];
         const descriptors = this.#resolvers.get(key) ?? [];
         for (const descriptor of descriptors) {
-             switch(descriptor.lifecycle) {
+            switch (descriptor.lifecycle) {
                 case "singleton":
                     results.push(this.resolveSingleton(descriptor) as T);
                     break;
@@ -290,7 +293,7 @@ export class ServicesContainer implements ServiceProvider {
                 case "scoped":
                     results.push(this.resolveScoped(descriptor) as T);
                     break;
-             }
+            }
         }
 
         return results;
@@ -299,7 +302,7 @@ export class ServicesContainer implements ServiceProvider {
     /**
      * Resolves a service of a given key. If multiple services are registered,
      * the first one will be returned.
-     * 
+     *
      * @param key The key to get the service.
      * @returns A service of a given key.
      * @throws An error if there are issues during the creation of the service.
@@ -311,7 +314,7 @@ export class ServicesContainer implements ServiceProvider {
         }
 
         const descriptor = descriptors[0];
-        switch(descriptor.lifecycle) {
+        switch (descriptor.lifecycle) {
             case "singleton":
                 return this.resolveSingleton(descriptor) as T;
             case "transient":
@@ -324,7 +327,7 @@ export class ServicesContainer implements ServiceProvider {
     /**
      * Asynchronously resolves a service of a given key. If multiple services are registered,
      * the first one will be returned.
-     * 
+     *
      * @param key The key to get the service.
      * @returns The service of a given key.
      */
@@ -340,14 +343,14 @@ export class ServicesContainer implements ServiceProvider {
 
     /**
      * Creates a required service. The function returns a `Result<T>` that is either a Ok result or an Err result.
-     * 
+     *
      * @description
      * If the service is not registered, the function returns a NotFoundError. If an error occurs while creating the service,
      * the function returns the error. If there are no errors, the function returns an Ok result with the service which
      * can be obtained by calling `unwrap()` on the result.
-     * 
+     *
      * This design forces the caller to make a decision on how to handle the error.
-     * 
+     *
      * @param key The key to get the service.
      * @returns A result that is Ok if the service is registered, otherwise an error.
      */
@@ -357,7 +360,7 @@ export class ServicesContainer implements ServiceProvider {
             if (result === undefined) {
                 return fail(new NotFoundError(key));
             }
-    
+
             return ok(result);
         } catch (e) {
             return coerceError(e);
@@ -367,11 +370,11 @@ export class ServicesContainer implements ServiceProvider {
     /**
      * Creates a new scope for the container. A scope is a child container that inherits from the parent container
      * which will have all the singleton instances of the parent container, but will create new instances of scoped services.
-     * 
+     *
      * @returns A scoped services container that can be used to create scoped instances.
      */
     createScope(): ServicesContainer {
-       return new ServicesContainer(this);
+        return new ServicesContainer(this);
     }
 
     /**
@@ -391,7 +394,7 @@ export class ServicesContainer implements ServiceProvider {
     }
 
     /**
-     * Resolves a singleton instance which is global. If the instance is not already created, 
+     * Resolves a singleton instance which is global. If the instance is not already created,
      * it will create it and cache it once globally.
      * @param descriptor The descriptor to resolve.
      * @returns The singleton instance of the service.
@@ -407,41 +410,39 @@ export class ServicesContainer implements ServiceProvider {
     }
 
     /**
-     * Disposes of the container. 
+     * Disposes of the container.
      * @description
      * If the container is a root container, it will dispose of all singleton instances and scoped instances.
      * If instances are disposable, it will call the [Symbol.dispose] method on them.
      */
     [Symbol.dispose]() {
         const scoped = Array.from(this.#scopedCache.values());
-        for (const instance  of scoped) {
+        for (const instance of scoped) {
             const disposable = instance as { [Symbol.dispose]: () => void };
             if (typeof disposable[Symbol.dispose] === "function") {
                 disposable[Symbol.dispose]();
-                continue
+                continue;
             }
 
             const asyncDisposable = instance as { [Symbol.asyncDispose]: () => Promise<void> };
             if (typeof asyncDisposable[Symbol.asyncDispose] === "function") {
-               asyncDisposable[Symbol.asyncDispose]();
+                asyncDisposable[Symbol.asyncDispose]();
             }
         }
 
-       
         if (this.#root) {
-
             for (const instance of this.#singletonCache.values()) {
                 const disposable = instance as { [Symbol.dispose]: () => void };
                 if (typeof disposable[Symbol.dispose] === "function") {
                     disposable[Symbol.dispose]();
-                    continue
+                    continue;
                 }
 
                 const asyncDisposable = instance as { [Symbol.asyncDispose]: () => Promise<void> };
                 if (typeof asyncDisposable[Symbol.asyncDispose] === "function") {
-                   asyncDisposable[Symbol.asyncDispose]();
+                    asyncDisposable[Symbol.asyncDispose]();
                 }
-            }  
+            }
 
             this.#singletonCache.clear();
         }
@@ -452,31 +453,28 @@ export class ServicesContainer implements ServiceProvider {
         this.#resolvers.clear();
     }
 
-
     /**
-     * Disposes of the container asynchernously. 
+     * Disposes of the container asynchernously.
      * @description
      * If the container is a root container, it will dispose of all singleton instances and scoped instances.
      * If instances are disposable, it will call the [Symbol.dispose] method on them.
      */
-    async [Symbol.asyncDispose]() : Promise<void> {
+    async [Symbol.asyncDispose](): Promise<void> {
         const scoped = Array.from(this.#scopedCache.values());
-        for (const instance  of scoped) {
+        for (const instance of scoped) {
             const disposable = instance as { [Symbol.dispose]: () => void };
             if (typeof disposable[Symbol.dispose] === "function") {
                 disposable[Symbol.dispose]();
-                continue
+                continue;
             }
 
             const asyncDisposable = instance as { [Symbol.asyncDispose]: () => Promise<void> };
             if (typeof asyncDisposable[Symbol.asyncDispose] === "function") {
-               await asyncDisposable[Symbol.asyncDispose]();
+                await asyncDisposable[Symbol.asyncDispose]();
             }
         }
 
-       
         if (this.#root) {
-
             for (const instance of this.#singletonCache.values()) {
                 const disposable = instance as { [Symbol.dispose]: () => void };
                 if (typeof disposable[Symbol.dispose] === "function") {
@@ -486,9 +484,9 @@ export class ServicesContainer implements ServiceProvider {
 
                 const asyncDisposable = instance as { [Symbol.asyncDispose]: () => Promise<void> };
                 if (typeof asyncDisposable[Symbol.asyncDispose] === "function") {
-                   await asyncDisposable[Symbol.asyncDispose]();
+                    await asyncDisposable[Symbol.asyncDispose]();
                 }
-            }  
+            }
 
             this.#singletonCache.clear();
         }
@@ -559,7 +557,9 @@ export type ProviderFactoryConfigParams = ProviderFactoryConfig | string | URL;
  * @param params The parameters to convert to a provider factory config.
  * @returns The provider factory config.
  */
-export function toProviderFactoryConfig(params: ProviderFactoryConfigParams): ProviderFactoryConfig {
+export function toProviderFactoryConfig(
+    params: ProviderFactoryConfigParams,
+): ProviderFactoryConfig {
     if (typeof params === "string") {
         return urlToProviderFactoryConfig(new URL(params));
     }
@@ -589,7 +589,7 @@ function urlToProviderFactoryConfig(url: URL): ProviderFactoryConfig {
         name: name ?? "default",
         use,
         import: importUrl === null ? undefined : importUrl,
-        with: withParams
+        with: withParams,
     };
 }
 
@@ -616,7 +616,6 @@ export interface ProviderFactory {
  * A special map class that can be used to register and create provider factories.
  */
 export class ProviderFactories extends Map<string, ProviderFactory> {
-
     /**
      * Determines if a factory in the map can be used to create a new instance/service
      * with the given parameters.
@@ -637,7 +636,7 @@ export class ProviderFactories extends Map<string, ProviderFactory> {
 
     /**
      * Determines if a factory in the map can be used to create a new instance/service
-     * with the given parameters. 
+     * with the given parameters.
      * @param params The parameters to match.
      * @returns if there is a match, the key of the factory is returned, otherwise `undefined`.
      */
@@ -656,18 +655,18 @@ export class ProviderFactories extends Map<string, ProviderFactory> {
     /**
      * Dynamically imports a provider factory and registers it with the map if it
      * is not already registered.
-     * 
+     *
      * @description
-     * 
+     *
      * if `${params.kind}://${params.use}` is found as a key in the map, it will return as it
      * is already registered.
-     * 
+     *
      * if the importDirective matches the key, it will attempt to load modules from scopes @spawn, @rex, and @bearz
-     * 
+     *
      * If import url is provided, it will attempt to import the provider factory and register it with the map.
-     * 
-     * If the import url is not provided, 
-     * 
+     *
+     * If the import url is not provided,
+     *
      * @param params The parameters to import a provider factory.
      * @returns `true` if the provider factory was imported, otherwise `false`.
      * @throws  when the import directive is invalid.
@@ -683,19 +682,20 @@ export class ProviderFactories extends Map<string, ProviderFactory> {
 
         const key = `${params.kind}://${params.use}`;
 
-        if (this.has(key) || (params.import && this.has(params.import)))
+        if (this.has(key) || (params.import && this.has(params.import))) {
             return true;
+        }
 
         let importDirective = params.import ?? params.use;
         if (importDirective === key || importDirective === params.use) {
-            const factoryPath = params.with?.['factory-path'] ?? "factory";
-            const attempts : string[] = [
+            const factoryPath = params.with?.["factory-path"] ?? "factory";
+            const attempts: string[] = [
                 `jsr:@spawn/${params.use}@latest/${factoryPath}`,
                 `jsr:@rex/${params.kind}-${params.use}@latest/${factoryPath}`,
                 `jsr:@bearz/${params.kind}-${params.use}@latest/${factoryPath}`,
             ];
 
-            let e : Error | undefined = undefined;
+            let e: Error | undefined = undefined;
 
             for (const attempt of attempts) {
                 try {
@@ -703,10 +703,10 @@ export class ProviderFactories extends Map<string, ProviderFactory> {
                     this.set(key, factory);
                     return true;
                 } catch (error) {
-                    e = new Error(`failed to import ${attempt}`, { cause: toError(error)} );
+                    e = new Error(`failed to import ${attempt}`, { cause: toError(error) });
                 }
             }
-        
+
             if (e !== undefined) {
                 throw e;
             }
@@ -716,15 +716,19 @@ export class ProviderFactories extends Map<string, ProviderFactory> {
             if (g.process) {
                 if (g.Deno) {
                     const hasVersion = params.use.includes("@", params.use.indexOf("/"));
-                    if (!hasVersion)
+                    if (!hasVersion) {
                         importDirective += "@latest";
+                    }
 
-                    if (!importDirective.includes(":"))
+                    if (!importDirective.includes(":")) {
                         importDirective = `jsr:${importDirective}`;
+                    }
 
-                    const factoryPath = params.with?.['factory-path'] ?? "factory";
+                    const factoryPath = params.with?.["factory-path"] ?? "factory";
                     importDirective = `${importDirective}/${factoryPath}`;
-                    const { factory } = await import(importDirective) as { factory: ProviderFactory };
+                    const { factory } = await import(importDirective) as {
+                        factory: ProviderFactory;
+                    };
                     this.set(key, factory);
                     return true;
                 } else {
@@ -770,36 +774,36 @@ services.registerSingletonValue(ProviderFactoriesKey, new ProviderFactories());
  * @param key The key to register the provider factory.
  * @param factory The provider factory
  */
-export function registerProviderFactory(key: string, factory: ProviderFactory) : void {
+export function registerProviderFactory(key: string, factory: ProviderFactory): void {
     const res = services.require<ProviderFactories>(ProviderFactoriesKey);
     res.unwrap().set(key, factory);
 }
 
 /**
- * Creates a provider dynamically.  If the provider factory is not already registered, the function will attempt to import 
+ * Creates a provider dynamically.  If the provider factory is not already registered, the function will attempt to import
  * to dynamically import the factory, register it, and then use it to create the provider instance.
  * @param params The parameters to create the provider.
- * @returns The result that is either a Ok result or an Err result. If the provider was created successfully, the 
+ * @returns The result that is either a Ok result or an Err result. If the provider was created successfully, the
  * result will be a Ok result with the provider instance. Otherwise, the result will be an Err result with an error.
  * @see {@link Result}
  */
-export async function createDynamicProvider<T = unknown>(params: ProviderFactoryConfigParams): Promise<Result<T>> {
+export async function createDynamicProvider<T = unknown>(
+    params: ProviderFactoryConfigParams,
+): Promise<Result<T>> {
     try {
         params = toProviderFactoryConfig(params);
-
 
         const res = services.require<ProviderFactories>(ProviderFactoriesKey);
         if (res.isError) {
             return fail(new NotFoundError(ProviderFactoriesKey));
         }
-    
+
         const factories = res.unwrap();
         const test = `${params.kind}://${params.use}`;
         if (factories.has(test)) {
             return ok(factories.create(params) as T);
         }
-    
-    
+
         if (!factories.match(params)) {
             if (await factories.import(params)) {
                 const instance = factories.create(params);
@@ -807,17 +811,27 @@ export async function createDynamicProvider<T = unknown>(params: ProviderFactory
                     return ok(instance as T);
                 }
             }
-    
-            return fail(new NotFoundError(params.use, `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`));
+
+            return fail(
+                new NotFoundError(
+                    params.use,
+                    `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`,
+                ),
+            );
         }
-    
+
         const instance = factories.create(params);
         if (instance) {
             return ok(instance as T);
         }
-    
-        return fail(new NotFoundError(params.use, `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`));
-    } catch(e) {
+
+        return fail(
+            new NotFoundError(
+                params.use,
+                `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`,
+            ),
+        );
+    } catch (e) {
         return coerceError(e);
     }
 }
@@ -838,24 +852,34 @@ export function createProvider<T = unknown>(params: ProviderFactoryConfigParams)
         if (res.isError) {
             return fail(new NotFoundError(ProviderFactoriesKey));
         }
-    
+
         const factories = res.unwrap();
         const test = `${params.kind}://${params.use}`;
         if (factories.has(test)) {
             return ok(factories.create(params) as T);
         }
-    
+
         if (!factories.match(params)) {
-            return  fail(new NotFoundError(params.use, `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`));
+            return fail(
+                new NotFoundError(
+                    params.use,
+                    `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`,
+                ),
+            );
         }
-    
+
         const instance = factories.create(params);
         if (instance) {
             return ok(instance as T);
         }
-    
-        return  fail(new NotFoundError(params.use, `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`));
-    } catch(e) {
+
+        return fail(
+            new NotFoundError(
+                params.use,
+                `No factory found that could create an instance of ${params.kind}/${params.use} for ${params.name}`,
+            ),
+        );
+    } catch (e) {
         return coerceError(e);
     }
 }

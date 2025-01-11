@@ -1,0 +1,12 @@
+{
+    "name": "@bearz/secret-vault",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts",
+        "./types": "./types.ts",
+        "./utils": "./utils.ts",
+        "./registries": "./registries.ts",
+        "./memory-secret-vault": "./memory_secret_vault.ts",
+        "./null-secret-vault": "./null_secret_vault.ts"
+    }
+}

@@ -1,4 +1,4 @@
-import { type DelegateTask, TaskBuilder, type TaskMap, type TaskDef } from "@rex/tasks";
+import { type DelegateTask, TaskBuilder, type TaskDef, type TaskMap } from "@rex/tasks";
 
 export interface ScriptTaskDef extends TaskDef {
     /**

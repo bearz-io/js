@@ -152,6 +152,14 @@ export class Result<T, E = Error> {
         return false;
     }
 
+    ifError(fn: (error: E) => boolean): boolean {
+        if (this.#state === State.Err) {
+            return fn(this.#error!);
+        }
+
+        return false;
+    }
+
     /**
      * Returns the value of the result as an array.
      * If the result is in the Ok state, the value is wrapped in an array and returned.
@@ -367,7 +375,7 @@ export class Result<T, E = Error> {
                 return e as E;
             }
             return new Error(`${e}`) as E;
-        }
+        };
         try {
             return ok(fn(this.#value!));
         } catch (error) {

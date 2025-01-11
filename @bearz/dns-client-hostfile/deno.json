@@ -1,0 +1,9 @@
+{
+    "name": "@bearz/dns-client-hostfile",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts",
+        "./client": "./client.ts",
+        "./factory": "./factory.ts"
+    }
+}

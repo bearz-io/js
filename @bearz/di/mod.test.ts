@@ -1,5 +1,13 @@
-import { equal, ok as assert, nope,  instanceOf } from "@bearz/assert";
-import { ServicesContainer, type ServiceFactory, type ProviderFactoryConfig, createProvider, createDynamicProvider, registerProviderFactory, type ProviderFactory } from "./mod.ts";
+import { equal, instanceOf, nope, ok as assert } from "@bearz/assert";
+import {
+    createDynamicProvider,
+    createProvider,
+    type ProviderFactory,
+    type ProviderFactoryConfig,
+    registerProviderFactory,
+    type ServiceFactory,
+    ServicesContainer,
+} from "./mod.ts";
 import { NotFoundError } from "@bearz/errors/not-found";
 
 const { test } = Deno;
@@ -72,7 +80,7 @@ test("@bearz/di::ProviderFactories - create provider", () => {
     const key = "testProvider";
     const factory: ProviderFactory = {
         match: (params: ProviderFactoryConfig) => params.use === key,
-        create: (params: ProviderFactoryConfig) => ({ name: params.name })
+        create: (params: ProviderFactoryConfig) => ({ name: params.name }),
     };
 
     registerProviderFactory(key, factory);
@@ -85,7 +93,11 @@ test("@bearz/di::ProviderFactories - create provider", () => {
 });
 
 test("@bearz/di::ProviderFactories - create non-existent provider", () => {
-    const params: ProviderFactoryConfig = { name: "test", use: "nonExistentProvider", kind: "test" };
+    const params: ProviderFactoryConfig = {
+        name: "test",
+        use: "nonExistentProvider",
+        kind: "test",
+    };
     const result = createProvider(params);
 
     equal(result.isError, true);
@@ -96,7 +108,7 @@ test("@bearz/di::ProviderFactories - create dynamic provider", async () => {
     const key = "dynamicProvider";
     const factory: ProviderFactory = {
         match: (params: ProviderFactoryConfig) => params.use === key,
-        create: (params: ProviderFactoryConfig) => ({ name: params.name })
+        create: (params: ProviderFactoryConfig) => ({ name: params.name }),
     };
 
     registerProviderFactory(key, factory);
@@ -109,7 +121,11 @@ test("@bearz/di::ProviderFactories - create dynamic provider", async () => {
 });
 
 test("@bearz/di::ProviderFactories - create non-existent dynamic provider", async () => {
-    const params: ProviderFactoryConfig = { name: "test", use: "nonExistentProvider", kind: "test" };
+    const params: ProviderFactoryConfig = {
+        name: "test",
+        use: "nonExistentProvider",
+        kind: "test",
+    };
     const result = await createDynamicProvider(params);
 
     assert(result.isError);
@@ -117,7 +133,10 @@ test("@bearz/di::ProviderFactories - create non-existent dynamic provider", asyn
     const error = result.unwrapError();
     instanceOf(error, Error);
     equal(error.name, "Error");
-    equal(error.message, "Invalid import directive for test://nonExistentProvider: nonExistentProvider");
+    equal(
+        error.message,
+        "Invalid import directive for test://nonExistentProvider: nonExistentProvider",
+    );
 });
 
 test("@bearz/di::ServicesContainer - register and get multiple singleton services", () => {

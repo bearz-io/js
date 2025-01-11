@@ -1,4 +1,3 @@
-
 /**
  * Resource not found error.
  */
@@ -26,6 +25,7 @@ export class NotFoundError extends Error {
      * @returns `true` if the value is a `NotFoundError`, otherwise `false`.
      */
     static is(value: unknown): value is NotFoundError {
-        return value instanceof NotFoundError || (value instanceof Error && value.name === "NotFoundError");
+        return value instanceof NotFoundError ||
+            (value instanceof Error && value.name === "NotFoundError");
     }
 }

@@ -1,5 +1,6 @@
 // Original source: https://github.com/sindresorhus/is-network-error/blob/main/index.js
 // License: MIT https://github.com/sindresorhus/is-network-error/blob/main/license
+import { PanicError } from "./panic_error.ts";
 
 const objectToString = Object.prototype.toString;
 
@@ -67,5 +68,62 @@ export function toError(value: unknown): Error {
         return value;
     }
 
-    return new Error(String(value));
+    return new Error(`Unexpected error: ${value}`);
+}
+/**
+ * Creates a panic error and throws it.
+ * @param message The message to include in the panic error.
+ */
+export function panic(message: unknown): never {
+    if (message instanceof Error) {
+        throw new PanicError(message.message, { cause: message });
+    }
+
+    if (typeof message === "string") {
+        throw new PanicError(message);
+    }
+
+    throw new PanicError(`Unexpected panic: ${message}`);
+}
+
+/**
+ * Creates a panic error and throws it if the condition is truthy.
+ * @param condition The condition to check. If the condition is truthy, a panic error is thrown.
+ * @param message The message to include in the panic error.
+ */
+export function panicIf(condition: unknown, message?: unknown): never | undefined {
+    if (condition) {
+        panic(message);
+    }
+}
+
+/**
+ * Determines if the value is a `PanicError`.
+ * @param value The value to check.
+ * @returns `true` if the value is a `PanicError`, otherwise `false`.
+ */
+export function isPanic(value: unknown): value is PanicError {
+    return PanicError.is(value);
+}
+
+/**
+ * Creates an aggregate error from the provided errors.
+ * @param message The message to include in the aggregate error.
+ * @param errors The errors to include in the aggregate error.
+ * @returns An aggregate error containing the provided errors.
+ */
+export function join(message: string, ...errors: Error[]): AggregateError;
+/**
+ * Creates an aggregate error from the provided errors.
+ * @param errors The errors to include in the aggregate error.
+ * @returns An aggregate error containing the provided errors.
+ */
+export function join(...errors: Error[]): AggregateError;
+export function join(): AggregateError {
+    const first = arguments[0];
+    if (typeof first === "string") {
+        return new AggregateError(Array.from(arguments).slice(1), first);
+    }
+
+    return new AggregateError(Array.from(arguments));
 }

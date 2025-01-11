@@ -3,11 +3,22 @@
     "version": "0.0.1",
     "exports": {
         ".": "./mod.ts",
+        "./docker": "./docker/mod.ts",
         "./compose": "./compose/mod.ts",
         "./compose/command": "./compose/command.ts",
-        "./compose/up": "./compose/up.ts",
-        "./compose/down": "./compose/down.ts",
-        "./compose/schema": "./compose/schema.ts"
+        "./compose/schema": "./compose/schema.ts",
+        "./config": "./config/mod.ts",
+        "./container": "./container/mod.ts",
+        "./context": "./context/mod.ts",
+        "./image": "./image/mod.ts",
+        "./network": "./network/mod.ts",
+        "./node": "./node/mod.ts",
+        "./secret": "./secret/mod.ts",
+        "./service": "./service/mod.ts",
+        "./stack": "./stack/mod.ts",
+        "./swarm": "./swarm/mod.ts",
+        "./system": "./system/mod.ts",
+        "./volume": "./volume/mod.ts"
     },
 
     "publish": { "exclude": ["**/*_test.ts"] }

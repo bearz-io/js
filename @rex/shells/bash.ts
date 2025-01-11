@@ -1,4 +1,10 @@
-import { type DelegateTask,  rexTaskHandlerRegistry, type TaskContext, type TaskMap, toError, } from "@rex/tasks";
+import {
+    type DelegateTask,
+    rexTaskHandlerRegistry,
+    type TaskContext,
+    type TaskMap,
+    toError,
+} from "@rex/tasks";
 import { Outputs } from "@rex/primitives";
 import { ScriptTaskBuilder, type ScriptTaskDef } from "./core.ts";
 import { fail, ok, type Result } from "@bearz/functional";
@@ -9,10 +15,10 @@ import { bashScript } from "@spawn/bash";
  * @param id The unique identifier of the task.
  * @param script The script to run.
  * @param tasks The task collection to add the task to.
- * 
+ *
  * ```ts
  * import { bash } from "@rex/shells";
- * 
+ *
  * bash("build", "build.bash");
  * bash("hello", "echo 'Hello, World!'");
  * ```
@@ -24,23 +30,28 @@ export function bash(id: string, script: string, tasks?: TaskMap): ScriptTaskBui
  * @param script The script to run.
  * @param needs The tasks that this task depends on.
  * @param tasks The task collection to add the task to.
- * 
+ *
  * ```ts
  * import { bash } from "@rex/shells";
- * 
+ *
  * bash("build", ["hello"], "build.bash");
  * bash("hello", "echo 'Hello, World!'");
  * ```
  */
-export function bash(id: string, script: string, needs?: string[], tasks?: TaskMap): ScriptTaskBuilder;
+export function bash(
+    id: string,
+    script: string,
+    needs?: string[],
+    tasks?: TaskMap,
+): ScriptTaskBuilder;
 /**
  * Creates a new Bash script task.
  * @param def The task definition.
  * @param tasks The task collection to add the task to.
- * 
+ *
  * ```ts
  * import { bash } from "@rex/shells";
- * 
+ *
  * bash({
  *   id: "build",
  *   script: "build.bash",
@@ -53,9 +64,9 @@ export function bash(): ScriptTaskBuilder {
     const first = arguments[0];
     const second = arguments[1];
 
-    if (typeof first === 'object') {
+    if (typeof first === "object") {
         const def = first as ScriptTaskDef;
-        const task : DelegateTask = {
+        const task: DelegateTask = {
             id: def.id,
             uses,
             name: def.name ?? def.id,
@@ -72,11 +83,11 @@ export function bash(): ScriptTaskBuilder {
                     env: ctx.state.env.toObject(),
                     signal: ctx.signal,
                 }).run();
-                
+
                 if (ctx.signal.aborted) {
                     return new Outputs();
                 }
-                    
+
                 if (o.code !== 0) {
                     throw new Error(`bash script failed with exit code ${o.code}`);
                 }
@@ -85,7 +96,7 @@ export function bash(): ScriptTaskBuilder {
                     code: o.code,
                 });
             },
-        }
+        };
 
         return new ScriptTaskBuilder(task, arguments[1] as TaskMap);
     }
@@ -94,7 +105,7 @@ export function bash(): ScriptTaskBuilder {
     const script = second as string;
     const third = arguments[2];
     const needs = third && Array.isArray(third) ? third as string[] : undefined;
-    let tasks : TaskMap | undefined = undefined;
+    let tasks: TaskMap | undefined = undefined;
     if (needs) {
         tasks = arguments[3] as TaskMap | undefined;
     } else {
@@ -112,11 +123,11 @@ export function bash(): ScriptTaskBuilder {
                 env: ctx.state.env.toObject(),
                 signal: ctx.signal,
             }).run();
-            
+
             if (ctx.signal.aborted) {
                 return new Outputs();
             }
-                
+
             if (o.code !== 0) {
                 throw new Error(`bash script failed with exit code ${o.code}`);
             }
@@ -124,7 +135,6 @@ export function bash(): ScriptTaskBuilder {
             return Outputs.fromObject({
                 code: o.code,
             });
-
         },
     }, tasks);
 }
