@@ -96,6 +96,9 @@ export interface GetSecretParams extends SecretOperationParams {
     version?: string;
 }
 
+/**
+ * Features supported by the secret vault.
+ */
 export type SecretVaultFeatures =
     | "list"
     | "list:names"

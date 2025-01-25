@@ -18,7 +18,16 @@ registerProviderFactory("secret-vault://memory", f);
 registerProviderFactory("@bearz/secret-vault@latest/memory", f);
 registerProviderFactory("@bearz/secret-vault/memory", f);
 
+/**
+ * The secret vault clients collection/registry.
+ */
 export class SecretVaultClients extends Map<string, SecretVaultClient> {
+
+    /**
+     * Finds a secret vault client by its parameters.
+     * @param params The parameters to find the client.
+     * @returns The secret vault client, or undefined if not found.
+     */
     findByParams(params: ProviderFactoryConfigParams): SecretVaultClient | undefined {
         try {
             params = toProviderFactoryConfig(params);
@@ -29,6 +38,12 @@ export class SecretVaultClients extends Map<string, SecretVaultClient> {
         }
     }
 
+    /**
+     * Defines a secret vault client by its parameters.
+     * @param params The parameters to define the client.
+     * @param overwrite Recreate the client if it already exists.
+     * @returns The secret vault client, or an error if not found.
+     */
     define(params: ProviderFactoryConfigParams, overwrite = false): Result<SecretVaultClient> {
         try {
             params = toProviderFactoryConfig(params);
@@ -49,6 +64,14 @@ export class SecretVaultClients extends Map<string, SecretVaultClient> {
         }
     }
 
+    /**
+     * Defines a secret vault client by its parameters. If the client is
+     * not loaded, this method will attempt to load the client implementation
+     * from a module dynamically and then create the vault.
+     * @param params The parameters to define the client.
+     * @param overwrite Overwrite the client if it already exists.
+     * @returns The secret vault client, or an error if not found.
+     */
     async dynamicDefine(
         params: ProviderFactoryConfigParams,
         overwrite = false,
@@ -69,6 +92,10 @@ export class SecretVaultClients extends Map<string, SecretVaultClient> {
     }
 }
 
+/**
+ * Gets the global secret vault clients collection/registry.
+ * @returns The secret vault clients collection/registry.
+ */
 export function secretVaultClients(): SecretVaultClients {
     const key = "SECRET_VAULT_CLIENTS";
     let clients = services.get<SecretVaultClients>(key)!;

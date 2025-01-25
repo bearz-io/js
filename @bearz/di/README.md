@@ -14,7 +14,7 @@ key based approach.
 ## Notes
 
 This module was created primarily to handle global singletons, factories, and providers/drivers
-where there are different implementations for an interface/abstract class.  It does support creating
+where there are different implementations for an interface/abstract class.  It supports creating
 scoped instances.  The use case was enable a tool called rex to have multiple providers for different
 things like secret vaults and managing dns records.  
 

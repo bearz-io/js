@@ -14,26 +14,15 @@ import {
 } from "@bearz/di";
 import { abort, fail, ok, type Result, voided } from "@bearz/functional";
 import { NotFoundError } from "@bearz/errors/not-found";
+import { secretVaultClients } from "./registries.ts"
 
 /**
  * The memory secret vault.
  */
-export class MemorySecretVault implements SecretVaultClient {
+export class MemorySecretVaultClient implements SecretVaultClient {
     #data = new Map<string, SecretRecord>();
     #history = new Map<string, Map<string, SecretRecord>>();
 
-    /**
-     * Creates a new memory secret vault.
-     * @param name The name of the vault.
-     */
-    constructor(public readonly name: string) {
-        this.driver = "memory";
-    }
-
-    /**
-     * The name of the driver.
-     */
-    readonly driver: string;
 
     /**
      * Determines if the vault supports a feature.
@@ -211,6 +200,25 @@ export class MemorySecretVault implements SecretVaultClient {
     }
 }
 
+export class MemoryVaultClient extends MemorySecretVaultClient {
+    constructor(name: string) {
+        super();
+        this.name = name;
+    }
+}
+
+/**
+ * Creates a new memory secret vault client.
+ * @param name The name of the vault.
+ * @returns The memory secret vault client.
+ */
+export function createMemoryClient(name: string): MemorySecretVaultClient {
+    return new MemorySecretVaultClient(name);
+}
+
+/**
+ * The configuration for the memory secret vault factory.
+ */
 export interface MemorySecretVaultFactoryConfig extends ProviderFactoryConfig {
     kind: "secret-vault";
     use: "memory" | "@bearz/vaults/memory" | "@bearz/vaults@latest/memory";
@@ -223,6 +231,11 @@ export interface MemorySecretVaultFactoryConfig extends ProviderFactoryConfig {
  * The factory for the memory secret vault.
  */
 export class MemorySecretVaultFactory implements ProviderFactory {
+    /**
+     * Determines if the factory can create a client.
+     * @param params The parameters for the factory.
+     * @returns True if the factory can create a client, otherwise false. 
+     */
     match(params: ProviderFactoryConfig): boolean {
         if (params.kind !== "secret-vault") {
             return false;
@@ -234,10 +247,15 @@ export class MemorySecretVaultFactory implements ProviderFactory {
             (params.import !== undefined && imports.includes(params.import)));
     }
 
-    create(params: ProviderFactoryConfig): unknown {
+    /**
+     * The factory creates a client.
+     * @param params The parameters for the factory.
+     * @returns The created client.
+     */
+    create(params: ProviderFactoryConfig): SecretVaultClient {
         const config = toProviderFactoryConfig(params) as MemorySecretVaultFactoryConfig;
 
-        return new MemorySecretVault(config.name);
+        return new MemorySecretVaultClient(config.name);
     }
 }
 
@@ -245,3 +263,23 @@ export class MemorySecretVaultFactory implements ProviderFactory {
  * The factory for the memory secret vault.
  */
 export const factory = new MemorySecretVaultFactory();
+
+export interface DefineMemorySecretVault extends Record<string, unknown> {
+    name: string;
+    with?: {
+        "factory-path": string | undefined;
+    } | Record<string, unknown>;
+}
+
+export function defineMemorySecretVault(config: DefineMemorySecretVault): Result<MemorySecretVaultClient> {
+    const f = { ...config, kind: "secret-vault", use: "memory" } as MemorySecretVaultFactoryConfig;
+    const vault = secretVaultClients().define(f, false);
+    return vault as Result<MemorySecretVaultClient>;
+}
+
+defineMemorySecretVault({
+    name: "memory",
+    with: {
+        'factory-path': undefined,
+    }
+})

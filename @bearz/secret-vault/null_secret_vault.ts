@@ -104,3 +104,8 @@ export class NullSecretVault implements SecretVaultClient {
         return Promise.resolve(voided());
     }
 }
+
+/**
+ * Creates a new null secret vault.
+ */
+export const nullSecretVault : NullSecretVault = new NullSecretVault("null");

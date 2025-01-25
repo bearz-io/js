@@ -15,6 +15,9 @@ export type DnsRecordType =
     | "TXT"
     | string;
 
+/**
+ * A dns record.
+ */
 export interface DnsRecord extends Record<string | symbol, unknown> {
     /**
      * The name of the dns record.
@@ -59,16 +62,7 @@ export interface DnsOperationParams {
  * A dns client that that manages dns records for a zone.
  */
 export interface DnsRecordsClient extends Record<string | symbol, unknown> {
-    /**
-     * The name of the dns client.
-     */
-    readonly name: string;
-
-    /**
-     * The driver name of the dns client.
-     */
-    readonly driver: string;
-
+  
     /**
      * Lists the dns records for a zone.
      * @param zone The zone name or id to list the records for.
@@ -116,7 +110,31 @@ export interface DnsRecordsClient extends Record<string | symbol, unknown> {
     deleteRecord(zone: string, name: string, params?: DnsOperationParams): Promise<VoidResult>;
 }
 
-export interface DnsRecordsClientFactoryParams {
+/**
+ * A dns client that manages dns records for a zone.
+ */
+export interface DnsClient extends Record<string | symbol, unknown> {
+
+    /**
+     * The name of the dns client.
+     */
+    readonly name: string;
+
+    /**
+     * The driver name of the dns client.
+     */
+    readonly driver: string;
+
+    /**
+     * Gets the dns records client for the client.
+     */
+    readonly records: DnsRecordsClient;
+}
+
+/**
+ * The parameters for the dns client factory.
+ */
+export interface DnsClientFactoryParams {
     /**
      * The name of the zone.
      */
@@ -138,8 +156,21 @@ export interface DnsRecordsClientFactoryParams {
     with?: Record<string, unknown>;
 }
 
-export interface DnsRecordsClientFactory {
-    match(params: DnsRecordsClientFactoryParams): boolean;
+/**
+ * Dns client factory.
+ */
+export interface DnsClientFactory {
+    /**
+     * Determines if the factory can create a client.
+     * @param params The parameters for the factory.
+     * @returns True if the factory can create a client, otherwise false. 
+     */
+    match(params: DnsClientFactoryParams): boolean;
 
-    create(params: DnsRecordsClientFactoryParams): DnsRecordsClient;
+    /**
+     * The factory creates a client.
+     * @param params The parameters for the factory.
+     * @returns The created client.
+     */
+    create(params: DnsClientFactoryParams): DnsClient;
 }

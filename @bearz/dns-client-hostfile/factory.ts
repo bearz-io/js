@@ -13,7 +13,7 @@ export class HostfileDnsRecordsClientFactory implements DnsRecordsClientFactory 
             (params.import !== undefined && imports.includes(params.import)));
     }
 
-    create(params: ProviderFactoryConfig): DnsRecordsClient {
+    create(params: HostfileDnsRecordsClientFactoryConfig): DnsRecordsClient {
         const config = params as HostfileDnsRecordsClientFactoryConfig;
 
         const o: HostfileDnsRecordsClientParams = {
@@ -53,3 +53,8 @@ registerProviderFactory("@bearz/dns-client-hostfile", factory);
 registerProviderFactory("@bearz/dns-client-hostfile@latest", factory);
 registerProviderFactory("dns-client://hostfile", factory);
 registerProviderFactory("dns-client://bearz-hostfile", factory);
+
+export function createHostfileClient(config: HostfileDnsRecordsClientParams) : HostfileDnsRecordsClient {
+    return new HostfileDnsRecordsClient(config);
+}
+
