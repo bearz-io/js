@@ -1,0 +1,8 @@
+{
+    "name": "@bearz/di",
+    "description": "@bearz/di module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts"
+    }
+}

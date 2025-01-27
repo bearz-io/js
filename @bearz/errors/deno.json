@@ -1,0 +1,20 @@
+{
+    "name": "@bearz/errors",
+    "description": "@bearz/errors module",
+    "version": "0.0.0",
+    "exports": {
+        ".": "./mod.ts",
+        "./abort": "./abort_error.ts",
+        "./access": "./access_error.ts",
+        "./argument": "./argument_error.ts",
+        "./disposed": "./disposed_error.ts",
+        "./not-found": "./not_found_error.ts",
+        "./not-implemented": "./not_implemented_error.ts",
+        "./not-supported": "./not_supported_error.ts",
+        "./panic": "./panic_error.ts",
+        "./stacktrace": "./stacktrace.ts",
+        "./timeout": "./timeout_error.ts",
+        "./validation": "./validation_error.ts",
+        "./utils": "./utils.ts"
+    }
+}

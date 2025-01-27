@@ -1,43 +1,52 @@
 import { from, none, OptionError, some } from "./option.ts";
 import { equal, ok, throws } from "@bearz/assert";
 
-Deno.test("Option: some", () => {
+const { test } = Deno;
+
+test("functional::some", () => {
     const option = some(42);
     ok(option.isSome);
     ok(option.unwrap() === 42);
 });
 
-Deno.test("Option: none", () => {
+test("functional::none", () => {
     const option = none();
     ok(option.isNone);
     ok(() => option.unwrap(), "Option is None");
 });
 
-Deno.test("Option: and", () => {
+test("functional::from", () => {
+    const option = from(42);
+    const other = from<number>(null);
+    equal(option.unwrap(), 42);
+    throws(() => other.unwrap(), OptionError, "Option is None");
+});
+
+test("functional::Option.and", () => {
     const option = some(42);
     const other = some(43);
     ok(option.and(other).unwrap() === 43);
 });
 
-Deno.test("Option: andThen", () => {
+test("functional::Option.andThen", () => {
     const option = some(42);
     const other = some(43);
     ok(option.andThen(() => other).unwrap() === 43);
 });
 
-Deno.test("Option: or", () => {
+test("functional::Option.or", () => {
     const option = some(42);
     const other = some(43);
     ok(option.or(other).unwrap() === 42);
 });
 
-Deno.test("Option: orElse", () => {
+test("functional::Option.orElse", () => {
     const option = some(42);
     const other = some(43);
     ok(option.orElse(() => other).unwrap() === 42);
 });
 
-Deno.test("Option: expect", () => {
+test("functional::Option.expect", () => {
     const option = some(42);
     equal(option.expect("Option is None"), 42);
 
@@ -45,13 +54,13 @@ Deno.test("Option: expect", () => {
     throws(() => other.expect("Option is None"), OptionError, "Option is None");
 });
 
-Deno.test("Option: map", () => {
+test("functional::Option.map", () => {
     const option = some(42);
     const other = option.map((value) => value + 1);
     ok(other.unwrap() === 43);
 });
 
-Deno.test("Option: inspect", () => {
+test("functional::Option.inspect", () => {
     let value = 0;
     const option = some(42);
     option.inspect((v) => value = v);
@@ -63,7 +72,7 @@ Deno.test("Option: inspect", () => {
     ok(value === 0);
 });
 
-Deno.test("Option: unwrap", () => {
+test("functional::Option.unwrap", () => {
     const option = some(42);
     equal(option.unwrap(), 42);
 
@@ -71,7 +80,7 @@ Deno.test("Option: unwrap", () => {
     throws(() => other.unwrap(), OptionError, "Option is None");
 });
 
-Deno.test("Option: unwrapOr", () => {
+test("functional::Option.unwrapOr", () => {
     const option = some(42);
     equal(option.unwrapOr(0), 42);
 
@@ -79,7 +88,7 @@ Deno.test("Option: unwrapOr", () => {
     equal(other.unwrapOr(0), 0);
 });
 
-Deno.test("Option: unwrapOrElse", () => {
+test("functional::Option.unwrapOrElse", () => {
     const option = some(42);
     equal(option.unwrapOrElse(() => 0), 42);
 
@@ -87,7 +96,7 @@ Deno.test("Option: unwrapOrElse", () => {
     equal(other.unwrapOrElse(() => 0), 0);
 });
 
-Deno.test("Option: zip", () => {
+test("functional::Option.zip", () => {
     const option = some(42);
     const other = some(43);
     const zipped = option.zip(other);
@@ -98,11 +107,4 @@ Deno.test("Option: zip", () => {
     const noneOther = some(43);
     const noneZipped = noneOption.zip(noneOther);
     ok(noneZipped.isNone);
-});
-
-Deno.test("Option: from", () => {
-    const option = from(42);
-    const other = from<number>(null);
-    equal(option.unwrap(), 42);
-    throws(() => other.unwrap(), OptionError, "Option is None");
 });

@@ -25,9 +25,9 @@ export {
 } from "@rex/primitives";
 
 export {
-    output,
     getGlobalTasks,
     getTaskHandlerRegistry,
+    output,
     type RunDelegate,
     type Task,
     task,

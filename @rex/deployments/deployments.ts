@@ -2,8 +2,8 @@ import { Inputs, Outputs, StringMap } from "@rex/primitives/collections";
 import { REX_DEPLOYMENT_REGISTRY, REX_DEPLOYMENTS } from "./globals.ts";
 import {
     type AddTaskDelegate,
-    output,
     getGlobalTasks,
+    output,
     type RunDelegate,
     task as defineTask,
     type TaskBuilder,

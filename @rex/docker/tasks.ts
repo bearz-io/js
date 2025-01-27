@@ -353,7 +353,6 @@ const downInputs: InputDescriptor[] = [
     },
 ];
 
-
 taskHandlerRegistery.set("@rex/compose-down", {
     id: "@rex/compose-down",
     outputs: [],

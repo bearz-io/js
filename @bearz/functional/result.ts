@@ -153,6 +153,19 @@ export class Result<T, E = Error> {
     }
 
     /**
+     * Tests the error with the provided function.
+     * @param fn The function to call with the error.
+     * @returns `true` if the condition is true, `false` otherwise.
+     */
+    testError(fn: (error: E) => boolean): boolean {
+        if (this.#state === State.Err) {
+            return fn(this.#error!);
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the value of the result as an array.
      * If the result is in the Ok state, the value is wrapped in an array and returned.
      * If the result is in any other state, an empty array is returned.

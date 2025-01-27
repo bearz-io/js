@@ -1,19 +1,21 @@
-import { fail, ok } from "./result.ts";
+import { fail, ok, type Result } from "./result.ts";
 import { equal, ok as yes, throws } from "@bearz/assert";
 
-Deno.test("Result: ok", () => {
+const { test } = Deno;
+
+test("functional::ok", () => {
     const result = ok(42);
     yes(result.isOk);
     yes(result.unwrap() === 42);
 });
 
-Deno.test("Result: err", () => {
+test("functional::fail", () => {
     const result = fail("Error");
     yes(result.isError);
     yes(() => result.unwrap(), "Error");
 });
 
-Deno.test("Result: ok property", () => {
+test("functional::Result.ok - ensure ok returns option", () => {
     const result = ok(42);
     yes(result.isOk);
     yes(result.ok().isSome);
@@ -27,31 +29,34 @@ Deno.test("Result: ok property", () => {
     yes(other.error().isSome);
 });
 
-Deno.test("Result: and", () => {
+test("functional::Result.and - 'and' should return other value or error", () => {
     const result = ok(42);
     const other = ok(43);
     yes(result.and(other).unwrap() === 43);
 });
 
-Deno.test("Result: andThen", () => {
+test("functional::Result.andThen - 'andThen' should return value from factory or error.", () => {
     const result = ok(42);
     const other = ok(43);
     yes(result.andThen(() => other).unwrap() === 43);
 });
 
-Deno.test("Result: or", () => {
+test("functional::Result.or - 'or' should return the first value that isn't an error.", () => {
     const result = ok(42);
-    const other = ok(43);
+    const other = ok<number, Error>(43);
     yes(result.or(other).unwrap() === 42);
+
+    const otherResult = fail("Error") as unknown as Result<number>;
+    yes(otherResult.or(other).unwrap() === 43);
 });
 
-Deno.test("Result: orElse", () => {
+test("functional::Result.orElse", () => {
     const result = ok(42);
     const other = ok(43);
     yes(result.orElse(() => other).unwrap() === 42);
 });
 
-Deno.test("Result: expect", () => {
+test("functionnal::Result.expect", () => {
     const result = ok(42);
     equal(result.expect("Result is Error"), 42);
 
@@ -60,13 +65,13 @@ Deno.test("Result: expect", () => {
     throws(() => other.expect("Result is Error"), Error, "Result is Error");
 });
 
-Deno.test("Result: map", () => {
+test("functional::Result.map", () => {
     const result = ok(42);
     const other = result.map((value) => value + 1);
     yes(other.unwrap() === 43);
 });
 
-Deno.test("Result: mapOr", () => {
+test("functional::Result.mapOr", () => {
     const result = ok(42);
     const other = result.mapOr(0, (value) => value + 1);
     yes(other === 43);
@@ -76,7 +81,7 @@ Deno.test("Result: mapOr", () => {
     yes(otherOther === 0);
 });
 
-Deno.test("Result: mapOrElse", () => {
+test("functional::Result.mapOrElse", () => {
     const result = ok(42);
     const other = result.mapOrElse(() => 0, (value) => value + 1);
     yes(other === 43);
@@ -86,13 +91,13 @@ Deno.test("Result: mapOrElse", () => {
     yes(otherOther === 0);
 });
 
-Deno.test("Result: mapError", () => {
+test("functional::Result.mapError", () => {
     const result = fail("Error");
     const other = result.mapError((error) => error + "!");
     yes(other.unwrapError() === "Error!");
 });
 
-Deno.test("Result: mapErrorOr", () => {
+test("functional::Result.mapErrorOr", () => {
     const result = fail("Error");
     const other = result.mapErrorOr("Default", (error) => error + "!");
     yes(other === "Error!");
@@ -102,7 +107,7 @@ Deno.test("Result: mapErrorOr", () => {
     yes(otherOther === "Default");
 });
 
-Deno.test("Result: mapErrorOrElse", () => {
+test("functional::Result.mapErrorOrElse", () => {
     const result = fail("Error");
     const other = result.mapErrorOrElse(() => "Default", (error) => error + "!");
     yes(other === "Error!");
@@ -112,7 +117,7 @@ Deno.test("Result: mapErrorOrElse", () => {
     yes(otherOther === "Default");
 });
 
-Deno.test("Result: inspect", () => {
+test("functional::Result.inspect", () => {
     let value = 0;
     const result = ok(42);
     result.inspect((v) => value = v);
@@ -124,7 +129,7 @@ Deno.test("Result: inspect", () => {
     yes(value === 0);
 });
 
-Deno.test("Result: unwrap", () => {
+test("functional::Result.unwrap", () => {
     const result = ok(42);
     equal(result.unwrap(), 42);
 
@@ -132,7 +137,7 @@ Deno.test("Result: unwrap", () => {
     throws(() => other.unwrap(), Error, "Error");
 });
 
-Deno.test("Result: unwrapOr", () => {
+test("functional::Result.unwrapOr", () => {
     const result = ok(42);
     equal(result.unwrapOr(0), 42);
 
@@ -140,7 +145,7 @@ Deno.test("Result: unwrapOr", () => {
     equal(other.unwrapOr(0), 0);
 });
 
-Deno.test("Result: unwrapOrElse", () => {
+test("functional::Result.unwrapOrElse", () => {
     const result = ok(42);
     equal(result.unwrapOrElse(() => 0), 42);
 
@@ -148,7 +153,7 @@ Deno.test("Result: unwrapOrElse", () => {
     equal(other.unwrapOrElse(() => 0), 0);
 });
 
-Deno.test("Result: unwrapError", () => {
+test("functional::Result.unwrapError", () => {
     const result = fail("Error");
     equal(result.unwrapError(), "Error");
 
@@ -156,7 +161,7 @@ Deno.test("Result: unwrapError", () => {
     throws(() => other.unwrapError(), Error, "Result is Ok");
 });
 
-Deno.test("Result: expectError", () => {
+test("functional::Result.expectError", () => {
     const result = fail("Error");
     equal(result.expectError("Result is Ok"), "Error");
 

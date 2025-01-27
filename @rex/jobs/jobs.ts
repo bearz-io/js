@@ -3,12 +3,12 @@ import { REX_JOBS } from "./globals.ts";
 import type { Job, JobContext, JobMap } from "./primitives.ts";
 import {
     type AddTaskDelegate,
+    getGlobalTasks,
     type RunDelegate,
     type Task,
     task as defineTask,
     type TaskBuilder,
     TaskMap,
-    getGlobalTasks,
 } from "@rex/tasks";
 
 export class JobBuilder {

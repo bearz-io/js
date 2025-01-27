@@ -1,8 +1,12 @@
 {
     "name": "@bearz/functional",
     "description": "functional module",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "exports": {
-        ".": "./src/mod.ts"
+        ".": "./mod.ts",
+        "./result": "./result.ts",
+        "./option": "./option.ts",
+        "./lazy": "./lazy.ts",
+        "./errors": "./errors.ts"
     }
 }

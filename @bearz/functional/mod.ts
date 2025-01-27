@@ -53,3 +53,4 @@
 export * from "./option.ts";
 export * from "./result.ts";
 export * from "./lazy.ts";
+export * from "./errors.ts";
