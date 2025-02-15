@@ -1,6 +1,7 @@
 import { Registry } from "./mod.ts";
 import { equal, exists, ok, throws } from "@bearz/assert";
 import { skip } from "@bearz/assert/skip";
+import { isDebug } from "@bearz/testing";
 import { WINDOWS } from "@bearz/runtime-info/os";
 
 const test = Deno.test;
@@ -16,7 +17,9 @@ test("win32-registry::Key.getSubKeyNames", skip(!WINDOWS), () => {
     const names = key.getSubKeyNames();
     exists(names);
     ok(names.length > 0);
-    console.log(names);
+    if (isDebug()) {
+        console.log(names);
+    }
 });
 
 test("win32-registry::Key.getString", skip(!WINDOWS), () => {
@@ -24,7 +27,9 @@ test("win32-registry::Key.getString", skip(!WINDOWS), () => {
     exists(key);
     const theme = key.getString("CurrentTheme");
     ok(theme.length > 0);
-    console.log(theme);
+    if (isDebug()) {
+        console.log(theme);
+    }
 });
 
 test("win32-registry::Key.getInt32", skip(!WINDOWS), () => {
@@ -32,7 +37,8 @@ test("win32-registry::Key.getInt32", skip(!WINDOWS), () => {
     exists(key);
     const value = key.getInt32("ThemeChangesDesktopIcons");
     exists(value);
-    console.log(value);
+    if (isDebug())
+        console.log(value);
 });
 
 test("win32-registry::Key.getValueNames", skip(!WINDOWS), () => {
@@ -42,7 +48,9 @@ test("win32-registry::Key.getValueNames", skip(!WINDOWS), () => {
     exists(names);
     ok(names.length > 0);
     ok(names.includes("CurrentTheme"));
-    console.log(names);
+    
+    if (isDebug())
+        console.log(names);
 });
 
 test("win32-registry::Key.createKey", skip(!WINDOWS), () => {
@@ -50,7 +58,9 @@ test("win32-registry::Key.createKey", skip(!WINDOWS), () => {
     exists(key);
     equal(key.created, true);
     equal("HKCU\\BEARZ_TEST_KEY", key.path);
-    console.log(key);
+
+    if (isDebug())
+        console.log(key);
     const res = Registry.HKCU.deleteKey("BEARZ_TEST_KEY");
     ok(res);
 });

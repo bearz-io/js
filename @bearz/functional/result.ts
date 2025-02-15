@@ -426,6 +426,15 @@ export function fail<T = never, E = Error>(error: E): Result<T, E> {
 }
 
 /**
+ * Creates a `Result<void>` a new Ok result with a value of `void`.
+ * @returns A new Ok result with a value of `void`.
+ */
+export function voided(): Result<void> {
+    return new Ok(void 0);
+}
+
+
+/**
  * Syncronously try to execute the provided function and return a result.
  * @param fn The function to execute
  * @returns The result of the function.

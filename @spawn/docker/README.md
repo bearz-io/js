@@ -20,6 +20,15 @@ console.log(result.code);
 console.log(result.text());
 ```
 
+Import all available commands
+
+```typescript
+import * as docker from "@spawn/docker/commands";
+
+await docker.inspect({ nameOrId: ["test"]});
+
+```
+
 [MIT License](./LICENSE.md)
 
 [exec]: https://jsr.io/@bearz/exec/doc

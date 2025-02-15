@@ -137,6 +137,34 @@ export function bash(args?: CommandArgs, options?: CommandOptions): BashCommand 
  * ```
  * @example
  * ```ts
+ * import { bash } from "@spawn/bash";
+ *
+ * const result = await bash.script("test.sh");
+ * console.log(result.code);
+ * console.log(result.text());
+ * ```
+ */
+bash.script = function(script: string, options?: ShellCommandOptions): BashScriptCommand {
+    return new BashScriptCommand(script, options);
+}
+
+/**
+ * Executes a bash script using the bash cli.
+ *
+ * @param script - The bash script to execute.
+ * @param options - Optional options for the bash command.
+ * @returns A new instance of the BashCommand class.
+ * @see {BashScriptCommand}
+ * @example
+ * ```ts
+ * import { bashScript } from "@spawn/bash";
+ *
+ * const result = bashScript("echo 'Hello, World!'");
+ * console.log(result.code);
+ * console.log(result.text());
+ * ```
+ * @example
+ * ```ts
  * import { bashScript } from "@spawn/bash";
  *
  * const result = await bashScript("test.sh");

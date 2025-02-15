@@ -142,6 +142,32 @@ export function deno(args?: CommandArgs, options?: CommandOptions): DenoCommand 
  * @returns A new instance of the DenoShellCommand class.
  * @example
  * ```ts
+ * import { deno } from "@spawn/deno";
+ *
+ * const result = await deno.script("console.log('Hello, World!');");
+ * console.log(result.code);
+ * console.log(result.text());
+ * ```
+ * @example
+ * ```ts
+ * import { deno } from "@spawn/deno";
+ *
+ * const result = await deno.script("test.ts");
+ * console.log(result.code);
+ * console.log(result.text());
+ */
+deno.script = function(script: string, options?: ShellCommandOptions): DenoShellCommand {
+    return new DenoShellCommand(script, options);
+}
+
+/**
+ * Executes a Deno inline script or script file using the DenoShellCommand class.
+ *
+ * @param script - The Deno script to execute.
+ * @param options - Optional options for the Deno shell command.
+ * @returns A new instance of the DenoShellCommand class.
+ * @example
+ * ```ts
  * import { denoScript } from "@spawn/deno";
  *
  * const result = await denoScript("console.log('Hello, World!');");

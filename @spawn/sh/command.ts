@@ -111,6 +111,35 @@ export function sh(args?: CommandArgs, options?: CommandOptions): ShCommand {
  * @see {ShScriptCommand}
  * @example
  * ```ts
+ * import { sh } from "@spawn/sh";
+ *
+ * const r = await sh.script("echo 'Hello, World!';");
+ * console.log(r.code);
+ * console.log(r.text());
+ * ```
+ *
+ * @example
+ * ```ts
+ * import { sh} from "@spawn/sh";
+ *
+ * const r = await sh.script("test.sh");
+ * console.log(r.code);
+ * console.log(r.text());
+ * ```
+ */
+sh.script = function (script: string, options?: ShellCommandOptions): ShScriptCommand {
+    return new ShScriptCommand(script, options);
+}
+
+/**
+ * Executes a sh script using the ShCommand class.
+ *
+ * @param script - The sh script to execute.
+ * @param options - Optional options for the shell command.
+ * @returns A new instance of the ShCommand class.
+ * @see {ShScriptCommand}
+ * @example
+ * ```ts
  * import { shScript } from "@spawn/sh";
  *
  * const r = await shScript("echo 'Hello, World!';");

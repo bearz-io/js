@@ -87,7 +87,9 @@
         "@spawn/aws",
         "@spawn/ubi",
         "@spawn/terraform",
-        "stacks"
+        "stacks",
+        "@spawn/winget",
+        "@spawn/coreutils"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",

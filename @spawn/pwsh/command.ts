@@ -98,6 +98,34 @@ export function pwsh(args?: CommandArgs, options?: CommandOptions): PwshCommand 
     return new PwshCommand(args, options);
 }
 
+ /**
+* Executes a PowerShell script using the pwsh cli.
+*
+* @param script - The PowerShell script to execute.
+* @param options - Optional options for the shell command.
+* @returns A new instance of the PwshScriptCommand class.
+* @see {PwshScriptCommand}
+* @example
+* ```ts
+* import { pwsh } from "@spawn/pwsh";
+*
+* const result = await pwsh.script("Write-Host 'Hello, World!'");
+* console.log(result.code);
+* console.log(result.text());
+* ```
+* @example
+* ```ts
+* import { pwsh } from "@spawn/pwsh";
+*
+* const result = await pwsh.script("test.ps1");
+* console.log(result.code);
+* console.log(result.text());
+* ```
+*/
+pwsh.script = function(script: string, options?: ShellCommandOptions): PwshScriptCommand {
+   return new PwshScriptCommand(script, options);
+}
+
 /**
  * Executes a PowerShell script using the pwsh cli.
  *

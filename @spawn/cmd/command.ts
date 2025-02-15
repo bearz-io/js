@@ -124,6 +124,33 @@ export function cmd(args?: CommandArgs, options?: CommandOptions): CmdCommand {
  * @returns A new instance of the CmdCliCommand class.
  * @example
  * ```ts
+ * import { cmd } from "@spawn/cmd";
+ *
+ * const result = await cmd.script("echo Hello, World!");
+ * console.log(result.code);
+ * console.log(result.text());
+ * ```
+ * @example
+ * ```ts
+ * import { cmd } from "@spawn/cmd";
+ *
+ * const result = await cmd.script("test.cmd");
+ * console.log(result.code);
+ * console.log(result.text());
+ * ```
+ */
+cmd.script = function (script: string, options?: ShellCommandOptions): CmdScriptCommand {
+    return new CmdScriptCommand(script, options);
+}
+
+/**
+ * Executes a windows command line (.cmd, .bat) script using the `CmdScriptCommand` class.
+ *
+ * @param script - The cmd script to execute.
+ * @param options - Optional options for the cmd command.
+ * @returns A new instance of the CmdCliCommand class.
+ * @example
+ * ```ts
  * import { cmdScript } from "@spawn/cmd";
  *
  * const result = await cmdScript("echo Hello, World!");

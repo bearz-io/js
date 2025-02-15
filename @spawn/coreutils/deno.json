@@ -1,0 +1,8 @@
+{
+    "name": "@spawn/coreutils",
+    "description": "@spawn/coreutils module",
+    "version": "0.0.0-alpha.0",
+    "exports": {
+        ".": "./mod.ts"
+    }
+}

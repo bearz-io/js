@@ -115,6 +115,36 @@ export function powershell(args?: CommandArgs, options?: CommandOptions): PowerS
  * console.log(await result.text());
  * ```
  */
+powershell.script = function(
+    script: string,
+    options?: ShellCommandOptions,
+): PowerShellScriptCommand {
+    return new PowerShellScriptCommand(script, options);
+}
+
+/**
+ * Executes a PowerShell script using the PowerShellCommand class.
+ *
+ * @param script - The PowerShell script to execute.
+ * @param options - Optional options for the shell command.
+ * @returns A new instance of the PwshCommand class.
+ * @example
+ * ```ts
+ * import { powershellScript } from "@spawn/powershell";
+ *
+ * const result = await powershellScript("Write-Host 'Hello, World!'");
+ * console.log(result.code);
+ * console.log(await result.text());
+ * ```
+ * @example
+ * ```ts
+ * import { powershellScript } from "@spawn/powershell";
+ *
+ * const result = await powershellScript("test.ps1");
+ * console.log(result.code);
+ * console.log(await result.text());
+ * ```
+ */
 export function powershellScript(
     script: string,
     options?: ShellCommandOptions,
