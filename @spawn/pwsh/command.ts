@@ -98,7 +98,7 @@ export function pwsh(args?: CommandArgs, options?: CommandOptions): PwshCommand 
     return new PwshCommand(args, options);
 }
 
- /**
+/**
 * Executes a PowerShell script using the pwsh cli.
 *
 * @param script - The PowerShell script to execute.

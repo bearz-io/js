@@ -427,7 +427,9 @@ export function exec(command: string, options?: CommandOptions): Command {
         throw new Error("Invalid command");
     }
 
-    return cmd(args[0], args.slice(1), options);
+    const exe = args.shift() as string;
+
+    return cmd(exe, args, options);
 }
 
 /**

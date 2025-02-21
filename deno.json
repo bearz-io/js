@@ -89,7 +89,10 @@
         "@spawn/terraform",
         "stacks",
         "@spawn/winget",
-        "@spawn/coreutils"
+        "@spawn/coreutils",
+        "@spawn/apt",
+        "@spawn/brew",
+        "@spawn/utils"
     ],
     "imports": {
         "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.7",

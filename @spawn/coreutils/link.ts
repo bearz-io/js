@@ -3,9 +3,6 @@ import {
     type CommandArgs,
     type CommandOptions,
     pathFinder,
-    splat,
-    splitArguments,
-    type SplatObject,
 } from "@bearz/exec";
 
 if (!pathFinder.has("link")) {
